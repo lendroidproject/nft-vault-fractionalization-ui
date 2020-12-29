@@ -1,8 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
-import { txLink } from 'utils/etherscan'
-import { connect } from 'react-redux'
+import Button from 'components/common/Button'
 
 const Wrapper = styled.div`
   position: fixed;
@@ -26,7 +25,8 @@ const Content = styled.div`
   max-width: 608px;
   background-color: var(--color-white);
   box-shadow: inset 0 1px 3px 0 rgba(0, 0, 0, 0.5), 6px 2px 4px 0 rgba(0, 0, 0, 0.5);
-  padding: 30px 80px;
+  padding: 35px 80px 30px;
+  position: relative;
 
   h1 {
     margin-top: 24px;
@@ -43,6 +43,27 @@ const Content = styled.div`
 
   h4 {
     font-size: 12px;
+  }
+
+  .btn-close {
+    position: absolute;
+    top: 7px;
+    right: 13px;
+    border-radius: 50%;
+    background-color: #fff;
+  }
+
+  .category {
+    border: 1px solid #FFFFFF;
+    border-radius: 9px;
+    background-color: #0D35FA;
+    font-size: 20px;
+    line-height: 24px;
+    color: var(--color-white);
+    padding: 4px 50px;
+    top: 0;
+    position: absolute;
+    transform: translateY(-50%);
   }
 
   .pagination {
@@ -62,7 +83,11 @@ const DEFAULT_IMAGE_URL = '/assets/default-asset-img.jpg';
 function AssetModal({ category, asset, show, onHide }) {
   return ReactDOM.createPortal(
     (<Wrapper className={`flex-all ${show ? 'show' : 'hide'}`} onMouseDown={() => onHide && onHide()}>
-      <Content className="center flex-center flex-column justify-center">
+      <Content className="center flex-center flex-column justify-center" onMouseDown={e => e.stopPropagation()}>
+        <button className="btn-close" onClick={() => onHide && onHide()}>
+          <img src="/assets/close-btn.svg" alt="Close" />
+        </button>
+        <div className="category">{category}</div>
         <img src={asset.image_url || DEFAULT_IMAGE_URL} />
         <div>
           <h3 className="light">{asset.name}</h3>
