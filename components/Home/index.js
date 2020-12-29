@@ -212,6 +212,25 @@ export default connect((state) => state)(function Home({ metamask, library }) {
         .catch(console.log)
     }
   }, [library, loading])
+
+  const [purchaseTx, setPurchseTx] = useState('')
+  const handlePurchase = () => {
+    const { contributeWei } = library.methods.ShardGenerationEvent
+    contributeWei({ from: metamask.address, gas: 3000000, value: library.web3.utils.toWei(Math.random().toString()) })
+      .send()
+      .on('transactionHash', function (hash) {
+        setPurchseTx(hash)
+      })
+      .on('receipt', function (receipt) {
+        console.log(receipt)
+        setPurchseTx('')
+      })
+      .on('error', (err) => {
+        console.log(err)
+        setPurchseTx('')
+      })
+  }
+
   console.log(data)
 
   if (loading) return <Spinner />
@@ -308,7 +327,9 @@ export default connect((state) => state)(function Home({ metamask, library }) {
                 </a>
               </div>
               <div className="purcahse">
-                <Button className="full-width">Purchase</Button>
+                <Button className="full-width" onClick={handlePurchase} disabled={purchaseTx}>
+                  Purchase
+                </Button>
               </div>
             </div>
           </div>
