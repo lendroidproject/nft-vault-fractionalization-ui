@@ -26,8 +26,15 @@ export const connectNetworks = () => {
 }
 const links = {
   1: 'https://etherscan.io',
+  4: 'https://rinkeby.etherscan.io',
   42: 'https://kovan.etherscan.io',
 }
 export const networkLabel = (network) => networkLabels[network].split(' ')[0]
 export const txLink = (hash, network) => `${links[network]}/tx/${hash}`
 export const tokenLink = (addr, network) => `${links[network]}/token/${addr}`
+export const addressLink = (addr, network) => `${links[network]}/address/${addr}`
+const openseaLinks = {
+  1: 'https://opensea.io',
+  4: 'https://testnets.opensea.io',
+}
+export const openseaLink = (addr, network) => `${openseaLinks[network]}/accounts/${addr}`

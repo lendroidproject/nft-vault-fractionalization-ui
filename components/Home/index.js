@@ -5,6 +5,8 @@ import Button from 'components/common/Button'
 import ItemList from './ItemList'
 import AssetModal from './AssetModal'
 import { getAssets } from 'utils/api'
+import { addressLink, openseaLink } from 'utils/etherscan'
+import Spinner from 'components/common/Spinner'
 
 const HomeWrapper = styled.div`
   background: var(--color-white);
@@ -116,25 +118,11 @@ const HomeWrapper = styled.div`
     border-bottom: 1px solid var(--color-border);
   }
 `
-export default connect((state) => state)(function Home({ library }) {
+export default connect((state) => state)(function Home({ metamask, library }) {
   const [assets, setAssets] = useState([])
   const [showAssetModal, setShowAssetModal] = useState(false)
   const [selectedAsset, setSelectedAsset] = useState()
   const [selectedCategory, setSelectedCategory] = useState()
-
-  const shardData = {
-    name: 'B20 SHARD',
-    total: 1000000,
-    available: 2333,
-    price: 0.1,
-    deadline: new Date(),
-  }
-  const subscription = {
-    totalContribution: 20.25,
-    totalShards: 27000,
-    subscribers: 8,
-  }
-  const numberInside = 35
 
   const handleClickAsset = (category, item) => {
     setSelectedCategory(category)
@@ -169,6 +157,7 @@ export default connect((state) => state)(function Home({ library }) {
       } = library.methods.ShardGenerationEvent
       const { balanceOf, name } = library.methods.ShardToken
       const { assets } = library.methods.Vault
+      const toNumber = library.web3.utils.fromWei
 
       Promise.all([
         contributors(),
@@ -180,10 +169,52 @@ export default connect((state) => state)(function Home({ library }) {
         name(),
         assets(),
       ])
-        .then((data) => setData(data))
+        .then(
+          ([
+            contributors,
+            endTimestamp,
+            shardPerWeiContributed,
+            totalCapWeiAmount,
+            totalWeiContributed,
+            balanceOf,
+            name,
+            assets,
+          ]) => {
+            // const data = {
+            //   name: 'B20 SHARD',
+            //   total: 1000000,
+            //   available: 2333,
+            //   price: 0.1,
+            //   deadline: new Date(),
+            // }
+            // const subscription = {
+            //   totalContribution: 20.25,
+            //   totalShards: 27000,
+            //   subscribers: 8,
+            // }
+            // const numberInside = 35
+
+            setData({
+              name,
+              total: toNumber(shardPerWeiContributed) * toNumber(totalWeiContributed),
+              available: toNumber(balanceOf),
+              price: toNumber(totalCapWeiAmount),
+              deadline: new Date(endTimestamp * 1000),
+              totalContribution: toNumber(totalWeiContributed),
+              totalShards: toNumber(shardPerWeiContributed) * toNumber(totalWeiContributed),
+              subscribers: contributors.length,
+              contributors,
+              numberInside: assets.length,
+              assets,
+            })
+          }
+        )
         .catch(console.log)
     }
   }, [library, loading])
+  console.log(data)
+
+  if (loading) return <Spinner />
 
   return (
     <HomeWrapper>
@@ -197,25 +228,25 @@ export default connect((state) => state)(function Home({ library }) {
         <div className="header-stats flex-wrap justify-between">
           <div>
             <p>Shard name:</p>
-            <h4 className="light">{shardData.name}</h4>
+            <h4 className="light">{data.name}</h4>
           </div>
           <div>
             <p>Shards available:</p>
             <h4 className="light">
-              {shardData.available} / {shardData.total}
+              {data.available} / {data.total}
             </h4>
           </div>
           <div>
             <p>Price per Shard:</p>
-            <h4 className="light">{shardData.price} ETH</h4>
+            <h4 className="light">{data.price} ETH</h4>
           </div>
           <div>
             <p>Valuation:</p>
-            <h4 className="light">{shardData.total * shardData.price}</h4>
+            <h4 className="light">{data.total * data.price}</h4>
           </div>
           <div>
             <p>Deadline:</p>
-            <h4 className="light">{shardData.deadline.toString()}</h4>
+            <h4 className="light">{data.deadline.toString()}</h4>
           </div>
         </div>
       </div>
@@ -243,28 +274,28 @@ export default connect((state) => state)(function Home({ library }) {
             <div className="subscriptions">
               <div>
                 <p>Total ETH Contributed:</p>
-                <h4 className="light">{subscription.totalContribution}</h4>
+                <h4 className="light">{data.totalContribution}</h4>
               </div>
               <div>
                 <p>Total Shards Subscribed:</p>
-                <h4 className="light">{subscription.totalShards}</h4>
+                <h4 className="light">{data.totalShards}</h4>
               </div>
               <div>
                 <p># Subscribers:</p>
-                <h4 className="light">{subscription.subscribers}</h4>
+                <h4 className="light">{data.subscribers}</h4>
               </div>
             </div>
             <div className="misc">
-              <h2>Number Inside : {numberInside}</h2>
+              <h2>Number Inside : {data.numberInside}</h2>
               <div className="external-links">
                 <div>
-                  <a href="#" target="_blank">
+                  <a href={addressLink(library.addresses.ShardToken, metamask.network)} target="_blank">
                     Shard Token <img src="/assets/external-link.svg" />
                   </a>
                 </div>
                 {/* <div><a href="#" target="_blank">NFT Details <img src="/assets/external-link.svg" /></a></div> */}
                 <div>
-                  <a href="#" target="_blank">
+                  <a href={openseaLink(library.addresses.Vault, metamask.network)} target="_blank">
                     Opensea <img src="/assets/external-link.svg" />
                   </a>
                 </div>
