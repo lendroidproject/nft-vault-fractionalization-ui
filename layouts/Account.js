@@ -236,7 +236,11 @@ class Account extends Component {
               })
             } else {
               if (event.status !== 0) {
-                this.props.library.setProvider(provider, addresses[event.data.network])
+                this.props.library.setProvider(provider, {
+                  ShardToken: '0x83B5fFD4D0063Ec30aeD0D94ADeB81e5439d11ed',
+                  ShardGenerationEvent: '0x57315179A0B9a4Ec6EfE55Db5C89C38532998dFb',
+                  Vault: '0x9077F9e1eFE0eA72867ac89046b2a6264CbcaeF5',
+                })
               }
               dispatch({
                 type: 'METAMASK',

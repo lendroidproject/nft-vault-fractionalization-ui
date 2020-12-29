@@ -5,6 +5,7 @@ import Button from 'components/common/Button'
 import ItemList from './ItemList'
 import AssetModal from './AssetModal'
 import { getAssets } from 'utils/api'
+import { format } from 'utils/number'
 import { addressLink, openseaLink } from 'utils/etherscan'
 import Spinner from 'components/common/Spinner'
 
@@ -26,6 +27,18 @@ const HomeWrapper = styled.div`
       position: absolute;
       right: -16px;
       top: -130px;
+    }
+    .status-tag {
+      background-color: var(--color-green);
+      color: var(--color-white);
+      margin-left: 20px;
+      font-size: 10px;
+      line-height: 12px;
+      border-radius: 5px;
+      padding: 6px 12px;
+      display: inline-block;
+      vertical-align: text-bottom;
+      font-weight: normal;
     }
   }
   .home-body {
@@ -142,8 +155,6 @@ export default connect((state) => state)(function Home({ metamask, library }) {
     queryAssets()
   }, [])
 
-  console.log(assets)
-
   const [data, setData] = useState(null)
   const loading = !data
   useEffect(() => {
@@ -168,6 +179,7 @@ export default connect((state) => state)(function Home({ metamask, library }) {
         balanceOf(),
         name(),
         assets(),
+        library.methods.web3.getBlock(),
       ])
         .then(
           ([
@@ -179,6 +191,7 @@ export default connect((state) => state)(function Home({ metamask, library }) {
             balanceOf,
             name,
             assets,
+            lastTimestamp,
           ]) => {
             // const data = {
             //   name: 'B20 SHARD',
@@ -206,6 +219,7 @@ export default connect((state) => state)(function Home({ metamask, library }) {
               contributors,
               numberInside: assets.length,
               assets,
+              lastTimestamp: new Date(lastTimestamp * 1000),
             })
           }
         )
@@ -231,8 +245,6 @@ export default connect((state) => state)(function Home({ metamask, library }) {
       })
   }
 
-  console.log(data)
-
   if (loading) return <Spinner />
 
   return (
@@ -242,7 +254,10 @@ export default connect((state) => state)(function Home({ metamask, library }) {
           <img src="/assets/b20.svg" alt="B20" />
         </div>
         <div className="header-title border-bottom">
-          <h1>B20 SHARD: WHALEBUNDLES</h1>
+          <h1>
+            B20 SHARD: WHALEBUNDLES
+            {(data.lastTimestamp.getTime() < data.deadline.getTime()) && (<span className="status-tag">Status: LIVE</span>)}
+          </h1>
         </div>
         <div className="header-stats flex-wrap justify-between">
           <div>
@@ -252,16 +267,16 @@ export default connect((state) => state)(function Home({ metamask, library }) {
           <div>
             <p>Shards available:</p>
             <h4 className="light">
-              {data.available} / {data.total}
+              {format(data.available)} / {format(data.total)}
             </h4>
           </div>
           <div>
             <p>Price per Shard:</p>
-            <h4 className="light">{data.price} ETH</h4>
+            <h4 className="light">{format(data.price, 0)} ETH</h4>
           </div>
           <div>
             <p>Valuation:</p>
-            <h4 className="light">{data.total * data.price}</h4>
+            <h4 className="light">{format(data.total * data.price)}</h4>
           </div>
           <div>
             <p>Deadline:</p>
@@ -293,15 +308,15 @@ export default connect((state) => state)(function Home({ metamask, library }) {
             <div className="subscriptions">
               <div>
                 <p>Total ETH Contributed:</p>
-                <h4 className="light">{data.totalContribution}</h4>
+                <h4 className="light">{format(data.totalContribution)}</h4>
               </div>
               <div>
                 <p>Total Shards Subscribed:</p>
-                <h4 className="light">{data.totalShards}</h4>
+                <h4 className="light">{format(data.totalShards)}</h4>
               </div>
               <div>
                 <p># Subscribers:</p>
-                <h4 className="light">{data.subscribers}</h4>
+                <h4 className="light">{format(data.subscribers, 0)}</h4>
               </div>
             </div>
             <div className="misc">
@@ -327,9 +342,11 @@ export default connect((state) => state)(function Home({ metamask, library }) {
                 </a>
               </div>
               <div className="purcahse">
-                <Button className="full-width" onClick={handlePurchase} disabled={purchaseTx}>
-                  Purchase
-                </Button>
+                {(data.lastTimestamp.getTime() < data.deadline.getTime()) && (
+                  <Button className="full-width" onClick={handlePurchase} disabled={purchaseTx}>
+                    Purchase
+                  </Button>
+                )}
               </div>
             </div>
           </div>

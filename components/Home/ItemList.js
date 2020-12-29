@@ -57,6 +57,7 @@ const Wrapper = styled.div`
     width: 60px;
     margin-right: 6px;
     margin-bottom: 6px;
+    cursor: pointer;
 
     &:nth-of-type(5n) {
       margin-right: 0;

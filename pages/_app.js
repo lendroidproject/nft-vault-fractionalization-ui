@@ -45,6 +45,7 @@ class App extends NextApp {
                 --color-blue: #4559FC;
                 --color-yellow: #fde92a;
                 --color-gold: #fff400;
+                --color-green: #0BCC1F;
                 --color-cyan: #3d9fff;
                 --color-light-blue: #413bff;
                 --color-grey: #666666;
