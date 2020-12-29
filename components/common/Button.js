@@ -13,6 +13,11 @@ const Button = styled.button`
   &.full-width {
     width: 100%;
   }
+  &.btn-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+  }
 `;
 
 export default Button;
