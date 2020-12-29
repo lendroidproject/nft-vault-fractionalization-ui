@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import Account from './Account'
 
 const Wrapper = styled.div`
   background: url('/assets/bg.jpg');
@@ -13,6 +14,9 @@ const Wrapper = styled.div`
 
 export default function Layout({ children }) {
   return (
-    <Wrapper>{children}</Wrapper>
+    <Wrapper>
+      {children}
+      <Account />
+    </Wrapper>
   )
 }

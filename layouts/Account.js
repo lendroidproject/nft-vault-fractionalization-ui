@@ -177,7 +177,7 @@ class Account extends Component {
     this.setState(
       {
         session,
-        balanceTimer: setInterval(() => this.getBalance(), 5 * 1000),
+        // balanceTimer: setInterval(() => this.getBalance(), 5 * 1000),
       },
       () => {
         this.setWeb3Modal(session.network)
@@ -248,9 +248,13 @@ class Account extends Component {
             break
         }
       }
-      const library = new Library.Farming(provider, {
+      const library = new Library.B20(provider, {
         onEvent: handleEvent,
-        addresses: addresses[this.state.network],
+        addresses: {
+          ShardToken: '0x83B5fFD4D0063Ec30aeD0D94ADeB81e5439d11ed',
+          ShardGenerationEvent: '0x57315179A0B9a4Ec6EfE55Db5C89C38532998dFb',
+          Vault: '0x9077F9e1eFE0eA72867ac89046b2a6264CbcaeF5',
+        },
       })
 
       dispatch({
@@ -389,6 +393,8 @@ class Account extends Component {
   render() {
     const { metamask } = this.props
     const isSupported = !metamask.network || isSupportedNetwork(metamask.network)
+
+    return null
 
     return (
       <Wrapper className="account">

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
+import { connect } from 'react-redux'
 import Button from 'components/common/Button'
 import ItemList from './ItemList'
 import AssetModal from './AssetModal'
@@ -80,17 +81,20 @@ const HomeWrapper = styled.div`
     display: flex;
     position: relative;
     color: var(--color-black);
-    background: #F9FFFF;
+    background: #f9ffff;
     border: solid 2px transparent; /* !importanté */
     border-radius: 4px;
     text-decoration: none;
     font-size: 14px;
     line-height: 17px;
-  
+
     &:before {
       content: '';
       position: absolute;
-      top: 0; right: 0; bottom: 0; left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
       z-index: 0;
       margin: -2px; /* !importanté */
       border-radius: inherit; /* !importanté */
@@ -101,7 +105,7 @@ const HomeWrapper = styled.div`
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #F9FFFF;
+      background: #f9ffff;
       padding: 7px 9px;
       border-radius: 2px;
       width: 100%;
@@ -112,7 +116,7 @@ const HomeWrapper = styled.div`
     border-bottom: 1px solid var(--color-border);
   }
 `
-export default function Home() {
+export default connect((state) => state)(function Home({ library }) {
   const [assets, setAssets] = useState([])
   const [showAssetModal, setShowAssetModal] = useState(false)
   const [selectedAsset, setSelectedAsset] = useState()
@@ -123,12 +127,12 @@ export default function Home() {
     total: 1000000,
     available: 2333,
     price: 0.1,
-    deadline: new Date()
+    deadline: new Date(),
   }
   const subscription = {
     totalContribution: 20.25,
     totalShards: 27000,
-    subscribers: 8
+    subscribers: 8,
   }
   const numberInside = 35
 
@@ -143,7 +147,7 @@ export default function Home() {
   }
 
   useEffect(() => {
-    const queryAssets = async function() {
+    const queryAssets = async function () {
       const result = await getAssets({ limit: 50, offset: 0 })
       setAssets(result.data.assets)
     }
@@ -151,6 +155,35 @@ export default function Home() {
   }, [])
 
   console.log(assets)
+
+  const [data, setData] = useState(null)
+  const loading = !data
+  useEffect(() => {
+    if (library && loading) {
+      const {
+        contributors,
+        endTimestamp,
+        shardPerWeiContributed,
+        totalCapWeiAmount,
+        totalWeiContributed,
+      } = library.methods.ShardGenerationEvent
+      const { balanceOf, name } = library.methods.ShardToken
+      const { assets } = library.methods.Vault
+
+      Promise.all([
+        contributors(),
+        endTimestamp(),
+        shardPerWeiContributed(),
+        totalCapWeiAmount(),
+        totalWeiContributed(),
+        balanceOf(),
+        name(),
+        assets(),
+      ])
+        .then((data) => setData(data))
+        .catch(console.log)
+    }
+  }, [library, loading])
 
   return (
     <HomeWrapper>
@@ -168,7 +201,9 @@ export default function Home() {
           </div>
           <div>
             <p>Shards available:</p>
-            <h4 className="light">{shardData.available} / {shardData.total}</h4>
+            <h4 className="light">
+              {shardData.available} / {shardData.total}
+            </h4>
           </div>
           <div>
             <p>Price per Shard:</p>
@@ -191,9 +226,14 @@ export default function Home() {
         <div className="body-content flex justify-between">
           <div className="body-right">
             <div className="desc">
-              Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt, explicabo. Nemo enim ipsam voluptatem,.
-              <br/><br/>
-              Quia voluptas sit, aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos, qui ratione voluptatem sequi nesciunt, neque porro quisquam est, qui dolorem ipsum, quia dolor sit amet consectetur adipisci[ng]velit, sed quia non numquam [do] eius modi tempora inci[di]dunt, ut labore et dolore.
+              Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam
+              rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt,
+              explicabo. Nemo enim ipsam voluptatem,.
+              <br />
+              <br />
+              Quia voluptas sit, aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos, qui ratione
+              voluptatem sequi nesciunt, neque porro quisquam est, qui dolorem ipsum, quia dolor sit amet consectetur
+              adipisci[ng]velit, sed quia non numquam [do] eius modi tempora inci[di]dunt, ut labore et dolore.
             </div>
             <div className="item-list">
               <ItemList items={assets} onClickItem={handleClickAsset} />
@@ -217,13 +257,23 @@ export default function Home() {
             <div className="misc">
               <h2>Number Inside : {numberInside}</h2>
               <div className="external-links">
-                <div><a href="#" target="_blank">Shard Token <img src="/assets/external-link.svg" /></a></div>
+                <div>
+                  <a href="#" target="_blank">
+                    Shard Token <img src="/assets/external-link.svg" />
+                  </a>
+                </div>
                 {/* <div><a href="#" target="_blank">NFT Details <img src="/assets/external-link.svg" /></a></div> */}
-                <div><a href="#" target="_blank">Opensea <img src="/assets/external-link.svg" /></a></div>
+                <div>
+                  <a href="#" target="_blank">
+                    Opensea <img src="/assets/external-link.svg" />
+                  </a>
+                </div>
               </div>
               <div className="contributions">
                 <a className="gradient-box" href="#" target="_blank">
-                  <span>Contributions <img src="/assets/external-link-black.svg" /></span>
+                  <span>
+                    Contributions <img src="/assets/external-link-black.svg" />
+                  </span>
                 </a>
               </div>
               <div className="purcahse">
@@ -243,4 +293,4 @@ export default function Home() {
       )}
     </HomeWrapper>
   )
-}
+})
