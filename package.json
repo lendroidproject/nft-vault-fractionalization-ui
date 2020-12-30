@@ -49,7 +49,7 @@
     "walletconnect": "^1.3.1",
     "web3": "^1.3.1",
     "web3modal": "^1.9.2",
-    "whalestreet-js": "^1.3.1"
+    "whalestreet-js": "^1.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
