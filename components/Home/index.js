@@ -131,7 +131,7 @@ const HomeWrapper = styled.div`
     border-bottom: 1px solid var(--color-border);
   }
 `
-export default connect((state) => state)(function Home({ metamask, library }) {
+export default connect((state) => state)(function Home({ metamask, library, eventTimestamp }) {
   const [assets, setAssets] = useState([])
   const [showAssetModal, setShowAssetModal] = useState(false)
   const [selectedAsset, setSelectedAsset] = useState()
@@ -157,83 +157,83 @@ export default connect((state) => state)(function Home({ metamask, library }) {
 
   const [data, setData] = useState(null)
   const loading = !data
-  useEffect(() => {
-    if (library && loading) {
-      const {
-        contributors,
-        endTimestamp,
-        shardPerWeiContributed,
-        totalCapWeiAmount,
-        totalContributors,
-        totalWeiContributed,
-      } = library.methods.ShardGenerationEvent
-      const { balanceOf, name } = library.methods.ShardToken
-      const { assets } = library.methods.Vault
-      const toNumber = library.web3.utils.fromWei
+  const loadData = () => {
+    const {
+      // contributors,
+      endTimestamp,
+      shardPerWeiContributed,
+      totalCapWeiAmount,
+      totalContributors,
+      totalWeiContributed,
+    } = library.methods.ShardGenerationEvent
+    const { balanceOf, name } = library.methods.ShardToken
+    const {
+      // assets,
+      totalAssets,
+    } = library.methods.Vault
+    const { getBlock } = library.methods.web3
+    const toNumber = library.web3.utils.fromWei
 
-      Promise.all([
-        contributors(),
-        endTimestamp(),
-        shardPerWeiContributed(),
-        totalCapWeiAmount(),
-        totalContributors(),
-        totalWeiContributed(),
-        balanceOf(),
-        name(),
-        assets(),
-        library.methods.web3.getBlock(),
-      ])
-        .then(
-          ([
-            contributors,
-            endTimestamp,
-            shardPerWeiContributed,
-            totalCapWeiAmount,
-            totalContributors,
-            totalWeiContributed,
-            balanceOf,
+    Promise.all([
+      name(),
+      balanceOf(),
+      endTimestamp(),
+      shardPerWeiContributed(),
+      totalCapWeiAmount(),
+      totalWeiContributed(),
+      totalContributors(),
+      totalAssets(),
+      getBlock(),
+      // contributors(),
+      // assets(),
+    ])
+      .then(
+        ([
+          name,
+          balanceOf,
+          endTimestamp,
+          shardPerWeiContributed,
+          totalCapWeiAmount,
+          totalWeiContributed,
+          totalContributors,
+          totalAssets,
+          lastTimestamp,
+          // contributors,
+          // assets,
+        ]) => {
+          setData({
             name,
-            assets,
-            lastTimestamp,
-          ]) => {
-            // const data = {
-            //   name: 'B20 SHARD',
-            //   total: 1000000,
-            //   available: 2333,
-            //   price: 0.1,
-            //   deadline: new Date(),
-            // }
-            // const subscription = {
-            //   totalContribution: 20.25,
-            //   totalShards: 27000,
-            //   subscribers: 8,
-            // }
-            // const numberInside = 35
-
-            setData({
-              name,
-              total: toNumber(shardPerWeiContributed) * toNumber(totalWeiContributed),
-              available: toNumber(balanceOf),
-              price: toNumber(totalCapWeiAmount),
-              deadline: new Date(endTimestamp * 1000),
-              totalContribution: toNumber(totalWeiContributed),
-              totalShards: toNumber(shardPerWeiContributed) * toNumber(totalWeiContributed),
-              subscribers: totalContributors,
-              contributors,
-              numberInside: assets.length,
-              assets,
-              lastTimestamp: new Date(lastTimestamp * 1000),
-            })
-          }
-        )
-        .catch(console.log)
+            total: toNumber(shardPerWeiContributed) * toNumber(totalWeiContributed),
+            available: toNumber(balanceOf),
+            price: toNumber(totalCapWeiAmount),
+            deadline: new Date(endTimestamp * 1000),
+            totalContribution: toNumber(totalWeiContributed),
+            totalShards: toNumber(shardPerWeiContributed) * toNumber(totalWeiContributed),
+            totalContributors,
+            totalAssets,
+            lastTimestamp: new Date(lastTimestamp * 1000),
+            timestamp: Date.now(),
+          })
+        }
+      )
+      .catch(console.log)
+  }
+  useEffect(() => {
+    if (library && !data) {
+      loadData()
     }
-  }, [library, loading])
+  }, [library, data])
+  useEffect(() => {
+    console.log(eventTimestamp, data)
+    if (eventTimestamp && data && eventTimestamp > data.timestamp) {
+      loadData()
+    }
+  }, [eventTimestamp, data])
 
   const [purchaseTx, setPurchseTx] = useState('')
   const handlePurchase = () => {
     const { contributeWei } = library.methods.ShardGenerationEvent
-    contributeWei({ from: metamask.address, gas: 3000000, value: library.web3.utils.toWei(Math.random().toString()) })
+    contributeWei({ from: metamask.address, gas: 3000000, value: library.web3.utils.toWei('0.01') })
       .send()
       .on('transactionHash', function (hash) {
         setPurchseTx(hash)
@@ -259,7 +259,7 @@ export default connect((state) => state)(function Home({ metamask, library }) {
         <div className="header-title border-bottom">
           <h1>
             B20 SHARD: WHALEBUNDLES
-            {(data.lastTimestamp.getTime() < data.deadline.getTime()) && (<span className="status-tag">Status: LIVE</span>)}
+            {data.lastTimestamp.getTime() < data.deadline.getTime() && <span className="status-tag">Status: LIVE</span>}
           </h1>
         </div>
         <div className="header-stats flex-wrap justify-between">
@@ -319,11 +319,11 @@ export default connect((state) => state)(function Home({ metamask, library }) {
               </div>
               <div>
                 <p># Subscribers:</p>
-                <h4 className="light">{format(data.subscribers, 0)}</h4>
+                <h4 className="light">{format(data.totalContributors, 0)}</h4>
               </div>
             </div>
             <div className="misc">
-              <h2>Number Inside : {data.numberInside}</h2>
+              <h2>Number Inside : {data.totalAssets}</h2>
               <div className="external-links">
                 <div>
                   <a href={addressLink(library.addresses.ShardToken, metamask.network)} target="_blank">
@@ -345,7 +345,7 @@ export default connect((state) => state)(function Home({ metamask, library }) {
                 </a>
               </div>
               <div className="purcahse">
-                {(data.lastTimestamp.getTime() < data.deadline.getTime()) && (
+                {data.lastTimestamp.getTime() < data.deadline.getTime() && (
                   <Button className="full-width" onClick={handlePurchase} disabled={purchaseTx}>
                     Purchase
                   </Button>

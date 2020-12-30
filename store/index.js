@@ -6,10 +6,8 @@ const reducer = (state, action) => {
       return { ...state, metamask: { ...state.metamask, ...action.payload, connected: true } }
     case 'INIT_CONTRACTS':
       return { ...state, library: action.payload[0], auctions: action.payload[1] }
-    case 'STAKED':
-    case 'UNSTAKED':
-    case 'REWARDCLAIMED':
-      return { ...state, transactions: { ...state.transactions, ...action.payload } }
+    case 'EVENT_DATA':
+      return { ...state, eventTimestamp: action.payload }
     case 'DISCONNECT':
       return { ...state, metamask: { connected: false } }
     default:
