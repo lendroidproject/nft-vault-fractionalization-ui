@@ -10,6 +10,7 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(0, 0, 0, 0.15);
   @keyframes spin {
     0% {
       opacity: 1;

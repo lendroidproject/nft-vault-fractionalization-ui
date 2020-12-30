@@ -43,6 +43,9 @@ class App extends NextApp {
                 --color-white: #ffffff;
                 --color-red: #eb0f0f;
                 --color-blue: #4559FC;
+                --color-dark-blue: #200AE5;
+                --color-pink: #EF0386;
+                --color-menu: #949394;
                 --color-yellow: #fde92a;
                 --color-gold: #fff400;
                 --color-green: #0BCC1F;
@@ -70,6 +73,7 @@ class App extends NextApp {
               .flex-wrap { display: flex; flex-wrap: wrap; }
               .flex-center { display: flex; align-items: center; }
               .flex-column { display: flex; flex-direction: column; }
+              .flex-start { display: flex; align-items: flex-start; }
               .flex-end { display: flex; align-items: flex-end; }
               .justify-center { justify-content: center; }
               .justify-between { justify-content: space-between; }
@@ -117,6 +121,9 @@ class App extends NextApp {
               .col-blue {
                 color: var(--color-blue);
               }
+              .col-dark-blue {
+                color: var(--color-dark-blue);
+              }
               .col-red {
                 color: var(--color-red);
               }
@@ -130,6 +137,14 @@ class App extends NextApp {
               *::-webkit-scrollbar-track { background: transparent; }
               *::-webkit-scrollbar-thumb { border-radius: 5px; background-color: var(--color-black); }
               *::-webkit-scrollbar-thumb:hover { background: var(--color-grey); }
+
+              :nth-child(1) { --nth-child: 0 }
+              :nth-child(2) { --nth-child: 2 }
+              :nth-child(3) { --nth-child: 4 }
+              :nth-child(4) { --nth-child: 6 }
+              :nth-child(5) { --nth-child: 8 }
+              :nth-child(6) { --nth-child: 10 }
+              :nth-child(7) { --nth-child: 12 }
             `,
             }}
           />

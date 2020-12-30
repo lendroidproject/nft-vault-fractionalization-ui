@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import Button from 'components/common/Button'
 import ItemList from './ItemList'
 import AssetModal from './AssetModal'
+import ContributionsModal, { PAGE_SIZE } from './ContributionsModal'
 import { getAssets } from 'utils/api'
 import { format } from 'utils/number'
 import { addressLink, openseaLink } from 'utils/etherscan'
@@ -17,7 +18,6 @@ const HomeWrapper = styled.div`
   border: 1px solid #979797;
   position: relative;
   .spinner {
-    background: rgba(0, 0, 0, 0.3);
     z-index: 1000;
     position: fixed;
   }
@@ -142,6 +142,8 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const [showAssetModal, setShowAssetModal] = useState(false)
   const [selectedAsset, setSelectedAsset] = useState()
   const [selectedCategory, setSelectedCategory] = useState()
+  const [showContributors, setShowContributors] = useState()
+  const toNumber = library && library.web3.utils.fromWei
 
   const handleClickAsset = (category, item) => {
     setSelectedCategory(category)
@@ -166,6 +168,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const loadData = () => {
     const {
       // contributors,
+      contributions,
       endTimestamp,
       shardPerWeiContributed,
       totalCapWeiAmount,
@@ -178,11 +181,11 @@ export default connect((state) => state)(function Home({ metamask, library, even
       totalAssets,
     } = library.methods.Vault
     const { getBlock } = library.methods.web3
-    const toNumber = library.web3.utils.fromWei
 
     Promise.all([
       name(),
       balanceOf(),
+      contributions(metamask.address),
       endTimestamp(),
       shardPerWeiContributed(),
       totalCapWeiAmount(),
@@ -197,6 +200,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
         ([
           name,
           balanceOf,
+          contributions,
           endTimestamp,
           shardPerWeiContributed,
           totalCapWeiAmount,
@@ -207,10 +211,15 @@ export default connect((state) => state)(function Home({ metamask, library, even
           // contributors,
           // assets,
         ]) => {
+          console.log(contributions)
           setData({
             name,
             total: toNumber(shardPerWeiContributed) * toNumber(totalWeiContributed),
             available: toNumber(balanceOf),
+            contributions: {
+              hasWithdrawn: contributions.hasWithdrawn,
+              weiContributed: toNumber(contributions.weiContributed),
+            },
             price: toNumber(totalCapWeiAmount),
             deadline: new Date(endTimestamp * 1000),
             totalContribution: toNumber(totalWeiContributed),
@@ -225,30 +234,46 @@ export default connect((state) => state)(function Home({ metamask, library, even
       .catch(console.log)
   }
   useEffect(() => {
-    if (library && !data) {
+    if (library && !data && metamask.address) {
       loadData()
     }
-  }, [library, data])
+  }, [library, data, metamask])
   useEffect(() => {
     if (eventTimestamp && data && eventTimestamp > data.timestamp) {
       loadData()
     }
   }, [eventTimestamp, data])
 
-  const [purchaseTx, setPurchseTx] = useState('')
+  const [purchaseTx, setPurchaseTx] = useState('')
   const handlePurchase = () => {
     const { contributeWei } = library.methods.ShardGenerationEvent
     contributeWei({ from: metamask.address, gas: 3000000, value: library.web3.utils.toWei('0.01') })
       .send()
       .on('transactionHash', function (hash) {
-        setPurchseTx(hash)
+        setPurchaseTx(hash)
       })
       .on('receipt', function (receipt) {
-        setPurchseTx('')
+        setPurchaseTx('')
       })
       .on('error', (err) => {
         console.log(err)
-        setPurchseTx('')
+        setPurchaseTx('')
+      })
+  }
+  const [claimTx, setClaimTx] = useState('')
+  const handleClaim = () => {
+    const { claimShards } = library.methods.ShardGenerationEvent
+    claimShards({ from: metamask.address })
+      .send()
+      .on('transactionHash', function (hash) {
+        setClaimTx(hash)
+      })
+      .on('receipt', function (receipt) {
+        setClaimTx('')
+      })
+      .on('error', (err) => {
+        console.log(err)
+        setClaimTx('')
       })
   }
 
@@ -342,17 +367,31 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 </div>
               </div>
               <div className="contributions">
-                <a className="gradient-box" href="#" target="_blank">
+                <a
+                  className="gradient-box"
+                  href="/"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setShowContributors(true)
+                  }}
+                >
                   <span>
                     Contributions <img src="/assets/external-link-black.svg" />
                   </span>
                 </a>
               </div>
               <div className="purcahse">
-                {data.lastTimestamp.getTime() < data.deadline.getTime() && (
+                {data.lastTimestamp.getTime() < data.deadline.getTime() ? (
                   <Button className="full-width" onClick={handlePurchase} disabled={purchaseTx}>
                     Purchase
                   </Button>
+                ) : (
+                  !data.contributions.hasWithdrawn &&
+                  data.contributions.weiContributed > 0 && (
+                    <Button className="full-width" onClick={handleClaim} disabled={claimTx}>
+                      Claim Shards
+                    </Button>
+                  )
                 )}
               </div>
             </div>
@@ -367,7 +406,19 @@ export default connect((state) => state)(function Home({ metamask, library, even
           onHide={handleCloseAssetModal}
         />
       )}
-      {purchaseTx && <Spinner />}
+      {showContributors && (
+        <ContributionsModal
+          total={data.totalContributors}
+          toNumber={toNumber}
+          onPage={(page) => {
+            const { contributors } = library.methods.ShardGenerationEvent
+            return contributors(page * PAGE_SIZE, Math.min(data.totalContributors - page * PAGE_SIZE, PAGE_SIZE))
+          }}
+          show={showContributors}
+          onHide={() => setShowContributors(false)}
+        />
+      )}
+      {(purchaseTx || claimTx) && <Spinner />}
     </HomeWrapper>
   )
 })
