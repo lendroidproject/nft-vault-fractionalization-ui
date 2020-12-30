@@ -4,34 +4,15 @@ import { connect } from 'react-redux'
 import Dropdown, { MenuItem } from '@trendmicro/react-dropdown'
 import Web3Modal from 'web3modal'
 import WalletConnectProvider from '@walletconnect/web3-provider'
-import Fortmatic from 'fortmatic'
 import Library from 'whalestreet-js'
 import { shorten } from 'utils/string'
-import { fortmatics, infuras, isSupportedNetwork, networkLabel, networks } from 'utils/etherscan'
+import { infuras, isSupportedNetwork, networkLabel, networks } from 'utils/etherscan'
 
 const addresses = {
-  1: {
-    $HRIMP: '0x9077F9e1eFE0eA72867ac89046b2a6264CbcaeF5',
-    LST_WETH_UNI_V2: '0x9D23cb25aD23D73E0a723a47b146139D46Ab5F91',
-    LSTETHPool: '0xF34976159AdAe214E293Cf03D12d20EADE658A8C',
-    LST: '0x4de2573e27E648607B50e1Cfff921A33E4A34405',
-  },
-  42: {
-    $HRIMP: '0xaDb74ae0A618c0b7474B9f2e7B7CcecCF72f9676',
-    LST_WETH_UNI_V2: '0x606B69Cd303B9E718AA57d4e7bcc8D332Fa6D024',
-    LSTETHPool: '0x87f80C03d0950E12c5b33E700A2c302a3036E3C8',
-    LST: '0x4de2573e27E648607B50e1Cfff921A33E4A34405',
-  },
+  ShardToken: '0xD12A8a39AA6948929D4Cb87bf54dF712EC677d7c',
+  ShardGenerationEvent: '0x4c5e4041B41350BF8d1EBA8539e9589722DF07C1',
+  Vault: '0x3BdBC45dd655CE22261fCB483F14271a22547b12',
 }
-
-// const auctionAddresses = {
-//   1: {},
-//   42: {
-//     $HRIMP: '0xaDb74ae0A618c0b7474B9f2e7B7CcecCF72f9676',
-//     AuctionRegistry: '0xB06b995A40f7752581ec92CBf106872a3B96590B',
-//     WhaleSwap: '0x9142aF7F6F769f95edDDa4851F22859319090987',
-//   },
-// }
 
 const Wrapper = styled.div`
   @media all and (min-width: 578px) {
@@ -213,7 +194,7 @@ class Account extends Component {
 
   initLibrary(provider) {
     if (this.props.library) {
-      this.props.library.setProvider(provider, addresses[this.state.network])
+      this.props.library.setProvider(provider, addresses)
     } else {
       const { dispatch } = this.props
       const handleEvent = (event) => {
@@ -236,11 +217,7 @@ class Account extends Component {
               })
             } else {
               if (event.status !== 0) {
-                this.props.library.setProvider(provider, {
-                  ShardToken: '0x83B5fFD4D0063Ec30aeD0D94ADeB81e5439d11ed',
-                  ShardGenerationEvent: '0x57315179A0B9a4Ec6EfE55Db5C89C38532998dFb',
-                  Vault: '0x9077F9e1eFE0eA72867ac89046b2a6264CbcaeF5',
-                })
+                this.props.library.setProvider(provider, addresses)
               }
               dispatch({
                 type: 'METAMASK',
@@ -254,11 +231,7 @@ class Account extends Component {
       }
       const library = new Library.B20(provider, {
         onEvent: handleEvent,
-        addresses: {
-          ShardToken: '0x83B5fFD4D0063Ec30aeD0D94ADeB81e5439d11ed',
-          ShardGenerationEvent: '0x57315179A0B9a4Ec6EfE55Db5C89C38532998dFb',
-          Vault: '0x9077F9e1eFE0eA72867ac89046b2a6264CbcaeF5',
-        },
+        addresses,
       })
 
       dispatch({

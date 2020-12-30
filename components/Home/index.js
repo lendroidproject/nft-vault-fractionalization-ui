@@ -164,6 +164,7 @@ export default connect((state) => state)(function Home({ metamask, library }) {
         endTimestamp,
         shardPerWeiContributed,
         totalCapWeiAmount,
+        totalContributors,
         totalWeiContributed,
       } = library.methods.ShardGenerationEvent
       const { balanceOf, name } = library.methods.ShardToken
@@ -175,6 +176,7 @@ export default connect((state) => state)(function Home({ metamask, library }) {
         endTimestamp(),
         shardPerWeiContributed(),
         totalCapWeiAmount(),
+        totalContributors(),
         totalWeiContributed(),
         balanceOf(),
         name(),
@@ -187,6 +189,7 @@ export default connect((state) => state)(function Home({ metamask, library }) {
             endTimestamp,
             shardPerWeiContributed,
             totalCapWeiAmount,
+            totalContributors,
             totalWeiContributed,
             balanceOf,
             name,
@@ -215,7 +218,7 @@ export default connect((state) => state)(function Home({ metamask, library }) {
               deadline: new Date(endTimestamp * 1000),
               totalContribution: toNumber(totalWeiContributed),
               totalShards: toNumber(shardPerWeiContributed) * toNumber(totalWeiContributed),
-              subscribers: contributors.length,
+              subscribers: totalContributors,
               contributors,
               numberInside: assets.length,
               assets,
