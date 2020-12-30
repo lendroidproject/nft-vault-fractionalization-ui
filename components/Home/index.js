@@ -15,6 +15,12 @@ const HomeWrapper = styled.div`
   width: 1216px;
   max-width: 100%;
   border: 1px solid #979797;
+  position: relative;
+  .spinner {
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    position: fixed;
+  }
   .home-header {
     position: relative;
     .header-title {
@@ -224,7 +230,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
     }
   }, [library, data])
   useEffect(() => {
-    console.log(eventTimestamp, data)
     if (eventTimestamp && data && eventTimestamp > data.timestamp) {
       loadData()
     }
@@ -239,7 +244,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
         setPurchseTx(hash)
       })
       .on('receipt', function (receipt) {
-        console.log(receipt)
         setPurchseTx('')
       })
       .on('error', (err) => {
@@ -363,6 +367,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
           onHide={handleCloseAssetModal}
         />
       )}
+      {purchaseTx && <Spinner />}
     </HomeWrapper>
   )
 })
