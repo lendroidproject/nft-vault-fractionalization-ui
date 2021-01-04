@@ -1,6 +1,6 @@
 {
   "name": "B20-Event-UI",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "UI for B20 Event",
   "main": "index.js",
   "scripts": {
