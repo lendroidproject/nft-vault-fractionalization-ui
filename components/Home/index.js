@@ -27,7 +27,10 @@ const HomeWrapper = styled.div`
       padding-bottom: 8px;
     }
     .header-stats {
-      margin: 30px 0;
+      margin: 20px 0;
+      > div {
+        margin: 10px 0;
+      }
     }
     .status-tag {
       background-color: var(--color-green);
@@ -48,7 +51,7 @@ const HomeWrapper = styled.div`
       margin-bottom: 12px;
     }
     .body-right {
-      width: 790px;
+      width: calc(100% - 360px);
     }
     .body-left {
       width: 310px;
@@ -92,6 +95,17 @@ const HomeWrapper = styled.div`
         margin-bottom: 78px;
       }
     }
+
+    @media(max-width: 991px) {
+      .body-content {
+        flex-direction: column;
+      }
+      .body-right,
+      .body-left {
+        width: 100%;
+        margin-bottom: 40px;
+      }
+    }
   }
   .gradient-box {
     display: flex;
@@ -130,6 +144,9 @@ const HomeWrapper = styled.div`
   }
   .border-bottom {
     border-bottom: 1px solid var(--color-border);
+  }
+  @media(max-width: 767px) {
+    padding: 50px 20px 20px;
   }
 `
 export default connect((state) => state)(function Home({ metamask, library, eventTimestamp }) {

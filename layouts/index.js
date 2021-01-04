@@ -9,7 +9,6 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  padding: 20px 30px;
   .app-logo {
     max-width: 1216px;
     width: 100%;
@@ -17,6 +16,13 @@ const Wrapper = styled.div`
     padding: 0 35px;
     > img {
       width: 70px;
+    }
+    
+  }
+  @media(max-width: 767px) {
+    padding: 20px 20px;
+    .app-logo {
+      padding: 0 20px;
     }
   }
 `

@@ -9,7 +9,7 @@ const Wrapper = styled.div`
     content: ' ';
     position: absolute;
     height: 328px;
-    width: 61px;
+    width: 7%;
     background: linear-gradient(90deg, rgba(238,238,238,0) 0%, #636363 100%);
     top: 40px;
     right: 0;
