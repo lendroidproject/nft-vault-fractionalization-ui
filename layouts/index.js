@@ -9,6 +9,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
+  padding: 20px 30px;
   .app-logo {
     max-width: 1216px;
     width: 100%;
