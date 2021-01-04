@@ -6,15 +6,27 @@ const Wrapper = styled.div`
   background-repeat: no-repeat;
   background-size: cover;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
   min-height: 100vh;
-  padding: 100px 30px 20px;
+  padding: 20px 30px;
+  .app-logo {
+    max-width: 1216px;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 0 35px;
+    > img {
+      width: 70px;
+    }
+  }
 `
 
 export default function Layout({ children }) {
   return (
     <Wrapper>
+      <div className="app-logo">
+        <img src="/assets/logo.svg" alt="B20" />
+      </div>
       {children}
       <Account />
     </Wrapper>

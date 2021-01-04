@@ -29,11 +29,6 @@ const HomeWrapper = styled.div`
     .header-stats {
       margin: 30px 0;
     }
-    .header-logo {
-      position: absolute;
-      right: -16px;
-      top: -130px;
-    }
     .status-tag {
       background-color: var(--color-green);
       color: var(--color-white);
@@ -282,9 +277,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
   return (
     <HomeWrapper>
       <div className="home-header">
-        <div className="header-logo">
-          <img src="/assets/b20.svg" alt="B20" />
-        </div>
         <div className="header-title border-bottom">
           <h1>
             B20 SHARD: WHALEBUNDLES
