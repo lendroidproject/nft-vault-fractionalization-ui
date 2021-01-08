@@ -57,19 +57,21 @@ const Content = styled.div`
     border: 1px solid #FFFFFF;
     border-radius: 9px;
     background-color: #0D35FA;
-    font-size: 20px;
+    font-size: 16px;
     line-height: 24px;
     color: var(--color-white);
     padding: 4px 50px;
-    top: 0;
+    top: 16px;
     position: absolute;
-    transform: translateY(-50%);
+    margin: 0 50px;
+    transform: translateY(-100%);
   }
 
   .pagination {
     margin-top: 20px;
     display: flex;
     align-items: center;
+    justify-content: center;
     h2 {
       margin: 0 10px;
     }
