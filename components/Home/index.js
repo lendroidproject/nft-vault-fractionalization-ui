@@ -340,6 +340,10 @@ export default connect((state) => state)(function Home({ metamask, library, even
 
   if (loading) return <Spinner />
 
+  const token0Total = data.totalCap / data.token0PerToken1;
+  const token0Sold = data.totaltoken1Paid / data.token0PerToken1;
+  const token0Remaining = token0Total - token0Sold;
+
   return (
     <HomeWrapper>
       <div className="home-header">
@@ -357,7 +361,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
           <div>
             <p>Shards available:</p>
             <h4 className="light">
-              {format(data.balanceOf)} of {format(data.totalCap / data.token0PerToken1)}
+              {format(token0Remaining, 2)} of {format(token0Total, 2)}
             </h4>
           </div>
           <div>
@@ -404,7 +408,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
               </div>
               <div>
                 <p>Total Shards Subscribed:</p>
-                <h4 className="light">{format(data.totaltoken1Paid / data.token0PerToken1)}</h4>
+                <h4 className="light">{format(data.totaltoken1Paid / data.token0PerToken1, 2)}</h4>
               </div>
               <div>
                 <p># Subscribers:</p>
