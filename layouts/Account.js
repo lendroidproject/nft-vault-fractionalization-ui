@@ -6,9 +6,12 @@ import Library from 'whalestreet-js'
 import { infuras, isSupportedNetwork, networkLabel, networks } from 'utils/etherscan'
 
 const addresses = {
-  ShardToken: '0xD12A8a39AA6948929D4Cb87bf54dF712EC677d7c',
-  ShardGenerationEvent: '0x4c5e4041B41350BF8d1EBA8539e9589722DF07C1',
-  Vault: '0x3BdBC45dd655CE22261fCB483F14271a22547b12',
+  Vault: '0x2D04bF2492641074cfA94eF1eAFd27B10f11F1bf',
+  Token0: '0x37DB1941bcc5A687cF8E21aaB7058cDC43DD0b44',
+  Token1: '0xe40E97AE323A1E663E0687FFA88D33c3C44101D3',
+  Market: '0xfF117e9D0598F1808CFAe3Aeef9Cb0A0Bbd1705e',
+  Buyout: '0xb3c48fF6830ff7E9597882b207C7aC8191F7F208',
+  Redeem: '0x8E8804663920fDFE22778eAAF646E12087A5d4C9',
 }
 
 let web3Modal

@@ -96,7 +96,7 @@ const HomeWrapper = styled.div`
       }
     }
 
-    @media(max-width: 991px) {
+    @media (max-width: 991px) {
       .body-content {
         flex-direction: column;
       }
@@ -145,7 +145,7 @@ const HomeWrapper = styled.div`
   .border-bottom {
     border-bottom: 1px solid var(--color-border);
   }
-  @media(max-width: 767px) {
+  @media (max-width: 767px) {
     padding: 50px 20px 20px;
   }
 `
@@ -181,13 +181,14 @@ export default connect((state) => state)(function Home({ metamask, library, even
     const {
       // contributors,
       contributions,
-      endTimestamp,
-      shardPerWeiContributed,
-      totalCapWeiAmount,
-      totalContributors,
-      totalWeiContributed,
-    } = library.methods.ShardGenerationEvent
-    const { balanceOf, name } = library.methods.ShardToken
+      marketEnd,
+      totalCap,
+      totaltoken1Paid,
+      totalBuyers,
+      token0PerToken1,
+    } = library.methods.Market
+    const { balanceOf, name } = library.methods.Token0
+    const { name: contributeToken } = library.methods.Token1
     const {
       // assets,
       totalAssets,
@@ -197,12 +198,13 @@ export default connect((state) => state)(function Home({ metamask, library, even
     Promise.all([
       name(),
       balanceOf(),
+      contributeToken(),
       contributions(metamask.address),
-      endTimestamp(),
-      shardPerWeiContributed(),
-      totalCapWeiAmount(),
-      totalWeiContributed(),
-      totalContributors(),
+      marketEnd(),
+      totalCap(),
+      totaltoken1Paid(),
+      token0PerToken1(),
+      totalBuyers(),
       totalAssets(),
       getBlock(),
       // contributors(),
@@ -212,31 +214,44 @@ export default connect((state) => state)(function Home({ metamask, library, even
         ([
           name,
           balanceOf,
+          contributeToken,
           contributions,
-          endTimestamp,
-          shardPerWeiContributed,
-          totalCapWeiAmount,
-          totalWeiContributed,
-          totalContributors,
+          marketEnd,
+          totalCap,
+          totaltoken1Paid,
+          token0PerToken1,
+          totalBuyers,
           totalAssets,
           lastTimestamp,
           // contributors,
           // assets,
         ]) => {
-          console.log(contributions)
+          console.log({
+            name,
+            balanceOf,
+            contributeToken,
+            contributions,
+            marketEnd,
+            totalCap,
+            totaltoken1Paid,
+            token0PerToken1,
+            totalBuyers,
+            totalAssets,
+            lastTimestamp,
+          })
           setData({
             name,
-            total: toNumber(shardPerWeiContributed) * toNumber(totalWeiContributed),
-            available: toNumber(balanceOf),
+            balanceOf: toNumber(balanceOf),
+            contributeToken,
             contributions: {
-              hasWithdrawn: contributions.hasWithdrawn,
-              weiContributed: toNumber(contributions.weiContributed),
+              hasWithdrawn: contributions.token0Withdrawn,
+              weiContributed: toNumber(contributions.token1Amount),
             },
-            price: toNumber(totalCapWeiAmount),
-            deadline: new Date(endTimestamp * 1000),
-            totalContribution: toNumber(totalWeiContributed),
-            totalShards: toNumber(shardPerWeiContributed) * toNumber(totalWeiContributed),
-            totalContributors,
+            deadline: new Date(marketEnd * 1000),
+            totalCap: toNumber(totalCap),
+            totaltoken1Paid: toNumber(totaltoken1Paid),
+            token0PerToken1: toNumber(token0PerToken1),
+            totalBuyers,
             totalAssets,
             lastTimestamp: new Date(lastTimestamp * 1000),
             timestamp: Date.now(),
@@ -258,8 +273,10 @@ export default connect((state) => state)(function Home({ metamask, library, even
 
   const [purchaseTx, setPurchaseTx] = useState('')
   const handlePurchase = () => {
-    const { contributeWei } = library.methods.ShardGenerationEvent
-    contributeWei({ from: metamask.address, gas: 3000000, value: library.web3.utils.toWei('0.01') })
+    const { contributeWei } = library.methods.Market
+    contributeWei(library.web3.utils.toWei('500'), {
+      from: metamask.address,
+    })
       .send()
       .on('transactionHash', function (hash) {
         setPurchaseTx(hash)
@@ -274,7 +291,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
   }
   const [claimTx, setClaimTx] = useState('')
   const handleClaim = () => {
-    const { claimShards } = library.methods.ShardGenerationEvent
+    const { claimShards } = library.methods.Market
     claimShards({ from: metamask.address })
       .send()
       .on('transactionHash', function (hash) {
@@ -308,16 +325,18 @@ export default connect((state) => state)(function Home({ metamask, library, even
           <div>
             <p>Shards available:</p>
             <h4 className="light">
-              {format(data.available)} / {format(data.total)}
+              {format(data.balanceOf)} / {format(data.totalCap / data.token0PerToken1)}
             </h4>
           </div>
           <div>
             <p>Price per Shard:</p>
-            <h4 className="light">{format(data.price, 0)} ETH</h4>
+            <h4 className="light">
+              {format(data.token0PerToken1, 4)} {data.contributeToken}
+            </h4>
           </div>
           <div>
             <p>Valuation:</p>
-            <h4 className="light">{format(data.total * data.price)}</h4>
+            <h4 className="light">{format(data.totalCap)}</h4>
           </div>
           <div>
             <p>Deadline:</p>
@@ -348,24 +367,24 @@ export default connect((state) => state)(function Home({ metamask, library, even
           <div className="body-left">
             <div className="subscriptions">
               <div>
-                <p>Total ETH Contributed:</p>
-                <h4 className="light">{format(data.totalContribution)}</h4>
+                <p>Total {data.contributeToken} Contributed:</p>
+                <h4 className="light">{format(data.totaltoken1Paid)}</h4>
               </div>
               <div>
                 <p>Total Shards Subscribed:</p>
-                <h4 className="light">{format(data.totalShards)}</h4>
+                <h4 className="light">{format(data.totaltoken1Paid / data.token0PerToken1)}</h4>
               </div>
               <div>
                 <p># Subscribers:</p>
-                <h4 className="light">{format(data.totalContributors, 0)}</h4>
+                <h4 className="light">{format(data.totalBuyers, 0)}</h4>
               </div>
             </div>
             <div className="misc">
               <h2>Number Inside : {data.totalAssets}</h2>
               <div className="external-links">
                 <div>
-                  <a href={addressLink(library.addresses.ShardToken, metamask.network)} target="_blank">
-                    Shard Token <img src="/assets/external-link.svg" />
+                  <a href={addressLink(library.addresses.Token0, metamask.network)} target="_blank">
+                    {data.name} token contract <img src="/assets/external-link.svg" />
                   </a>
                 </div>
                 {/* <div><a href="#" target="_blank">NFT Details <img src="/assets/external-link.svg" /></a></div> */}
@@ -417,11 +436,11 @@ export default connect((state) => state)(function Home({ metamask, library, even
       )}
       {showContributors && (
         <ContributionsModal
-          total={data.totalContributors}
+          total={data.totalBuyers}
           toNumber={toNumber}
           onPage={(page) => {
-            const { contributors } = library.methods.ShardGenerationEvent
-            return contributors(page * PAGE_SIZE, Math.min(data.totalContributors - page * PAGE_SIZE, PAGE_SIZE))
+            const { contributors } = library.methods.Market
+            return contributors(page * PAGE_SIZE, Math.min(data.totalBuyers - page * PAGE_SIZE, PAGE_SIZE))
           }}
           show={showContributors}
           onHide={() => setShowContributors(false)}
