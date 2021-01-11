@@ -306,6 +306,8 @@ export default connect((state) => state)(function Home({ metamask, library, even
       })
   }
 
+  console.log(data)
+
   if (loading) return <Spinner />
 
   return (
@@ -331,7 +333,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
           <div>
             <p>Price per Shard:</p>
             <h4 className="light">
-              {format(data.token0PerToken1, 4)} {data.contributeToken}
+              {format(data.token0PerToken1)} {data.contributeToken}
             </h4>
           </div>
           <div>
@@ -376,7 +378,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
               </div>
               <div>
                 <p># Subscribers:</p>
-                <h4 className="light">{format(data.totalBuyers, 0)}</h4>
+                <h4 className="light">{format(data.totalBuyers)}</h4>
               </div>
             </div>
             <div className="misc">
