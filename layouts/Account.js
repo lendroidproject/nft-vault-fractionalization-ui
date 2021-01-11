@@ -83,7 +83,7 @@ class Account extends Component {
       const { dispatch } = this.props
       const handleEvent = (event) => {
         switch (event.event) {
-          case 'ContributionReceived':
+          case 'PaymentReceived':
             dispatch({
               type: 'EVENT_DATA',
               payload: Date.now(),

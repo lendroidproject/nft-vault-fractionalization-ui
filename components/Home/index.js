@@ -9,6 +9,7 @@ import { getAssets } from 'utils/api'
 import { format } from 'utils/number'
 import { addressLink, openseaLink } from 'utils/etherscan'
 import Spinner from 'components/common/Spinner'
+import PurchaseModal from './PurchaseModal'
 
 const HomeWrapper = styled.div`
   background: var(--color-white);
@@ -149,12 +150,16 @@ const HomeWrapper = styled.div`
     padding: 50px 20px 20px;
   }
 `
+
+const MIN_ALLOWANCE = 10 ** 8;
+
 export default connect((state) => state)(function Home({ metamask, library, eventTimestamp }) {
   const [assets, setAssets] = useState([])
   const [showAssetModal, setShowAssetModal] = useState(false)
   const [selectedAsset, setSelectedAsset] = useState()
   const [selectedCategory, setSelectedCategory] = useState()
   const [showContributors, setShowContributors] = useState()
+  const [showPurchase, setShowPurchase] = useState(false)
   const toNumber = library && library.web3.utils.fromWei
 
   const handleClickAsset = (category, item) => {
@@ -188,7 +193,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
       token0PerToken1,
     } = library.methods.Market
     const { balanceOf, name } = library.methods.Token0
-    const { name: contributeToken } = library.methods.Token1
+    const { name: contributeToken, balanceOf: token1Balance, getAllowance: allowance } = library.methods.Token1
     const {
       // assets,
       totalAssets,
@@ -199,6 +204,8 @@ export default connect((state) => state)(function Home({ metamask, library, even
       name(),
       balanceOf(),
       contributeToken(),
+      token1Balance(metamask.address),
+      allowance(metamask.address),
       contributions(metamask.address),
       marketEnd(),
       totalCap(),
@@ -215,6 +222,8 @@ export default connect((state) => state)(function Home({ metamask, library, even
           name,
           balanceOf,
           contributeToken,
+          token1Balance,
+          allowance,
           contributions,
           marketEnd,
           totalCap,
@@ -230,6 +239,8 @@ export default connect((state) => state)(function Home({ metamask, library, even
             name,
             balanceOf,
             contributeToken,
+            token1Balance,
+            allowance,
             contributions,
             marketEnd,
             totalCap,
@@ -243,6 +254,8 @@ export default connect((state) => state)(function Home({ metamask, library, even
             name,
             balanceOf: toNumber(balanceOf),
             contributeToken,
+            token1Balance: toNumber(token1Balance),
+            allowance: toNumber(allowance),
             contributions: {
               hasWithdrawn: contributions.token0Withdrawn,
               weiContributed: toNumber(contributions.token1Amount),
@@ -272,14 +285,33 @@ export default connect((state) => state)(function Home({ metamask, library, even
   }, [eventTimestamp, data])
 
   const [purchaseTx, setPurchaseTx] = useState('')
-  const handlePurchase = () => {
+  const handleUnlock = () => {
+    const { approve } = library.methods.Token1
+    approve(library.web3.utils.toWei(MIN_ALLOWANCE.toString()), {
+      from: metamask.address,
+    })
+      .send()
+      .on('transactionHash', function (hash) {
+      })
+      .on('receipt', function (receipt) {
+        setData({
+          ...data,
+          allowance: MIN_ALLOWANCE
+        })
+      })
+      .on('error', (err) => {
+        console.log(err)
+      })
+  }
+  const handlePurchase = (token1Amount) => {
     const { contributeWei } = library.methods.Market
-    contributeWei(library.web3.utils.toWei('500'), {
+    contributeWei(library.web3.utils.toWei(token1Amount.toString()), {
       from: metamask.address,
     })
       .send()
       .on('transactionHash', function (hash) {
         setPurchaseTx(hash)
+        setShowPurchase(false)
       })
       .on('receipt', function (receipt) {
         setPurchaseTx('')
@@ -308,6 +340,10 @@ export default connect((state) => state)(function Home({ metamask, library, even
 
   if (loading) return <Spinner />
 
+  const token0Total = data.totalCap / data.token0PerToken1;
+  const token0Sold = data.totaltoken1Paid / data.token0PerToken1;
+  const token0Remaining = token0Total - token0Sold;
+
   return (
     <HomeWrapper>
       <div className="home-header">
@@ -325,13 +361,13 @@ export default connect((state) => state)(function Home({ metamask, library, even
           <div>
             <p>Shards available:</p>
             <h4 className="light">
-              {format(data.balanceOf)} / {format(data.totalCap / data.token0PerToken1)}
+              {format(token0Remaining, 2)} of {format(token0Total, 2)}
             </h4>
           </div>
           <div>
             <p>Price per Shard:</p>
             <h4 className="light">
-              {format(data.token0PerToken1, 4)} {data.contributeToken}
+              {format(data.token0PerToken1)} {data.contributeToken}
             </h4>
           </div>
           <div>
@@ -372,11 +408,11 @@ export default connect((state) => state)(function Home({ metamask, library, even
               </div>
               <div>
                 <p>Total Shards Subscribed:</p>
-                <h4 className="light">{format(data.totaltoken1Paid / data.token0PerToken1)}</h4>
+                <h4 className="light">{format(data.totaltoken1Paid / data.token0PerToken1, 2)}</h4>
               </div>
               <div>
                 <p># Subscribers:</p>
-                <h4 className="light">{format(data.totalBuyers, 0)}</h4>
+                <h4 className="light">{format(data.totalBuyers)}</h4>
               </div>
             </div>
             <div className="misc">
@@ -410,9 +446,17 @@ export default connect((state) => state)(function Home({ metamask, library, even
               </div>
               <div className="purcahse">
                 {data.lastTimestamp.getTime() < data.deadline.getTime() ? (
-                  <Button className="full-width" onClick={handlePurchase} disabled={purchaseTx}>
-                    Purchase
-                  </Button>
+                  <>
+                    {Number(data.allowance) < Number(data.token1Balance) ? (
+                      <Button className="full-width" onClick={handleUnlock}>
+                        Unlock
+                      </Button>
+                    ) : (
+                      <Button className="full-width" onClick={() => setShowPurchase(true)} disabled={purchaseTx}>
+                        Purchase
+                      </Button>
+                    )}
+                  </>
                 ) : (
                   !data.contributions.hasWithdrawn &&
                   data.contributions.weiContributed > 0 && (
@@ -446,6 +490,16 @@ export default connect((state) => state)(function Home({ metamask, library, even
           onHide={() => setShowContributors(false)}
         />
       )}
+      <PurchaseModal
+        token0Name={data.name}
+        token1Name={data.contributeToken}
+        token1Balance={data.token1Balance}
+        token0PerToken1={data.token0PerToken1}
+        purchaseTx={purchaseTx}
+        show={showPurchase}
+        onHide={() => setShowPurchase(false)}
+        onContinue={handlePurchase}
+      />
       {(purchaseTx || claimTx) && <Spinner />}
     </HomeWrapper>
   )
