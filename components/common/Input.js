@@ -8,7 +8,9 @@ const Wrapper = styled.div`
 
   label {
     display: block;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: var(--color-blue);
   }
 
   input {
@@ -16,8 +18,10 @@ const Wrapper = styled.div`
     padding: 9px 10px;
     border-radius: 4px;
     border: 1px solid var(--color-border);
-    background-color: var(--color-black);
-    color: var(--color-white);
+    background-color: var(--color-white);
+    color: var(--color-black);
+    font-size: 16px;
+    font-weight: normal;
     ${(props) => (props.suffix ? 'padding-right: 50px' : '')}
 
     &:disabled {
