@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
 import Button from 'components/common/Button'
+import qs from 'qs';
 import ItemList from './ItemList'
 import AssetModal from './AssetModal'
 import ContributionsModal, { PAGE_SIZE } from './ContributionsModal'
@@ -172,14 +173,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
     setSelectedAsset(false)
   }
 
-  useEffect(() => {
-    const queryAssets = async function () {
-      const result = await getAssets({ limit: 50, offset: 0 })
-      setAssets(result.data.assets)
-    }
-    queryAssets()
-  }, [])
-
   const [data, setData] = useState(null)
   const loading = !data
   const loadData = () => {
@@ -195,7 +188,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
     const { balanceOf, name } = library.methods.Token0
     const { name: contributeToken, balanceOf: token1Balance, getAllowance: allowance } = library.methods.Token1
     const {
-      // assets,
       totalAssets,
     } = library.methods.Vault
     const { getBlock } = library.methods.web3
@@ -215,7 +207,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
       totalAssets(),
       getBlock(),
       // contributors(),
-      // assets(),
     ])
       .then(
         ([
@@ -233,7 +224,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
           totalAssets,
           lastTimestamp,
           // contributors,
-          // assets,
         ]) => {
           console.log({
             name,
@@ -337,6 +327,40 @@ export default connect((state) => state)(function Home({ metamask, library, even
         setClaimTx('')
       })
   }
+
+  useEffect(() => {
+    if (data?.totalAssets && Number(data.totalAssets) > 0) {
+      const queryAssets = async function () {
+        try {
+          const tokenAssets = await library.methods.Vault.assets(0, data.totalAssets)
+          const result = await getAssets(
+            {
+              token_ids: tokenAssets.map(({ tokenId }) => tokenId),
+              asset_contract_addresses: tokenAssets.map(({ tokenAddress }) => tokenAddress),
+              limit: 50,
+              offset: 0
+            },
+            {
+              paramsSerializer: params => {
+                return qs.stringify(params, { arrayFormat: "repeat" })
+              }
+            }
+          )
+          if (result?.data?.assets) {
+            const assets = result.data.assets.map(asset => {
+              const matching = tokenAssets.find((e) => e.tokenId === asset.token_id);
+              asset.category = matching ? matching.category : 'Other';
+              return asset;
+            })
+            setAssets(result.data.assets)
+          }
+        } catch (err) {
+          console.log(err)
+        }
+      }
+      queryAssets()
+    }
+  }, [data?.totalAssets])
 
   if (loading) return <Spinner />
 

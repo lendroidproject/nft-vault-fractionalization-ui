@@ -6,7 +6,7 @@ import Library from 'whalestreet-js'
 import { infuras, isSupportedNetwork, networkLabel, networks } from 'utils/etherscan'
 
 const addresses = {
-  Vault: '0x2D04bF2492641074cfA94eF1eAFd27B10f11F1bf',
+  Vault: '0x6C66dCC216B2324520bAcB9E3696A9F54238999a',
   Token0: '0x37DB1941bcc5A687cF8E21aaB7058cDC43DD0b44',
   Token1: '0xe40E97AE323A1E663E0687FFA88D33c3C44101D3',
   Market: '0xfF117e9D0598F1808CFAe3Aeef9Cb0A0Bbd1705e',

@@ -90,7 +90,7 @@ function AssetModal({ category, asset, show, onHide }) {
           <img src="/assets/close-btn.svg" alt="Close" />
         </button>
         <div className="category">{category}</div>
-        <img src={asset.image_url || DEFAULT_IMAGE_URL} />
+        <img src={asset.image_url || asset.asset_contract?.image_url || DEFAULT_IMAGE_URL} />
         <div>
           <h3 className="light">{asset.name}</h3>
           {(asset.asset_contract && asset.asset_contract.name) && (
