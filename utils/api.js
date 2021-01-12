@@ -44,10 +44,11 @@ function request(config, external) {
   })
 }
 
-export function getAssets(params) {
+export function getAssets(params, options) {
   return request({
     url: '/assets',
     params,
+    ...options,
   })
 }
 

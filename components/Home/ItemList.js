@@ -97,7 +97,7 @@ const Wrapper = styled.div`
 function groupByCategory(items) {
   const group = {}
   items.forEach((item) => {
-    const category = item.collection ? item.collection.name : 'Other';
+    const category = item.category ? item.category : 'Other';
     if (group[category]) {
       group[category].push(item)
     } else {
@@ -135,7 +135,7 @@ export default function ItemList({ items = [], onClickItem }) {
                   className="item-group-item"
                   style={{
                     backgroundColor: item.background_color || '#ccc',
-                    backgroundImage: `url(${item.image_url || DEFAULT_IMAGE_URL})`,
+                    backgroundImage: `url(${item.image_url || item.asset_contract?.image_url || DEFAULT_IMAGE_URL})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center'
                   }}
