@@ -93,9 +93,9 @@ function AssetModal({ asset, total, show, onHide, onPrev, onNext }) {
             <h4 className="light">by {asset.asset_contract.name}</h4>
           )}
           <div className="pagination">
-            <img src="/assets/arrow-left-darker.svg" className={asset.orderId === 1 ? 'disabled' : ''} onClick={() => onPrev && onPrev()}/>
+            <img src="/assets/arrow-left-darker.svg" className={asset.orderId <= 1 ? 'disabled' : ''} onClick={() => onPrev && onPrev()}/>
             <h2>{asset.orderId}/{total}</h2>
-            <img src="/assets/arrow-right-darker.svg" className={asset.orderId === total ? 'disabled' : ''} onClick={() => onNext && onNext()}/>
+            <img src="/assets/arrow-right-darker.svg" className={asset.orderId >= total ? 'disabled' : ''} onClick={() => onNext && onNext()}/>
           </div>
         </div>
       </Content>
