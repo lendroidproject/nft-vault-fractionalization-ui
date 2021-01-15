@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import styled from 'styled-components'
 import PerfectScrollbar from 'react-perfect-scrollbar'
+import AssetModal from './AssetModal'
 
 const DEFAULT_IMAGE_URL = '/assets/default-asset-img.jpg';
 
@@ -22,7 +24,7 @@ const Wrapper = styled.div`
     display: flex;
     padding: 40px 20px 50px;
   }
-  .item-group {
+  .asset-group {
     position: relative;
     min-width: 345px;
     min-height: 328px;
@@ -46,12 +48,12 @@ const Wrapper = styled.div`
     top: -12px;
     transform: translateX(-50%);
   }
-  .item-group-items {
+  .asset-group-assets {
     flex-wrap: wrap;
-    align-items: flex-start;
+    align-assets: flex-start;
     display: flex;
   }
-  .item-group-item {
+  .asset-group-asset {
     background-color: var(--color-gold);
     height: 64px;
     width: 60px;
@@ -94,58 +96,97 @@ const Wrapper = styled.div`
   }
 `
 
-function groupByCategory(items) {
+const MAX_GROUP_SIZE = 20
+
+function groupByCategory(assets) {
   const group = {}
-  items.forEach((item) => {
-    const category = item.category ? item.category : 'Other';
+  assets.forEach((asset, idx) => {
+    const category = asset.category ? asset.category : 'Other';
+    asset.orderId = idx + 1;
+    asset.category = category;
     if (group[category]) {
-      group[category].push(item)
+      group[category].push(asset)
     } else {
-      group[category] = [item]
+      group[category] = [asset]
     }
   })
 
   const result = [];
   
   Object.keys(group).forEach(key => {
-    while(group[key].length > 0) {
-      result.push({
-        category: key,
-        items: group[key].splice(0, 20)
-      })
+    result.push({ category: key, assets: [] });
+    for(let i = 0; i < group[key].length; i++) {
+      if (result[result.length - 1].assets.length >= MAX_GROUP_SIZE) {
+        result.push({ category: key, assets: [] });
+      }
+      result[result.length - 1].assets.push(group[key][i])
     }
   })
 
   return result;
 }
 
-export default function ItemList({ items = [], onClickItem }) {
-  const groupedItems = groupByCategory(items)
+export default function AssetList({ assets = [] }) {
+  const [showAssetModal, setShowAssetModal] = useState(false)
+  const [selectedAsset, setSelectedAsset] = useState()
+
+  const groupedAssets = groupByCategory(assets)
+
+  const handleClick = (asset) => {
+    setSelectedAsset(asset)
+    setShowAssetModal(true)
+  }
+
+  const handleClose = () => {
+    setShowAssetModal(false)
+  }
+
+  const handlePrev = () => {
+    const orderId = Math.max(1, selectedAsset.orderId - 1)
+    const prevAsset = assets.find(asset => asset.orderId === orderId)
+    setSelectedAsset(prevAsset)
+  }
+
+  const handleNext = () => {
+    const orderId = Math.min(assets.length, selectedAsset.orderId + 1)
+    const nextAsset = assets.find(asset => asset.orderId === orderId)
+    setSelectedAsset(nextAsset)
+  }
 
   return (
     <Wrapper>
       <PerfectScrollbar className="scrollview" option={{ suppressScrollY: true }}>
-        {groupedItems.map((categoryGroup, idx) => (
-          <div className="item-group" key={categoryGroup.category + idx}>
+        {groupedAssets.map((categoryGroup, categoryIdx) => (
+          <div className="asset-group" key={`category-${categoryIdx}`}>
             <div className="cateogry">{categoryGroup.category}</div>
-            <div className="item-group-items">
-              {categoryGroup.items.map((item) => (
+            <div className="asset-group-assets">
+              {categoryGroup.assets.map((asset, assetIdx) => (
                 <div
-                  key={item.id}
-                  className="item-group-item"
+                  key={`${categoryGroup.category}-${assetIdx}`}
+                  className="asset-group-asset"
                   style={{
-                    backgroundColor: item.background_color || '#ccc',
-                    backgroundImage: `url(${item.image_url || item.asset_contract?.image_url || DEFAULT_IMAGE_URL})`,
+                    backgroundColor: asset.background_color || '#ccc',
+                    backgroundImage: `url(${asset.image_url || asset.asset_contract?.image_url || DEFAULT_IMAGE_URL})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center'
                   }}
-                  onClick={() => (onClickItem && onClickItem(categoryGroup.category, item))}
+                  onClick={() => handleClick(asset)}
                 />
               ))}
             </div>
           </div>
         ))}
       </PerfectScrollbar>
+      {selectedAsset && (
+        <AssetModal
+          total={assets.length}
+          asset={selectedAsset}
+          show={showAssetModal}
+          onHide={handleClose}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
+      )}
     </Wrapper>  
   )
 }

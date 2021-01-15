@@ -3,8 +3,7 @@ import styled from 'styled-components'
 import { connect } from 'react-redux'
 import Button from 'components/common/Button'
 import qs from 'qs';
-import ItemList from './ItemList'
-import AssetModal from './AssetModal'
+import AssetList from './AssetList'
 import ContributionsModal, { PAGE_SIZE } from './ContributionsModal'
 import { getAssets } from 'utils/api'
 import { format } from 'utils/number'
@@ -156,22 +155,10 @@ const MIN_ALLOWANCE = 10 ** 8;
 
 export default connect((state) => state)(function Home({ metamask, library, eventTimestamp }) {
   const [assets, setAssets] = useState([])
-  const [showAssetModal, setShowAssetModal] = useState(false)
-  const [selectedAsset, setSelectedAsset] = useState()
-  const [selectedCategory, setSelectedCategory] = useState()
+  
   const [showContributors, setShowContributors] = useState()
   const [showPurchase, setShowPurchase] = useState(false)
   const toNumber = library && library.web3.utils.fromWei
-
-  const handleClickAsset = (category, item) => {
-    setSelectedCategory(category)
-    setSelectedAsset(item)
-    setShowAssetModal(true)
-  }
-
-  const handleCloseAssetModal = () => {
-    setSelectedAsset(false)
-  }
 
   const [data, setData] = useState(null)
   const loading = !data
@@ -348,11 +335,11 @@ export default connect((state) => state)(function Home({ metamask, library, even
           )
           if (result?.data?.assets) {
             const assets = result.data.assets.map(asset => {
-              const matching = tokenAssets.find((e) => e.tokenId === asset.token_id);
-              asset.category = matching ? matching.category : 'Other';
-              return asset;
+              const matching = tokenAssets.find((e) => e.tokenId === asset.token_id)
+              asset.category = matching ? matching.category : 'Other'
+              return asset
             })
-            setAssets(result.data.assets)
+            setAssets(assets)
           }
         } catch (err) {
           console.log(err)
@@ -421,7 +408,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
               adipisci[ng]velit, sed quia non numquam [do] eius modi tempora inci[di]dunt, ut labore et dolore.
             </div>
             <div className="item-list">
-              <ItemList items={assets} onClickItem={handleClickAsset} />
+              <AssetList assets={assets} />
             </div>
           </div>
           <div className="body-left">
@@ -494,14 +481,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
           </div>
         </div>
       </div>
-      {selectedAsset && (
-        <AssetModal
-          category={selectedCategory}
-          asset={selectedAsset}
-          show={showAssetModal}
-          onHide={handleCloseAssetModal}
-        />
-      )}
       {showContributors && (
         <ContributionsModal
           total={data.totalBuyers}
