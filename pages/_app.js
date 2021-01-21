@@ -44,7 +44,7 @@ class App extends NextApp {
                 --color-red: #eb0f0f;
                 --color-blue: #4559FC;
                 --color-dark-blue: #200AE5;
-                --color-pink: #EF0386;
+                --color-pink: #CE1FCA;
                 --color-menu: #949394;
                 --color-yellow: #fde92a;
                 --color-gold: #fff400;
@@ -132,6 +132,9 @@ class App extends NextApp {
               }
               .col-yellow {
                 color: var(--color-yellow);
+              }
+              .col-pink {
+                color: var(--color-pink);
               }
               *::-webkit-scrollbar { width: 5px; }
               *::-webkit-scrollbar-track { background: transparent; }
