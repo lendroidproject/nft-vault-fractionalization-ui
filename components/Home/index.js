@@ -65,7 +65,9 @@ const HomeWrapper = styled.div`
     }
     .subscriptions {
       padding: 20px;
-      border: 1px solid var(--color-border);
+      box-shadow: 0 2px 15px 0 rgba(0,0,0,0.14);
+      background-color: #FBFBFB;
+      border: 1px solid #E0E0E0;
       border-radius: 4px;
       margin-bottom: 24px;
       > div {
@@ -418,7 +420,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
           <div className="body-left">
             <div className="subscriptions">
               <div>
-                <p>Total {data.contributeToken} Contributed:</p>
+                <p>Total contributions in {data.contributeToken}:</p>
                 <h4 className="light">{format(data.totaltoken1Paid)}</h4>
               </div>
               <div>
