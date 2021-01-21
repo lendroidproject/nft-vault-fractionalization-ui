@@ -363,7 +363,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
       <div className="home-header">
         <div className="header-title border-bottom">
           <h1 className="col-pink">
-            Market
+            MARKET
           </h1>
         </div>
         <div className="header-stats flex-wrap justify-between">
