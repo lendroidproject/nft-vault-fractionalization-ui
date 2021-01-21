@@ -433,7 +433,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
               </div>
             </div>
             <div className="misc">
-              <h2>Number Inside : {data.totalAssets}</h2>
+              <h2>NFTs in the Bundle: {data.totalAssets}</h2>
               <div className="external-links">
                 <div>
                   <a href={addressLink(library.addresses.Token0, metamask.network)} target="_blank">
