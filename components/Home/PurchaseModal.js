@@ -66,21 +66,21 @@ const Content = styled.div`
 `
 
 function PurchaseModal({ token0Name, token1Name, token1Balance = 0, token0PerToken1, purchaseTx = '', show, onHide, onContinue }) {
-  const [token0Amount, setToken0Amount] = useState(1)
+  const [token0Amount, setToken0Amount] = useState('')
   
   const handleChange = (e) => {
-    if (e.target.value) {
-      const amount = Math.floor(e.target.value)
-      setToken0Amount(amount)
+    if (!e.target.value || Number.isInteger(Number(e.target.value))) {
+      setToken0Amount(e.target.value)
     }
   }
 
   const token1Amount = new BigNumber((token0Amount || 0)).multipliedBy(token0PerToken1).toNumber()
-  const isValid = token1Amount && token1Amount <= token1Balance;
+  const isSufficientBalance = token1Amount <= token1Balance
+  const isValid = !!token1Amount && isSufficientBalance
 
   useEffect(() => {
     if (show) {
-      setToken0Amount(1)
+      setToken0Amount('')
       document.getElementById('token0Amount').focus()
     }
   }, [show])
@@ -95,10 +95,10 @@ function PurchaseModal({ token0Name, token1Name, token1Balance = 0, token0PerTok
           <h1 className="modal-title center">Purchase {token0Name}</h1>
         </div>
         <div className="modal-body">
-          <Input label={`Enter ${token0Name} amount to purchase`} id="token0Amount" value={token0Amount} onChange={handleChange} type="number" min={1} step={1} autoFocus />
-          <div className={`message${isValid ? ' ' : ' error'}`}>
+          <Input label={`Enter ${token0Name} amount to purchase`} id="token0Amount" value={token0Amount} onChange={handleChange} pattern="\d+" />
+          <div className={`message${!isSufficientBalance ? ' error' : ''}`}>
             {token1Name} required: <b className="col-black">{token1Amount}</b><br />
-            {!isValid && `Insufficient ${token1Name} balance.`}
+            {!isSufficientBalance && `Insufficient ${token1Name} balance.`}
           </div>
         </div>
         <div className="modal-footer">
