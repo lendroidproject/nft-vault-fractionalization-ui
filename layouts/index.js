@@ -66,12 +66,12 @@ export default function Layout({ children }) {
           <Link href="/">
             <Button className={router.pathname === '/' ? 'active' : 'inactive'}>Market</Button>
           </Link>
-          {/* <Link href="/buyout">
+          <Link href="/buyout">
             <Button className={router.pathname === '/buyout' ? 'active' : 'inactive'}>Buyout</Button>
           </Link>
           <Link href="/redeem">
             <Button className={router.pathname === '/redeem' ? 'active' : 'inactive'}>Redeem</Button>
-          </Link> */}
+          </Link>
           <Link href="/about">
             <Button className={router.pathname === '/about' ? 'active' : 'inactive'}>Know B20</Button>
           </Link>

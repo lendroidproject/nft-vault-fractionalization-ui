@@ -8,7 +8,7 @@ import ContributionsModal, { PAGE_SIZE } from './ContributionsModal'
 import { getAssets } from 'utils/api'
 import { format } from 'utils/number'
 import { addressLink, openseaLink } from 'utils/etherscan'
-import Spinner from 'components/common/Spinner'
+import B20Spinner from 'components/common/B20Spinner'
 import PurchaseModal from './PurchaseModal'
 
 const HomeWrapper = styled.div`
@@ -354,7 +354,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
     }
   }, [data?.totalAssets])
 
-  if (loading) return <Spinner />
+  if (loading) return <B20Spinner />
 
   const token0Total = data.totalCap / data.token0PerToken1;
   const token0Sold = data.totaltoken1Paid / data.token0PerToken1;
@@ -370,17 +370,17 @@ export default connect((state) => state)(function Home({ metamask, library, even
         </div>
         <div className="header-stats flex-wrap justify-between">
           <div>
-            <p>Shard name:</p>
+            <p>Key name:</p>
             <h4 className="light">{data.name}</h4>
           </div>
           <div>
-            <p>Shards available:</p>
+            <p>Keys available:</p>
             <h4 className="light">
               {format(token0Remaining, 2)} of {format(token0Total, 2)}
             </h4>
           </div>
           <div>
-            <p>Price per Shard:</p>
+            <p>Price per Key:</p>
             <h4 className="light">
               {format(data.token0PerToken1)} {data.contributeToken}
             </h4>

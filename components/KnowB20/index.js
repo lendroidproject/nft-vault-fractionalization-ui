@@ -8,10 +8,6 @@ const Wrapper = styled.div`
   border: 1px solid #979797;
   position: relative;
   min-height: 630px;
-  .spinner {
-    z-index: 1000;
-    position: fixed;
-  }
   .home-header {
     position: relative;
     .header-title {
