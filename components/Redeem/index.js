@@ -28,6 +28,7 @@ const Wrapper = styled.div`
   }
   .card {
     width: 423px;
+    min-height: 350px;
     border: 1px solid #E0E0E0;
     border-radius: 4px;
     background-color: #FBFBFB;
@@ -43,6 +44,9 @@ const Wrapper = styled.div`
       > img {
         max-width: 100%;
       }
+    }
+    .card-title {
+      margin-bottom: 10px;
     }
     .last-buyout {
       margin-top: 20px;
@@ -61,6 +65,13 @@ const Wrapper = styled.div`
     .card-footer {
       text-align: center;
     }
+  }
+  .asset-icon {
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    margin-right: 0px;
+    vertical-align: bottom;
   }
   .border-bottom {
     border-bottom: 1px solid var(--color-border);
@@ -86,8 +97,9 @@ export default function Redeem() {
             <div className="redeem-bg">
               <img src="/assets/redeem-bg.png" alt="Redeem" />
             </div>
-            <h2>B20 KEYS</h2>
-            <p>
+            <h2 className="card-title">B20 KEYS</h2>
+            <div>Redemption will begin after the Buyout process ends</div>
+            {/* <p>
               This most epic of bundles - composed of 20 iconic Beeple 1/1 everydays, grand museums on sprawling lands in Cryptovoxels,
               Decentraland and Somnium - has now been bought out. The financial upside belongs to all B20 token holders.
             </p>
@@ -98,13 +110,13 @@ export default function Redeem() {
               </div>
               <div className="flex justify-between flex-center">
                 <h3 className="light label">This Edition Last Sold For:</h3>
-                <h2 className="value">1200 DAI</h2>
+                <h2 className="value"><img className="asset-icon" src="/assets/dai.svg" alt="DAI" /> 1200 DAI</h2>
               </div>
-            </div>
+            </div> */}
           </div>
-          <div className="card-footer">
+          {/* <div className="card-footer">
             <Button>REDEEM B20</Button>
-          </div>
+          </div> */}
         </div>
       </div>
     </Wrapper>

@@ -355,7 +355,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
     }
   }, [data?.totalAssets])
 
-  if (loading) return <B20Spinner />
+  if (loading) return <B20Spinner style={{ marginTop: 200 }} />
 
   const token0Total = data.totalCap / data.token0PerToken1;
   const token0Sold = data.totaltoken1Paid / data.token0PerToken1;

@@ -9,9 +9,9 @@ const B20SpinnerWrapper = styled.div`
   }
 `;
 
-export default function B20Spinner() {
+export default function B20Spinner(props) {
   return(
-    <B20SpinnerWrapper>
+    <B20SpinnerWrapper {...props}>
       <img src="/assets/B20-spinner.gif" />  
     </B20SpinnerWrapper>
   )

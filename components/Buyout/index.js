@@ -49,13 +49,14 @@ const Wrapper = styled.div`
       border-radius: 4px;
       margin-bottom: 24px;
       > div {
-        margin-bottom: 24px;
+        margin-bottom: 20px;
         &:last-of-type {
           margin-bottom: 0;
         }
       }
       p {
         font-size: 12px;
+        margin-bottom: 5px;
       }
     }
     .balance {
@@ -82,6 +83,14 @@ const Wrapper = styled.div`
         font-size: 18px;
         line-height: 21px;
       }
+    }
+
+    .asset-icon {
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      margin-right: 6px;
+      vertical-align: bottom;
     }
 
     @media (max-width: 991px) {
@@ -220,7 +229,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
               <div>
                 <p>Total Contributions:</p>
                 <h2>
-                  1000 DAI
+                  <img className="asset-icon" src="/assets/dai.svg" alt="DAI" />1000 DAI
                 </h2>
               </div>
             </div>
@@ -232,10 +241,14 @@ export default connect((state) => state)(function Home({ metamask, library, even
               </div>
               <div><h3 className="col-blue">You have</h3></div>
               <div>
-                <h3 className="light asset-balance">320,0000</h3>
+                <h3 className="light asset-balance">
+                  <img className="asset-icon" src="/assets/dai.svg" alt="DAI" /> 320,0000
+                </h3>
               </div>
               <div>
-                <h3 className="light asset-balance">20,0000</h3>
+                <h3 className="light asset-balance">
+                  <img className="asset-icon" src="/assets/b20.svg" alt="B20" /> 20,0000
+                </h3>
               </div>
             </div>
           </div>
