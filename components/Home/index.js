@@ -3,13 +3,14 @@ import styled from 'styled-components'
 import { connect } from 'react-redux'
 import Button from 'components/common/Button'
 import qs from 'qs';
-import AssetList from './AssetList'
+import AssetList from 'components/Home/AssetList'
 import ContributionsModal, { PAGE_SIZE } from './ContributionsModal'
 import { getAssets } from 'utils/api'
 import { format } from 'utils/number'
 import { addressLink, openseaLink } from 'utils/etherscan'
 import B20Spinner from 'components/common/B20Spinner'
-import PurchaseModal from './PurchaseModal'
+import Spinner from 'components/common/Spinner'
+import PurchaseModal from 'components/Home/PurchaseModal'
 
 const HomeWrapper = styled.div`
   background: var(--color-white);
@@ -428,7 +429,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 <h4 className="light">{format(data.totaltoken1Paid / data.token0PerToken1, 2)}</h4>
               </div>
               <div>
-                <p># Keymasters:</p>
+                <p>Keymasters:</p>
                 <h4 className="light">{format(data.totalBuyers)}</h4>
               </div>
             </div>
