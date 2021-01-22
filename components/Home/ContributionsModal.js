@@ -72,21 +72,12 @@ const Content = styled.div`
   table {
     position: relative;
     width: 100%;
-    &:before {
-      position: absolute;
-      content: '';
-      left: 0;
-      right: 0;
-      top: 0;
-      height: 36px;
-      background: linear-gradient(90deg, #2fd2dd 0%, #c170d0 100%);
-      border-radius: 4px;
-    }
     thead {
       text-align: left;
       font-size: 16px;
       line-height: 19px;
       color: var(--color-white);
+      background: linear-gradient(90deg, #2fd2dd 0%, #c170d0 100%);
       position: relative;
       z-index: 1;
       tr {
@@ -201,7 +192,7 @@ function ContributionsModal({ show, onHide, total, onPage, toNumber }) {
           </button>
         </div>
         <div className="modal-body">
-          <h2 className="col-dark-blue padded">Contributions</h2>
+          <h2 className="col-dark-blue padded">CONTRIBUTORS</h2>
           <table cellPadding={0} cellSpacing={0}>
             <thead>
               <tr>

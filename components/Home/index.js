@@ -13,7 +13,7 @@ import PurchaseModal from './PurchaseModal'
 
 const HomeWrapper = styled.div`
   background: var(--color-white);
-  padding: 52px 35px 20px;
+  padding: 24px 35px 20px;
   width: 1216px;
   max-width: 100%;
   border: 1px solid #979797;
@@ -28,6 +28,9 @@ const HomeWrapper = styled.div`
       padding-bottom: 8px;
     }
     .header-stats {
+      p {
+        font-size: 12px;
+      }
       margin: 20px 0;
       > div {
         margin: 10px 0;
@@ -36,11 +39,10 @@ const HomeWrapper = styled.div`
     .status-tag {
       background-color: var(--color-green);
       color: var(--color-white);
-      margin-left: 20px;
-      font-size: 10px;
-      line-height: 12px;
+      font-size: 12px;
+      line-height: 15px;
       border-radius: 5px;
-      padding: 6px 12px;
+      padding: 1px 24px;
       display: inline-block;
       vertical-align: text-bottom;
       font-weight: normal;
@@ -58,11 +60,14 @@ const HomeWrapper = styled.div`
       width: 310px;
     }
     .desc {
-      margin-bottom: 24px;
+      padding-bottom: 24px;
+      margin-bottom: 10px;
     }
     .subscriptions {
       padding: 20px;
-      border: 1px solid var(--color-border);
+      box-shadow: 0 2px 15px 0 rgba(0,0,0,0.14);
+      background-color: #FBFBFB;
+      border: 1px solid #E0E0E0;
       border-radius: 4px;
       margin-bottom: 24px;
       > div {
@@ -129,7 +134,7 @@ const HomeWrapper = styled.div`
       z-index: 0;
       margin: -2px; /* !importanté */
       border-radius: inherit; /* !importanté */
-      background: linear-gradient(to bottom, #ddb2ea, #b0f0f6);
+      background: var(--linear-gradient1);
     }
 
     span {
@@ -359,9 +364,8 @@ export default connect((state) => state)(function Home({ metamask, library, even
     <HomeWrapper>
       <div className="home-header">
         <div className="header-title border-bottom">
-          <h1>
-            B20 SHARD: WHALEBUNDLES
-            {data.lastTimestamp.getTime() < data.deadline.getTime() && <span className="status-tag">Status: LIVE</span>}
+          <h1 className="col-pink">
+            MARKET
           </h1>
         </div>
         <div className="header-stats flex-wrap justify-between">
@@ -387,25 +391,27 @@ export default connect((state) => state)(function Home({ metamask, library, even
           </div>
           <div>
             <p>Deadline:</p>
-            <h4 className="light">{data.deadline.toString()}</h4>
+            <h4 className="light">{data.deadline.toISOString()}</h4>
+          </div>
+          <div>
+            <p>Status:</p>
+            {data.lastTimestamp.getTime() < data.deadline.getTime() && <span className="status-tag">Live</span>}
           </div>
         </div>
       </div>
       <div className="home-body">
         <div className="body-title border-bottom">
-          <h4 className="col-blue uppercase">Description</h4>
+          <h4 className="uppercase">Description</h4>
         </div>
         <div className="body-content flex justify-between">
           <div className="body-right">
             <div className="desc">
-              Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam
-              rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt,
-              explicabo. Nemo enim ipsam voluptatem,.
+              B.20 is a Metapurse project that tokenizes one of the most historic and valuable art projectsin the NFT space -
+              The Beeple 20 Collection and the newly built VR museums it lives in - to share it with the metaverse. 
               <br />
               <br />
-              Quia voluptas sit, aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos, qui ratione
-              voluptatem sequi nesciunt, neque porro quisquam est, qui dolorem ipsum, quia dolor sit amet consectetur
-              adipisci[ng]velit, sed quia non numquam [do] eius modi tempora inci[di]dunt, ut labore et dolore.
+              B20s are the tokens that represent ownership of this bundle.
+              They are the keys that allow you to unlock the financial upside of the bundle, including from a possible buyout.
             </div>
             <div className="item-list">
               <AssetList assets={assets} />
@@ -414,7 +420,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
           <div className="body-left">
             <div className="subscriptions">
               <div>
-                <p>Total {data.contributeToken} Contributed:</p>
+                <p>Total contributions in {data.contributeToken}:</p>
                 <h4 className="light">{format(data.totaltoken1Paid)}</h4>
               </div>
               <div>
@@ -427,7 +433,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
               </div>
             </div>
             <div className="misc">
-              <h2>Number Inside : {data.totalAssets}</h2>
+              <h2>NFTs in the Bundle: {data.totalAssets}</h2>
               <div className="external-links">
                 <div>
                   <a href={addressLink(library.addresses.Token0, metamask.network)} target="_blank">
