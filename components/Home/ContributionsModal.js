@@ -197,8 +197,8 @@ function ContributionsModal({ show, onHide, total, onPage, toNumber }) {
             <thead>
               <tr>
                 <th>Wallet</th>
-                <th>Shards</th>
-                <th>ETH Contribution</th>
+                <th>Keys</th>
+                <th>Contribution</th>
               </tr>
             </thead>
             <tbody>

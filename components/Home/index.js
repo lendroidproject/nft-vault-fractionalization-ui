@@ -424,11 +424,11 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 <h4 className="light">{format(data.totaltoken1Paid)}</h4>
               </div>
               <div>
-                <p>Total Shards Subscribed:</p>
+                <p>Total Key Purchased:</p>
                 <h4 className="light">{format(data.totaltoken1Paid / data.token0PerToken1, 2)}</h4>
               </div>
               <div>
-                <p># Subscribers:</p>
+                <p># Keymasters:</p>
                 <h4 className="light">{format(data.totalBuyers)}</h4>
               </div>
             </div>
@@ -457,7 +457,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                   }}
                 >
                   <span>
-                    Contributions <img src="/assets/external-link-black.svg" />
+                    CONTRIBUTIONS <img src="/assets/external-link-black.svg" />
                   </span>
                 </a>
               </div>
@@ -466,11 +466,11 @@ export default connect((state) => state)(function Home({ metamask, library, even
                   <>
                     {Number(data.allowance) < Number(data.token1Balance) ? (
                       <Button className="full-width" onClick={handleUnlock}>
-                        Unlock
+                        UNLOCK
                       </Button>
                     ) : (
                       <Button className="full-width" onClick={() => setShowPurchase(true)} disabled={purchaseTx}>
-                        Purchase
+                        PURCHASE
                       </Button>
                     )}
                   </>
@@ -478,7 +478,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                   !data.contributions.hasWithdrawn &&
                   data.contributions.weiContributed > 0 && (
                     <Button className="full-width" onClick={handleClaim} disabled={claimTx}>
-                      Claim Shards
+                      CLAIM SHARDS
                     </Button>
                   )
                 )}

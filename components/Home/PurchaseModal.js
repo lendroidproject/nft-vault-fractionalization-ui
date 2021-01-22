@@ -24,16 +24,18 @@ const Wrapper = styled.div`
 `
 
 const Content = styled.div`
-  width: 520px;
+  width: 423px;
   max-width: 95%;
-  background-color: var(--color-white);
-  box-shadow: inset 0 1px 3px 0 rgba(0,0,0,0.5), 6px 2px 4px 0 rgba(0,0,0,0.5);
-  padding: 35px 30px 30px;
+  padding: 26px 30px 30px;
   position: relative;
+  border: 1px solid #E0E0E0;
+  border-radius: 4px;
+  background-color: #FBFBFB;
+  box-shadow: 0 2px 15px 0 rgba(0,0,0,0.14);
   .btn-close {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 20px;
+    right: 20px;
     border-radius: 50%;
     background-color: #fff;
   }
@@ -46,21 +48,20 @@ const Content = styled.div`
     padding: 30px 0;
   }
   .message {
-    font-size: 16px;
+    font-size: 14px;
     color: var(--color-dark-grey);
     margin-top: 8px;
     margin-bottom: 20px;
-    line-height: 24px;
+    line-height: 17px;
 
     &.error {
       color: var(--color-red);
     }
   }
   .modal-footer {
-    text-align: right;
+    text-align: center;
     button {
-      margin-left: 20px;
-      width: 160px;
+      width: 200px;
     }
   }
 `
@@ -92,18 +93,18 @@ function PurchaseModal({ token0Name, token1Name, token1Balance = 0, token0PerTok
           <img src="/assets/close-btn.svg" alt="Close" />
         </button>
         <div className="modal-header">
-          <h1 className="modal-title center">Purchase {token0Name}</h1>
+          <h3 className="col-blue modal-title">PURCASE {token0Name}</h3>
         </div>
         <div className="modal-body">
-          <Input label={`Enter ${token0Name} amount to purchase`} id="token0Amount" value={token0Amount} onChange={handleChange} pattern="\d+" />
+          <Input label={`No of ${token0Name} tokens`} id="token0Amount" value={token0Amount} onChange={handleChange} pattern="\d+" />
           <div className={`message${!isSufficientBalance ? ' error' : ''}`}>
             {token1Name} required: <b className="col-black">{token1Amount}</b><br />
             {!isSufficientBalance && `Insufficient ${token1Name} balance.`}
           </div>
         </div>
         <div className="modal-footer">
-          <Button className="btn-outline" onClick={() => onHide && onHide()}><span>Cancel</span></Button>
-          <Button onClick={() => onContinue && onContinue(token1Amount)} disabled={!isValid || purchaseTx}><span>Continue</span></Button>
+          {/* <Button className="btn-outline" onClick={() => onHide && onHide()}><span>Cancel</span></Button> */}
+          <Button onClick={() => onContinue && onContinue(token1Amount)} disabled={!isValid || purchaseTx}><span>CONTINUE</span></Button>
         </div>
       </Content>
     </Wrapper>),

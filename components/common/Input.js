@@ -9,16 +9,18 @@ const Wrapper = styled.div`
   label {
     display: block;
     margin-bottom: 8px;
-    font-size: 16px;
-    color: var(--color-blue);
+    font-size: 14px;
+    line-height: 17px;
+    color: var(--color-grey);
   }
 
   input {
     width: 100%;
-    padding: 9px 10px;
-    border-radius: 4px;
-    border: 1px solid var(--color-border);
-    background-color: var(--color-white);
+    padding: 9px 0px;
+    border: none;
+    border-bottom: 1px solid var(--color-border);
+    background: transparent;
+    outline: none;
     color: var(--color-black);
     font-size: 16px;
     font-weight: normal;
