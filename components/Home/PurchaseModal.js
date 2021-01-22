@@ -58,6 +58,9 @@ const Content = styled.div`
       color: var(--color-red);
     }
   }
+  .asset-icon {
+    border-radius: 12px;
+  }
   .modal-footer {
     text-align: center;
     button {
@@ -86,6 +89,10 @@ function PurchaseModal({ token0Name, token1Name, token1Balance = 0, token0PerTok
     }
   }, [show])
 
+  const inputSuffix = () => (
+    <img className="asset-icon suffix" src="/assets/b20.svg" alt="B20" />
+  )
+
   return ReactDOM.createPortal(
     (<Wrapper className={`flex-all ${show ? 'show' : 'hide'}`} onMouseDown={() => onHide && onHide()}>
       <Content onMouseDown={e => e.stopPropagation()}>
@@ -96,7 +103,14 @@ function PurchaseModal({ token0Name, token1Name, token1Balance = 0, token0PerTok
           <h3 className="col-blue modal-title">PURCASE {token0Name}</h3>
         </div>
         <div className="modal-body">
-          <Input label={`No of ${token0Name} tokens`} id="token0Amount" value={token0Amount} onChange={handleChange} pattern="\d+" />
+          <Input
+            id="token0Amount"
+            label={`No of ${token0Name} tokens`}
+            value={token0Amount}
+            onChange={handleChange}
+            pattern="\d+"
+            suffix={inputSuffix}
+          />
           <div className={`message${!isSufficientBalance ? ' error' : ''}`}>
             {token1Name} required: <b className="col-black">{token1Amount}</b><br />
             {!isSufficientBalance && `Insufficient ${token1Name} balance.`}

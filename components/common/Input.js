@@ -34,10 +34,9 @@ const Wrapper = styled.div`
   .suffix {
     position: absolute;
     right: 0;
-    bottom: 0;
-    width: 43px;
-    height: 40px;
-    border-left: 1px solid var(--color-border);
+    bottom: 6px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
