@@ -7,7 +7,8 @@ import AssetList from 'components/Home/AssetList'
 import ContributionsModal, { PAGE_SIZE } from './ContributionsModal'
 import { getAssets } from 'utils/api'
 import { format } from 'utils/number'
-import { addressLink, openseaLink, networks, connectNetworks } from 'utils/etherscan'
+import { addressLink, openseaLink, networks, connectNetworks, txLink } from 'utils/etherscan'
+import { shorten } from 'utils/string'
 import B20Spinner from 'components/common/B20Spinner'
 import Spinner from 'components/common/Spinner'
 import PurchaseModal from 'components/Home/PurchaseModal'
@@ -400,8 +401,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const token0Sold = data.totaltoken1Paid / data.token1PerToken0
   const token0Remaining = token0Total - token0Sold
 
-  console.log(data)
-
   return (
     <HomeWrapper>
       <div className="home-header">
@@ -558,7 +557,16 @@ export default connect((state) => state)(function Home({ metamask, library, even
         onHide={() => setShowPurchase(false)}
         onContinue={handlePurchase}
       />
-      <SpinnerModal show={!!purchaseTx} />
+      <SpinnerModal show={!!purchaseTx}>
+        <h3 className="col-white">
+          <br/> <br />
+          Transaction hash:
+          <br/>
+          <a className="col-white light" href={txLink(purchaseTx, library.wallet.network)} target="_blank">
+            {shorten(purchaseTx, 32)}
+          </a>
+        </h3>
+      </SpinnerModal>
     </HomeWrapper>
   )
 })
