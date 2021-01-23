@@ -200,10 +200,12 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const [showPurchase, setShowPurchase] = useState(false)
   const [countDown, setCountDown] = useState()
   const toNumber = library && library.web3.utils.fromWei
+  const validNetwork = library && networks.includes(library.wallet.network)
 
   const [data, setData] = useState(null)
   const loading = !data
   const loadData = () => {
+    if (!validNetwork) return;
     const {
       // contributors,
       totalCap,
@@ -316,8 +318,11 @@ export default connect((state) => state)(function Home({ metamask, library, even
       from: metamask.address,
     })
       .send()
-      .on('transactionHash', function (hash) {})
+      .on('transactionHash', function (hash) {
+        setPurchaseTx(hash)
+      })
       .on('receipt', function (receipt) {
+        setPurchaseTx('')
         setData({
           ...data,
           allowance: MIN_ALLOWANCE,
@@ -380,7 +385,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
     }
   }, [data?.totalAssets])
 
-  const validNetwork = library && networks.includes(library.wallet.network)
+  
   if (!validNetwork)
     return (
       <HomeWrapper className="bg-opacity-07 flex-all">
@@ -392,6 +397,8 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const token0Total = data.totalCap / data.token1PerToken0
   const token0Sold = data.totaltoken1Paid / data.token1PerToken0
   const token0Remaining = token0Total - token0Sold
+
+  console.log(data)
 
   return (
     <HomeWrapper>
@@ -494,8 +501,8 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 </a>
               </div>
               <div className="purcahse">
-                {Number(data.allowance) < Number(data.token1Balance) ? (
-                  <Button className="full-width" onClick={handleUnlock}>
+                {(!Number(data.allowance) || Number(data.allowance) < Number(data.token1Balance)) ? (
+                  <Button className="full-width" onClick={handleUnlock} disabled={!!purchaseTx}>
                     UNLOCK
                   </Button>
                 ) : (
@@ -511,7 +518,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                         <h2 className="col-green light">{countDown ? countDown.timer : ''}</h2>
                       </div>
                     ) : (
-                      <Button className="full-width" onClick={() => setShowPurchase(true)} disabled={purchaseTx}>
+                      <Button className="full-width" onClick={() => setShowPurchase(true)} disabled={!!purchaseTx}>
                         PURCHASE
                       </Button>
                     )}
