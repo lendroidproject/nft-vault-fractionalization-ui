@@ -19,12 +19,12 @@ export function useDebounce(value, delay) {
   return debouncedValue
 }
 
-export function useTicker() {
+export function useTicker(seconds = 1) {
   const [now, setNow] = useState(Date.now())
   useEffect(() => {
     const timer = setInterval(() => {
       setNow(Date.now())
-    }, 1000)
+    }, 1000 * seconds)
     return () => clearInterval(timer)
   }, [])
   return [now]

@@ -10,9 +10,9 @@ import { format } from 'utils/number'
 import { addressLink, openseaLink, networks, connectNetworks, txLink } from 'utils/etherscan'
 import { shorten } from 'utils/string'
 import B20Spinner from 'components/common/B20Spinner'
-import Spinner from 'components/common/Spinner'
 import PurchaseModal from 'components/Home/PurchaseModal'
 import SpinnerModal from 'components/common/SpinnerModal'
+import { useTicker } from 'utils/hooks'
 
 const HomeWrapper = styled.div`
   flex: 1;
@@ -204,11 +204,12 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const [countDown, setCountDown] = useState()
   const toNumber = library && library.web3.utils.fromWei
   const validNetwork = library && networks.includes(library.wallet.network)
+  const [now] = useTicker(5)
 
   const [data, setData] = useState(null)
   const loading = !data
   const loadData = () => {
-    if (!validNetwork) return;
+    if (!library || !validNetwork) return
     const {
       // contributors,
       totalCap,
@@ -294,6 +295,9 @@ export default connect((state) => state)(function Home({ metamask, library, even
       loadData()
     }
   }, [eventTimestamp, data])
+  useEffect(() => {
+    library && loadData()
+  }, [now])
   useEffect(() => {
     if (data?.marketStart) {
       if (timerHandle) {
@@ -388,7 +392,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
       queryAssets()
     }
   }, [data?.totalAssets])
-
 
   if (!validNetwork)
     return (
@@ -503,7 +506,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 </a>
               </div>
               <div className="purcahse">
-                {(!Number(data.allowance) || Number(data.allowance) < Number(data.token1Balance)) ? (
+                {!Number(data.allowance) || Number(data.allowance) < Number(data.token1Balance) ? (
                   <Button className="full-width" onClick={handleUnlock} disabled={!!purchaseTx}>
                     UNLOCK
                   </Button>
