@@ -385,7 +385,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
     }
   }, [data?.totalAssets])
 
-  
+
   if (!validNetwork)
     return (
       <HomeWrapper className="bg-opacity-07 flex-all">
@@ -463,7 +463,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 <h4 className="light">{format(data.totaltoken1Paid)}</h4>
               </div>
               <div>
-                <p>Total Key Purchased:</p>
+                <p>Total Keys Purchased:</p>
                 <h4 className="light">{format(data.totaltoken1Paid / data.token1PerToken0, 2)}</h4>
               </div>
               <div>

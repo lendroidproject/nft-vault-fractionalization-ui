@@ -211,12 +211,15 @@ export default connect((state) => state)(function Home({ metamask, library, even
               <h4 className="uppercase">B20 Buyout</h4>
             </div>
             <div className="desc">
-              Welcome to the Big B.20 Buyout. With a minimum bid of $12 mn, you can begin the buyout process. for the
+              Welcome to the Big B.20 Buyout. With a minimum bid of $10 mn (tentative estimate), you can begin the buyout process. for the
               entire bundle.
               <br />
               <br />
-              Your bid will stand for 14 days, during which time someone else can outbid you, or the community can veto
-              the bid with a 25% consensus. Good luck!
+              Your bid will stand for 48 epochs (each epoch is 8 hours), during which time someone else can outbid you, or the community can veto
+              the bid with a 25% consensus. If the community veto is successful, the minimum bid increases by 8%.
+              <br />
+              <br />
+              Good luck!
             </div>
             <div className="item-list">
               <AssetList assets={assets} loading={!assets.length} />
