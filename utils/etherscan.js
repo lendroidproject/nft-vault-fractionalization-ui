@@ -19,9 +19,9 @@ const networkLabels = {
 }
 export const connectNetworks = () => {
   if (networks.length === 1) {
-    return `Please connect to the ${networkLabels[networks[0]]}`
+    return `Please connect to the "${networkLabels[networks[0]]}"`
   } else {
-    return `Please connect to either ${networks.map((id) => networkLabels[id]).join(' or ')}`
+    return `Please connect to either "${networks.map((id) => networkLabels[id]).join('" or "')}"`
   }
 }
 const links = {

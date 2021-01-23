@@ -7,12 +7,15 @@ import AssetList from 'components/Home/AssetList'
 import ContributionsModal, { PAGE_SIZE } from './ContributionsModal'
 import { getAssets } from 'utils/api'
 import { format } from 'utils/number'
-import { addressLink, openseaLink } from 'utils/etherscan'
+import { addressLink, openseaLink, networks, connectNetworks } from 'utils/etherscan'
 import B20Spinner from 'components/common/B20Spinner'
 import Spinner from 'components/common/Spinner'
 import PurchaseModal from 'components/Home/PurchaseModal'
 
 const HomeWrapper = styled.div`
+  flex: 1;
+  overflow: auto;
+
   background: var(--color-white);
   padding: 24px 35px 20px;
   width: 1216px;
@@ -179,11 +182,13 @@ const getCountDownTimer = (endTime) => {
   const hours = Math.floor(remainingTime / 3600)
   remainingTime -= hours * 3600
   const mins = Math.floor(remainingTime / 60)
-  remainingTime -= mins * 60;
+  remainingTime -= mins * 60
   const secs = remainingTime
   return {
     finished,
-    timer: `${days} D : ${hours.toString().padStart(2, '0')} H: ${mins.toString().padStart(2, '0')} M : ${secs.toString().padStart(2, '0')} S`,
+    timer: `${days} D : ${hours.toString().padStart(2, '0')} H: ${mins
+      .toString()
+      .padStart(2, '0')} M : ${secs.toString().padStart(2, '0')} S`,
   }
 }
 
@@ -193,7 +198,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const [assets, setAssets] = useState([])
   const [showContributors, setShowContributors] = useState()
   const [showPurchase, setShowPurchase] = useState(false)
-  const [countDown, setCountDown] = useState();
+  const [countDown, setCountDown] = useState()
   const toNumber = library && library.web3.utils.fromWei
 
   const [data, setData] = useState(null)
@@ -286,7 +291,9 @@ export default connect((state) => state)(function Home({ metamask, library, even
   }, [eventTimestamp, data])
   useEffect(() => {
     if (data?.marketStart) {
-      if (timerHandle) { clearInterval(timerHandle) }
+      if (timerHandle) {
+        clearInterval(timerHandle)
+      }
       const countDown = getCountDownTimer(data?.marketStart)
       setCountDown(countDown)
       if (!countDown.finished) {
@@ -373,6 +380,13 @@ export default connect((state) => state)(function Home({ metamask, library, even
     }
   }, [data?.totalAssets])
 
+  const validNetwork = library && networks.includes(library.wallet.network)
+  if (!validNetwork)
+    return (
+      <HomeWrapper className="bg-opacity-07 flex-all">
+        <h3>{connectNetworks()}</h3>
+      </HomeWrapper>
+    )
   if (loading) return <B20Spinner style={{ marginTop: 200 }} />
 
   const token0Total = data.totalCap / data.token1PerToken0
@@ -491,7 +505,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                       <Button className="full-width btn-end" disabled={true}>
                         SALE HAS ENDED
                       </Button>
-                    ) : (countDown && !countDown.finished) ? (
+                    ) : countDown && !countDown.finished ? (
                       <div className="count-down">
                         <h4 className="col-pink">Sale Begins In:</h4>
                         <h2 className="col-green light">{countDown ? countDown.timer : ''}</h2>
