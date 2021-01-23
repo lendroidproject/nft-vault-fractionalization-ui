@@ -484,10 +484,14 @@ export default connect((state) => state)(function Home({ metamask, library, even
                     {data.name} token contract <img src="/assets/external-link.svg" />
                   </a>
                 </div>
-                {/* <div><a href="#" target="_blank">NFT Details <img src="/assets/external-link.svg" /></a></div> */}
+                <div>
+                  <a href={addressLink(library.addresses.Market, metamask.network)} target="_blank">
+                    Sale Contract <img src="/assets/external-link.svg" />
+                  </a>
+                </div>
                 <div>
                   <a href={openseaLink(library.addresses.Vault, metamask.network)} target="_blank">
-                    Opensea <img src="/assets/external-link.svg" />
+                    View Bundle on Opensea <img src="/assets/external-link.svg" />
                   </a>
                 </div>
               </div>
