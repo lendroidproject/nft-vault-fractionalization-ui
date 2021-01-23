@@ -1,11 +1,13 @@
 import axios from 'axios'
 import tinyurl from 'tinyurl'
+import { networks } from './etherscan'
 
-const MAIN_NETWORK = process.env.MAIN_NETWORK
 const OPENSEA_API_KEY = process.env.OPENSEA_API_KEY
 
+const network = networks[0]
+
 export function withBaseURL(path) {
-  const apiEndpoint = MAIN_NETWORK ? 'https://api.opensea.io/api/v1' : 'https://rinkeby-api.opensea.io/api/v1'
+  const apiEndpoint = network === 1 ? 'https://api.opensea.io/api/v1' : 'https://rinkeby-api.opensea.io/api/v1'
   return `${apiEndpoint}${path}`
 }
 
@@ -63,7 +65,7 @@ export function forceFetch({ tokenId, address, owner }) {
   return request(
     {
       url: `https://${
-        MAIN_NETWORK ? 'api' : 'rinkeby-api'
+        network ? 'api' : 'rinkeby-api'
       }.opensea.io/asset/${address}/${tokenId}/?force_update=true&account_address=${owner}`,
     },
     true
