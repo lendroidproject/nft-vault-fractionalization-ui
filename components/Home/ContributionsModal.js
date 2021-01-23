@@ -181,7 +181,6 @@ function ContributionsModal({ show, onHide, total, onPage, toNumber, token1PerTo
           page + 1 >= totalPages ? 0 : page + 2,
           page + 2 >= totalPages ? 0 : page + 3,
         ])
-        console.log(contributors)
       })
       .catch(console.log)
       .finally(() => setLoading(false))
