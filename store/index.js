@@ -3,7 +3,11 @@ import { createStore } from 'redux'
 const reducer = (state, action) => {
   switch (action.type) {
     case 'METAMASK':
-      return { ...state, metamask: { ...state.metamask, ...action.payload, connected: true } }
+      return {
+        ...state,
+        metamask: { ...state.metamask, ...action.payload, connected: true },
+        eventTimestamp: Date.now(),
+      }
     case 'INIT_CONTRACTS':
       return { ...state, library: action.payload[0], auctions: action.payload[1] }
     case 'EVENT_DATA':
