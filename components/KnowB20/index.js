@@ -62,7 +62,7 @@ export default function KnowB20() {
           It was launched on January 23 at the Metapalooza, the largest Metaverse art festival.
         </p>
         <br />
-        <a>Read More</a>
+        <a href="https://metapurser.substack.com/p/b20-tokenomics" target="_blank">Read More</a>
         <br /><br /><br />
         <h1>Vesting, drip distribution and buyout</h1>
         <br />
@@ -70,7 +70,7 @@ export default function KnowB20() {
           Apart from the 16% public sale, all other allocations had a three-month vesting period.
           However, the tokens were not locked up in the conventional sense.
           The first 10% of the tokens were made immediately available.
-          The smart contract enabled a linear 'drip distribution', where the remaining 90% was made available at the rate of 1% a day. 
+          The smart contract enabled a linear 'drip distribution', where the remaining 90% was made available at the rate of 1% a day.
           <br /> <br />
           To ensure that the B.20 project left all avenues of financial upsides open for its patrons, a buyout clause was built in.
           Successful buyouts would transfer the proceeds to all B20 token holders, pro rata.
