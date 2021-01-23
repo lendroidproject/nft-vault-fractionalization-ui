@@ -431,6 +431,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
         <ContributionsModal
           total={data.totalBuyers}
           toNumber={toNumber}
+          token1PerToken0={data.token1PerToken0}
           onPage={(page) => {
             const { contributors } = library.methods.Market
             return contributors(page * PAGE_SIZE, Math.min(data.totalBuyers - page * PAGE_SIZE, PAGE_SIZE))

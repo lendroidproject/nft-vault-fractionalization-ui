@@ -154,7 +154,7 @@ const Content = styled.div`
 
 const bgArr = new Array(PAGE_SIZE / 2).fill(0)
 
-function ContributionsModal({ show, onHide, total, onPage, toNumber }) {
+function ContributionsModal({ show, onHide, total, onPage, toNumber, token1PerToken0 }) {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(0)
   const totalPages = Math.ceil(total / PAGE_SIZE)
@@ -174,6 +174,7 @@ function ContributionsModal({ show, onHide, total, onPage, toNumber }) {
           page + 1 >= totalPages ? 0 : page + 2,
           page + 2 >= totalPages ? 0 : page + 3,
         ])
+        console.log(contributors)
       })
       .catch(console.log)
       .finally(() => setLoading(false))
@@ -213,7 +214,7 @@ function ContributionsModal({ show, onHide, total, onPage, toNumber }) {
               {contributions.map((item, idx) => (
                 <tr key={item ? item.address : idx}>
                   <td>{item ? item.address : ' '}</td>
-                  <td>{item ? item.hasWithdrawn || 0 : ' '}</td>
+                  <td>{item ? format(toNumber(item.token1Amount) / token1PerToken0) : ' '}</td>
                   <td>{item ? format(toNumber(item.token1Amount)) : ' '}</td>
                 </tr>
               ))}
