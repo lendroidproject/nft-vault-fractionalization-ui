@@ -7,10 +7,11 @@ import AssetList from 'components/Home/AssetList'
 import ContributionsModal, { PAGE_SIZE } from './ContributionsModal'
 import { getAssets } from 'utils/api'
 import { format } from 'utils/number'
-import { addressLink, openseaLink, networks, connectNetworks } from 'utils/etherscan'
+import { addressLink, openseaLink, networks, connectNetworks, txLink } from 'utils/etherscan'
+import { shorten } from 'utils/string'
 import B20Spinner from 'components/common/B20Spinner'
-import Spinner from 'components/common/Spinner'
 import PurchaseModal from 'components/Home/PurchaseModal'
+import SpinnerModal from 'components/common/SpinnerModal'
 import { useTicker } from 'utils/hooks'
 
 const HomeWrapper = styled.div`
@@ -334,18 +335,19 @@ export default connect((state) => state)(function Home({ metamask, library, even
         })
       })
       .on('error', (err) => {
+        setPurchaseTx('')
         console.log(err)
       })
   }
   const handlePurchase = (token1Amount) => {
     const { contributeWei } = library.methods.Market
+    setShowPurchase(false)
     contributeWei(library.web3.utils.toWei(token1Amount.toString()), {
       from: metamask.address,
     })
       .send()
       .on('transactionHash', function (hash) {
         setPurchaseTx(hash)
-        setShowPurchase(false)
       })
       .on('receipt', function (receipt) {
         setPurchaseTx('')
@@ -558,7 +560,16 @@ export default connect((state) => state)(function Home({ metamask, library, even
         onHide={() => setShowPurchase(false)}
         onContinue={handlePurchase}
       />
-      {purchaseTx && <Spinner />}
+      <SpinnerModal show={!!purchaseTx}>
+        <h3 className="col-white">
+          <br/> <br />
+          Transaction hash:
+          <br/>
+          <a className="col-white light" href={txLink(purchaseTx, library.wallet.network)} target="_blank">
+            {shorten(purchaseTx, 32)}
+          </a>
+        </h3>
+      </SpinnerModal>
     </HomeWrapper>
   )
 })

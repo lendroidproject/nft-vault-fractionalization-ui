@@ -45,7 +45,7 @@ export default function KnowB20() {
       </div>
       <div className="home-body">
         <p>
-          We want to democratize access [and]italicize ownership to highly sought-after
+          We want to democratize access <i>and</i> ownership to highly sought-after
           artwork and accelerate the cultural Renaissance in the metaverse.
           The B20 token represents the largest effort so far in this direction.
           It is important to note that we’re fractionalizing ownership, not the assets themselves.

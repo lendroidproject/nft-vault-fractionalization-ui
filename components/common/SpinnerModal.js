@@ -30,7 +30,7 @@ const Content = styled.div`
   }
 `
 
-function SpinnerModal({ show }) {
+function SpinnerModal({ show, children }) {
   if (typeof document === 'undefined') {
     return null;
   }
@@ -40,6 +40,7 @@ function SpinnerModal({ show }) {
         <B20Spinner style={{ maxWidth: 200 }}/>
         <h2 className="col-white">Loading. Please Wait.</h2>
         <h3 className="light col-white">Patience is a virtue. Not really. Just wanted to give you reading material while you wait anxiously.</h3>
+        {children}
       </Content>
     </Wrapper>),
     document.body
