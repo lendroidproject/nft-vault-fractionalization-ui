@@ -98,6 +98,8 @@ const Wrapper = styled.div`
 
 const MAX_GROUP_SIZE = 20
 
+const categoryOrder = ['Beeple Crap', 'Land', 'Monument', 'Soundspace']
+
 function groupByCategory(assets) {
   const group = {}
   assets.forEach((asset, idx) => {
@@ -111,19 +113,25 @@ function groupByCategory(assets) {
     }
   })
 
+  const sortedKeys = Object.keys(group).sort((a, b) => {
+    const aOrder = categoryOrder.indexOf(a)
+    const bOrder = categoryOrder.indexOf(b)
+    return (aOrder === -1 ? 100 : aOrder) - (bOrder === -1 ? 100 : bOrder)
+  })
+
   const result = [];
   
-  Object.keys(group).forEach(key => {
-    result.push({ category: key, assets: [] });
+  sortedKeys.forEach(key => {
+    result.push({ category: key, assets: [] })
     for(let i = 0; i < group[key].length; i++) {
       if (result[result.length - 1].assets.length >= MAX_GROUP_SIZE) {
-        result.push({ category: key, assets: [] });
+        result.push({ category: key, assets: [] })
       }
       result[result.length - 1].assets.push(group[key][i])
     }
   })
 
-  return result;
+  return result
 }
 
 export default function AssetList({ assets = [] }) {
