@@ -97,8 +97,8 @@ export default function Redeem() {
             <div className="redeem-bg">
               <img src="/assets/redeem-bg.png" alt="Redeem" />
             </div>
-            <h2 className="card-title">B20 KEYS</h2>
-            <div>Redemption will begin after the Buyout process ends</div>
+            <h2 className="card-title">B20 REDEMPTION</h2>
+            <div>The Redemption process will begin just after the end of the Buyout process.</div>
             {/* <p>
               This most epic of bundles - composed of 20 iconic Beeple 1/1 everydays, grand museums on sprawling lands in Cryptovoxels,
               Decentraland and Somnium - has now been bought out. The financial upside belongs to all B20 token holders.
