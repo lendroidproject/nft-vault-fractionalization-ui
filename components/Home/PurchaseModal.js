@@ -73,7 +73,7 @@ function PurchaseModal({ token0Name, token1Name, token1Balance = 0, token1PerTok
   const [token0Amount, setToken0Amount] = useState('')
 
   const handleChange = (e) => {
-    if (!e.target.value || Number.isInteger(Number(e.target.value))) {
+    if (!e.target.value || !Number.isNaN(Number(e.target.value))) {
       setToken0Amount(e.target.value)
     }
   }
