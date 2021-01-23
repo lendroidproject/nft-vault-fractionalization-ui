@@ -2,14 +2,17 @@ import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
 import Button from 'components/common/Button'
-import qs from 'qs';
+import qs from 'qs'
 import AssetList from 'components/Home/AssetList'
 import { getAssets } from 'utils/api'
 import { format } from 'utils/number'
-import { addressLink, openseaLink } from 'utils/etherscan'
+import { addressLink, openseaLink, networks, connectNetworks } from 'utils/etherscan'
 import B20Spinner from 'components/common/B20Spinner'
 
 const Wrapper = styled.div`
+  flex: 1;
+  overflow: auto;
+
   background: var(--color-white);
   padding: 24px 35px 20px;
   width: 1216px;
@@ -39,9 +42,9 @@ const Wrapper = styled.div`
     }
     .subscriptions {
       padding: 20px;
-      box-shadow: 0 2px 15px 0 rgba(0,0,0,0.14);
-      background-color: #FBFBFB;
-      border: 1px solid #E0E0E0;
+      box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.14);
+      background-color: #fbfbfb;
+      border: 1px solid #e0e0e0;
       border-radius: 4px;
       margin-bottom: 24px;
       > div {
@@ -57,9 +60,9 @@ const Wrapper = styled.div`
     }
     .balance {
       padding: 20px;
-      box-shadow: 0 2px 15px 0 rgba(0,0,0,0.14);
-      background-color: #F2F2F2;
-      border: 1px solid #E2E2E2;
+      box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.14);
+      background-color: #f2f2f2;
+      border: 1px solid #e2e2e2;
       border-radius: 4px;
       margin-bottom: 24px;
       > div {
@@ -114,9 +117,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
 
   const loading = !data
   const loadData = () => {
-    const {
-      totalAssets,
-    } = library.methods.Vault
+    const { totalAssets } = library.methods.Vault
     const { getBlock } = library.methods.web3
 
     Promise.all([
@@ -164,16 +165,16 @@ export default connect((state) => state)(function Home({ metamask, library, even
               token_ids: tokenAssets.map(({ tokenId }) => tokenId),
               asset_contract_addresses: tokenAssets.map(({ tokenAddress }) => tokenAddress),
               limit: 50,
-              offset: 0
+              offset: 0,
             },
             {
-              paramsSerializer: params => {
-                return qs.stringify(params, { arrayFormat: "repeat" })
-              }
+              paramsSerializer: (params) => {
+                return qs.stringify(params, { arrayFormat: 'repeat' })
+              },
             }
           )
           if (result?.data?.assets) {
-            const assets = result.data.assets.map(asset => {
+            const assets = result.data.assets.map((asset) => {
               const matching = tokenAssets.find((e) => e.tokenId === asset.token_id)
               asset.category = matching ? matching.category : 'Other'
               return asset
@@ -188,13 +189,19 @@ export default connect((state) => state)(function Home({ metamask, library, even
     }
   }, [data?.totalAssets])
 
+  const validNetwork = library && networks.includes(library.wallet.network)
+  if (!validNetwork)
+    return (
+      <Wrapper className="bg-opacity-07 flex-all">
+        <h3>{connectNetworks()}</h3>
+      </Wrapper>
+    )
+
   return (
     <Wrapper>
       <div className="home-header">
         <div className="header-title border-bottom">
-          <h1 className="col-pink">
-            THE BIG B.20 BUYOUT
-          </h1>
+          <h1 className="col-pink">THE BIG B.20 BUYOUT</h1>
         </div>
       </div>
       <div className="home-body">
@@ -204,11 +211,12 @@ export default connect((state) => state)(function Home({ metamask, library, even
               <h4 className="uppercase">B20 Buyout</h4>
             </div>
             <div className="desc">
-              Welcome to the Big B.20 Buyout. With a minimum bid of $12 mn, you can begin the buyout process. for the entire bundle.
+              Welcome to the Big B.20 Buyout. With a minimum bid of $12 mn, you can begin the buyout process. for the
+              entire bundle.
               <br />
               <br />
-              Your bid will stand for 14 days, during which time someone else can outbid you,
-              or the community can veto the bid with a 25% consensus. Good luck!
+              Your bid will stand for 14 days, during which time someone else can outbid you, or the community can veto
+              the bid with a 25% consensus. Good luck!
             </div>
             <div className="item-list">
               <AssetList assets={assets} loading={!assets.length} />
@@ -218,9 +226,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
             <div className="subscriptions">
               <div>
                 <p>Buyout Clock</p>
-                <h2 className="col-green light">
-                  Begins on the 3rd of March, 2021, at 12am GMT
-                </h2>
+                <h2 className="col-green light">Begins on the 3rd of March, 2021, at 12am GMT</h2>
               </div>
               {/* <div>
                 <p>Total Contributions:</p>
@@ -231,9 +237,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
             </div>
             <div className="balance">
               <div>
-                <h4 className="light balance-desc">
-                  To participate, you need DAI, B20 or a combination of the two.
-                </h4>
+                <h4 className="light balance-desc">To participate, you need DAI, B20 or a combination of the two.</h4>
               </div>
               {/* <div><h3 className="col-blue">You have</h3></div>
               <div>
