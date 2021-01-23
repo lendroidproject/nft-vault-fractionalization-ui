@@ -33,6 +33,12 @@ const Wrapper = styled.div`
     display: inline-block;
     vertical-align: text-bottom;
     font-weight: normal;
+    &.active {
+      background-color: var(--color-green);
+    }
+    &.inactive {
+      background-color: #989898;
+    }
   }
 `
 
@@ -70,6 +76,7 @@ const Content = styled.div`
   }
 
   table {
+    margin-top: 20px;
     position: relative;
     width: 100%;
     thead {
@@ -77,11 +84,11 @@ const Content = styled.div`
       font-size: 16px;
       line-height: 19px;
       color: var(--color-white);
-      background: linear-gradient(90deg, #2fd2dd 0%, #c170d0 100%);
       position: relative;
       z-index: 1;
       tr {
         height: 36px;
+        background: linear-gradient(90deg, #2fd2dd 0%, #c170d0 100%);
         border-radius: 4px;
       }
     }
@@ -154,7 +161,7 @@ const Content = styled.div`
 
 const bgArr = new Array(PAGE_SIZE / 2).fill(0)
 
-function ContributionsModal({ show, onHide, total, onPage, toNumber, token1PerToken0 }) {
+function ContributionsModal({ show, onHide, total, onPage, toNumber, token1PerToken0, token0Name, token0Symbol, token1Symbol, marketStatus }) {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(0)
   const totalPages = Math.ceil(total / PAGE_SIZE)
@@ -185,21 +192,24 @@ function ContributionsModal({ show, onHide, total, onPage, toNumber, token1PerTo
       <Content onMouseDown={(e) => e.stopPropagation()}>
         <div className="flex-start justify-between">
           <div className="modal-header padded">
-            <h1>B20 SHARD: WHALEBUNDLES</h1>
-            <span className="status-tag">Status: LIVE</span>
+            <h1>{token0Name} Purchase List</h1>
+            {marketStatus === 1 ? (
+              <span className="status-tag active">Status: LIVE</span>
+            ) : (
+              <span className="status-tag inactive">Status: CLOSED</span>
+            )}
           </div>
           <button className="btn-close" onClick={() => onHide && onHide()}>
             <img src="/assets/close-btn.svg" alt="Close" />
           </button>
         </div>
         <div className="modal-body">
-          <h2 className="col-dark-blue padded">CONTRIBUTORS</h2>
           <table cellPadding={0} cellSpacing={0}>
             <thead>
               <tr>
                 <th>Wallet</th>
-                <th>Keys</th>
-                <th>Contribution</th>
+                <th>{token0Symbol} Purchased</th>
+                <th>{token1Symbol} Paid</th>
               </tr>
             </thead>
             <tbody>

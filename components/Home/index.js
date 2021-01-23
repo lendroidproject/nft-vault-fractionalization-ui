@@ -43,6 +43,12 @@ const HomeWrapper = styled.div`
       display: inline-block;
       vertical-align: text-bottom;
       font-weight: normal;
+      &.active {
+        background-color: var(--color-green);
+      }
+      &.inactive {
+        background-color: #989898;
+      }
     }
   }
   .home-body {
@@ -96,6 +102,10 @@ const HomeWrapper = styled.div`
       }
       .contributions {
         margin-bottom: 58px;
+      }
+      .btn-end {
+        background: #989898;
+        opacity: 1;
       }
     }
 
@@ -155,7 +165,6 @@ const HomeWrapper = styled.div`
 
 const MIN_ALLOWANCE = 10 ** 8
 
-const marketStartDate = new Date('2021-01-24T00:00:00Z').getTime()
 const getCountDownTimer = (endTime) => {
   let remainingTime = Math.floor((endTime - Date.now()) / 1000)
   const finished = remainingTime <= 0
@@ -178,6 +187,8 @@ const getCountDownTimer = (endTime) => {
   }
 }
 
+let timerHandle
+
 export default connect((state) => state)(function Home({ metamask, library, eventTimestamp }) {
   const [assets, setAssets] = useState([])
   const [showContributors, setShowContributors] = useState()
@@ -195,14 +206,17 @@ export default connect((state) => state)(function Home({ metamask, library, even
       totalBuyers,
       token1PerToken0,
       marketStart,
+      marketClosed,
+      marketStatus,
     } = library.methods.Market
-    const { balanceOf, name } = library.methods.Token0
-    const { name: contributeToken, balanceOf: token1Balance, getAllowance: allowance } = library.methods.Token1
+    const { balanceOf, name, symbol: token0Symbol } = library.methods.Token0
+    const { symbol: contributeToken, balanceOf: token1Balance, getAllowance: allowance } = library.methods.Token1
     const { totalAssets } = library.methods.Vault
     const { getBlock } = library.methods.web3
 
     Promise.all([
       name(),
+      token0Symbol(),
       balanceOf(),
       contributeToken(),
       token1Balance(metamask.address),
@@ -214,11 +228,14 @@ export default connect((state) => state)(function Home({ metamask, library, even
       totalAssets(),
       getBlock(),
       marketStart(),
+      marketClosed(),
+      marketStatus(),
       // contributors(),
     ])
       .then(
         ([
           name,
+          token0Symbol,
           balanceOf,
           contributeToken,
           token1Balance,
@@ -230,10 +247,13 @@ export default connect((state) => state)(function Home({ metamask, library, even
           totalAssets,
           lastTimestamp,
           marketStart,
+          marketClosed,
+          marketStatus,
           // contributors,
         ]) => {
           setData({
             name,
+            token0Symbol,
             balanceOf: toNumber(balanceOf),
             contributeToken,
             token1Balance: toNumber(token1Balance),
@@ -245,6 +265,8 @@ export default connect((state) => state)(function Home({ metamask, library, even
             totalAssets,
             lastTimestamp: new Date(lastTimestamp * 1000),
             marketStart: new Date(marketStart * 1000),
+            marketClosed,
+            marketStatus: Number(marketStatus),
             timestamp: Date.now(),
           })
         }
@@ -252,7 +274,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
       .catch(console.log)
   }
 
-  console.log(data)
   useEffect(() => {
     if (library && !data && metamask.address) {
       loadData()
@@ -265,12 +286,12 @@ export default connect((state) => state)(function Home({ metamask, library, even
   }, [eventTimestamp, data])
   useEffect(() => {
     if (data?.marketStart) {
-      let timerHandle;
-      const countDown = getCountDownTimer(data.marketStart.getTime())
+      if (timerHandle) { clearInterval(timerHandle) }
+      const countDown = getCountDownTimer(data?.marketStart)
       setCountDown(countDown)
       if (!countDown.finished) {
-        setInterval(() => {
-          const countDown = getCountDownTimer(data.marketStart.getTime())
+        timerHandle = setInterval(() => {
+          const countDown = getCountDownTimer(data?.marketStart)
           setCountDown(countDown)
           if (countDown.finished && timerHandle) clearInterval(timerHandle)
         }, 1000)
@@ -279,7 +300,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
         if (timerHandle) clearInterval(timerHandle)
       }
     }
-  }, [data])
+  }, [data?.marketStart])
 
   const [purchaseTx, setPurchaseTx] = useState('')
   const handleUnlock = () => {
@@ -358,6 +379,8 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const token0Sold = data.totaltoken1Paid / data.token1PerToken0
   const token0Remaining = token0Total - token0Sold
 
+  console.log(data)
+
   return (
     <HomeWrapper>
       <div className="home-header">
@@ -387,7 +410,11 @@ export default connect((state) => state)(function Home({ metamask, library, even
           </div>
           <div>
             <p>Status:</p>
-            <span className="status-tag">Live</span>
+            {data.marketStatus === 1 ? (
+              <span className="status-tag active">Live</span>
+            ) : (
+              <span className="status-tag inactive">Closed</span>
+            )}
           </div>
         </div>
       </div>
@@ -413,7 +440,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
           <div className="body-left">
             <div className="subscriptions">
               <div>
-                <p>Total contributions in {data.contributeToken}:</p>
+                <p>Total Purchases in {data.contributeToken}:</p>
                 <h4 className="light">{format(data.totaltoken1Paid)}</h4>
               </div>
               <div>
@@ -450,7 +477,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                   }}
                 >
                   <span>
-                    CONTRIBUTIONS <img src="/assets/external-link-black.svg" />
+                    PURCHASES <img src="/assets/external-link-black.svg" />
                   </span>
                 </a>
               </div>
@@ -461,15 +488,20 @@ export default connect((state) => state)(function Home({ metamask, library, even
                   </Button>
                 ) : (
                   <>
-                    {countDown?.finished ? (
-                      <Button className="full-width" onClick={() => setShowPurchase(true)} disabled={purchaseTx}>
-                        PURCHASE
+                    {data.marketClosed ? (
+                      // <h4 className="col-red">Sale Has Ended</h4>
+                      <Button className="full-width btn-end" disabled={true}>
+                        SALE HAS ENDED
                       </Button>
-                    ) : (
+                    ) : (countDown && !countDown.finished) ? (
                       <div className="count-down">
                         <h4 className="col-pink">Sale Begins In:</h4>
                         <h2 className="col-green light">{countDown ? countDown.timer : ''}</h2>
                       </div>
+                    ) : (
+                      <Button className="full-width" onClick={() => setShowPurchase(true)} disabled={purchaseTx}>
+                        PURCHASE
+                      </Button>
                     )}
                   </>
                 )}
@@ -482,6 +514,10 @@ export default connect((state) => state)(function Home({ metamask, library, even
         <ContributionsModal
           total={data.totalBuyers}
           toNumber={toNumber}
+          token0Name={data.name}
+          token0Symbol={data.token0Symbol}
+          token1Symbol={data.contributeToken}
+          marketStatus={data.marketStatus}
           token1PerToken0={data.token1PerToken0}
           onPage={(page) => {
             const { contributors } = library.methods.Market
