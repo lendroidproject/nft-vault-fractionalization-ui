@@ -379,8 +379,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const token0Sold = data.totaltoken1Paid / data.token1PerToken0
   const token0Remaining = token0Total - token0Sold
 
-  console.log(data)
-
   return (
     <HomeWrapper>
       <div className="home-header">
