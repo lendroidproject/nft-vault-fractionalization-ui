@@ -16,10 +16,6 @@ const Wrapper = styled.div`
   max-width: 100%;
   border: 1px solid #979797;
   position: relative;
-  .spinner {
-    z-index: 1000;
-    position: fixed;
-  }
   .home-header {
     position: relative;
     margin-bottom: 20px;
@@ -215,7 +211,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
               or the community can veto the bid with a 25% consensus. Good luck!
             </div>
             <div className="item-list">
-              <AssetList assets={assets} />
+              <AssetList assets={assets} loading={!assets.length} />
             </div>
           </div>
           <div className="body-left">

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import styled from 'styled-components'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import AssetModal from './AssetModal'
+import Spinner from 'components/common/Spinner'
 
 const DEFAULT_IMAGE_URL = '/assets/default-asset-img.jpg';
 
@@ -134,7 +135,7 @@ function groupByCategory(assets) {
   return result
 }
 
-export default function AssetList({ assets = [] }) {
+export default function AssetList({ assets = [], loading = false }) {
   const [showAssetModal, setShowAssetModal] = useState(false)
   const [selectedAsset, setSelectedAsset] = useState()
 
@@ -164,7 +165,7 @@ export default function AssetList({ assets = [] }) {
   return (
     <Wrapper>
       <PerfectScrollbar className="scrollview" option={{ suppressScrollY: true }}>
-        {groupedAssets.map((categoryGroup, categoryIdx) => (
+        {loading ? <Spinner /> : groupedAssets.map((categoryGroup, categoryIdx) => (
           <div className="asset-group" key={`category-${categoryIdx}`}>
             <div className="cateogry">{categoryGroup.category}</div>
             <div className="asset-group-assets">
