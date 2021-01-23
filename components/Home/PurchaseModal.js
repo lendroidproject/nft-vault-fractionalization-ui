@@ -28,10 +28,10 @@ const Content = styled.div`
   max-width: 95%;
   padding: 26px 30px 30px;
   position: relative;
-  border: 1px solid #E0E0E0;
+  border: 1px solid #e0e0e0;
   border-radius: 4px;
-  background-color: #FBFBFB;
-  box-shadow: 0 2px 15px 0 rgba(0,0,0,0.14);
+  background-color: #fbfbfb;
+  box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.14);
   .btn-close {
     position: absolute;
     top: 20px;
@@ -69,16 +69,25 @@ const Content = styled.div`
   }
 `
 
-function PurchaseModal({ token0Name, token1Name, token1Balance = 0, token1PerToken0, purchaseTx = '', show, onHide, onContinue }) {
+function PurchaseModal({
+  token0Name,
+  token1Name,
+  token1Balance = 0,
+  token1PerToken0,
+  purchaseTx = '',
+  show,
+  onHide,
+  onContinue,
+}) {
   const [token0Amount, setToken0Amount] = useState('')
 
   const handleChange = (e) => {
-    if (!e.target.value || !Number.isNaN(Number(e.target.value))) {
+    if (!e.target.value || (!Number.isNaN(Number(e.target.value)) && /^\s*[1-9]\d*(\.\d{0,2})?\s*$/.test(e.target.value))) {
       setToken0Amount(e.target.value)
     }
   }
 
-  const token1Amount = new BigNumber((token0Amount || 0)).multipliedBy(token1PerToken0).toNumber()
+  const token1Amount = new BigNumber(token0Amount || 0).multipliedBy(token1PerToken0).toNumber()
   const isSufficientBalance = token1Amount <= token1Balance
   const isValid = !!token1Amount && isSufficientBalance
 
@@ -89,18 +98,16 @@ function PurchaseModal({ token0Name, token1Name, token1Balance = 0, token1PerTok
     }
   }, [show])
 
-  const inputSuffix = () => (
-    <img className="asset-icon suffix" src="/assets/b20.svg" alt="B20" />
-  )
+  const inputSuffix = () => <img className="asset-icon suffix" src="/assets/b20.svg" alt="B20" />
 
   return ReactDOM.createPortal(
-    (<Wrapper className={`flex-all ${show ? 'show' : 'hide'}`} onMouseDown={() => onHide && onHide()}>
-      <Content onMouseDown={e => e.stopPropagation()}>
+    <Wrapper className={`flex-all ${show ? 'show' : 'hide'}`} onMouseDown={() => onHide && onHide()}>
+      <Content onMouseDown={(e) => e.stopPropagation()}>
         <button className="btn-close" onClick={() => onHide && onHide()}>
           <img src="/assets/close-btn.svg" alt="Close" />
         </button>
         <div className="modal-header">
-          <h3 className="col-blue modal-title">PURCASE {token0Name}</h3>
+          <h3 className="col-blue modal-title">PURCHASE {token0Name}</h3>
         </div>
         <div className="modal-body">
           <Input
@@ -108,20 +115,22 @@ function PurchaseModal({ token0Name, token1Name, token1Balance = 0, token1PerTok
             label={`No of ${token0Name} tokens`}
             value={token0Amount}
             onChange={handleChange}
-            pattern="\d+"
             suffix={inputSuffix}
           />
           <div className={`message${!isSufficientBalance ? ' error' : ''}`}>
-            {token1Name} required: <b className="col-black">{token1Amount}</b><br />
+            {token1Name} required: <b className="col-black">{token1Amount}</b>
+            <br />
             {!isSufficientBalance && `Insufficient ${token1Name} balance.`}
           </div>
         </div>
         <div className="modal-footer">
           {/* <Button className="btn-outline" onClick={() => onHide && onHide()}><span>Cancel</span></Button> */}
-          <Button onClick={() => onContinue && onContinue(token1Amount)} disabled={!isValid || purchaseTx}><span>CONTINUE</span></Button>
+          <Button onClick={() => onContinue && onContinue(token1Amount)} disabled={!isValid || purchaseTx}>
+            <span>CONTINUE</span>
+          </Button>
         </div>
       </Content>
-    </Wrapper>),
+    </Wrapper>,
     document.body
   )
 }
