@@ -11,6 +11,7 @@ import { addressLink, openseaLink, networks, connectNetworks } from 'utils/ether
 import B20Spinner from 'components/common/B20Spinner'
 import Spinner from 'components/common/Spinner'
 import PurchaseModal from 'components/Home/PurchaseModal'
+import SpinnerModal from 'components/common/SpinnerModal'
 
 const HomeWrapper = styled.div`
   flex: 1;
@@ -329,18 +330,19 @@ export default connect((state) => state)(function Home({ metamask, library, even
         })
       })
       .on('error', (err) => {
+        setPurchaseTx('')
         console.log(err)
       })
   }
   const handlePurchase = (token1Amount) => {
     const { contributeWei } = library.methods.Market
+    setShowPurchase(false)
     contributeWei(library.web3.utils.toWei(token1Amount.toString()), {
       from: metamask.address,
     })
       .send()
       .on('transactionHash', function (hash) {
         setPurchaseTx(hash)
-        setShowPurchase(false)
       })
       .on('receipt', function (receipt) {
         setPurchaseTx('')
@@ -556,7 +558,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
         onHide={() => setShowPurchase(false)}
         onContinue={handlePurchase}
       />
-      {purchaseTx && <Spinner />}
+      <SpinnerModal show={!!purchaseTx} />
     </HomeWrapper>
   )
 })
