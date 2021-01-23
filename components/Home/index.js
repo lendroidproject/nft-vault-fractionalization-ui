@@ -11,6 +11,7 @@ import { addressLink, openseaLink, networks, connectNetworks } from 'utils/ether
 import B20Spinner from 'components/common/B20Spinner'
 import Spinner from 'components/common/Spinner'
 import PurchaseModal from 'components/Home/PurchaseModal'
+import { useTicker } from 'utils/hooks'
 
 const HomeWrapper = styled.div`
   flex: 1;
@@ -201,11 +202,12 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const [countDown, setCountDown] = useState()
   const toNumber = library && library.web3.utils.fromWei
   const validNetwork = library && networks.includes(library.wallet.network)
+  const [now] = useTicker(5)
 
   const [data, setData] = useState(null)
   const loading = !data
   const loadData = () => {
-    if (!validNetwork) return;
+    if (!library || !validNetwork) return
     const {
       // contributors,
       totalCap,
@@ -291,6 +293,9 @@ export default connect((state) => state)(function Home({ metamask, library, even
       loadData()
     }
   }, [eventTimestamp, data])
+  useEffect(() => {
+    library && loadData()
+  }, [now])
   useEffect(() => {
     if (data?.marketStart) {
       if (timerHandle) {
@@ -385,7 +390,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
     }
   }, [data?.totalAssets])
 
-
   if (!validNetwork)
     return (
       <HomeWrapper className="bg-opacity-07 flex-all">
@@ -397,8 +401,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const token0Total = data.totalCap / data.token1PerToken0
   const token0Sold = data.totaltoken1Paid / data.token1PerToken0
   const token0Remaining = token0Total - token0Sold
-
-  console.log(data)
 
   return (
     <HomeWrapper>
@@ -501,7 +503,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 </a>
               </div>
               <div className="purcahse">
-                {(!Number(data.allowance) || Number(data.allowance) < Number(data.token1Balance)) ? (
+                {!Number(data.allowance) || Number(data.allowance) < Number(data.token1Balance) ? (
                   <Button className="full-width" onClick={handleUnlock} disabled={!!purchaseTx}>
                     UNLOCK
                   </Button>
