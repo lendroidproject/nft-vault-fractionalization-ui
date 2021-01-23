@@ -95,7 +95,7 @@ const HomeWrapper = styled.div`
         }
       }
       .contributions {
-        margin-bottom: 78px;
+        margin-bottom: 58px;
       }
     }
 
@@ -155,11 +155,34 @@ const HomeWrapper = styled.div`
 
 const MIN_ALLOWANCE = 10 ** 8
 
+const marketStartDate = new Date('2021-01-24T00:00:00Z').getTime()
+const getCountDownTimer = (endTime) => {
+  let remainingTime = Math.floor((endTime - Date.now()) / 1000)
+  const finished = remainingTime <= 0
+  if (finished) {
+    return {
+      finished,
+      timer: `${0}D : ${0}H: ${0}M : ${0}S`,
+    }
+  }
+  const days = Math.floor(remainingTime / 86400)
+  remainingTime -= days * 86400
+  const hours = Math.floor(remainingTime / 3600)
+  remainingTime -= hours * 3600
+  const mins = Math.floor(remainingTime / 60)
+  remainingTime -= mins * 60;
+  const secs = remainingTime
+  return {
+    finished,
+    timer: `${days} D : ${hours.toString().padStart(2, '0')} H: ${mins.toString().padStart(2, '0')} M : ${secs.toString().padStart(2, '0')} S`,
+  }
+}
+
 export default connect((state) => state)(function Home({ metamask, library, eventTimestamp }) {
   const [assets, setAssets] = useState([])
-
   const [showContributors, setShowContributors] = useState()
   const [showPurchase, setShowPurchase] = useState(false)
+  const [countDown, setCountDown] = useState();
   const toNumber = library && library.web3.utils.fromWei
 
   const [data, setData] = useState(null)
@@ -171,6 +194,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
       totaltoken1Paid,
       totalBuyers,
       token1PerToken0,
+      marketStart,
     } = library.methods.Market
     const { balanceOf, name } = library.methods.Token0
     const { name: contributeToken, balanceOf: token1Balance, getAllowance: allowance } = library.methods.Token1
@@ -189,6 +213,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
       totalBuyers(),
       totalAssets(),
       getBlock(),
+      marketStart(),
       // contributors(),
     ])
       .then(
@@ -204,6 +229,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
           totalBuyers,
           totalAssets,
           lastTimestamp,
+          marketStart,
           // contributors,
         ]) => {
           setData({
@@ -218,12 +244,15 @@ export default connect((state) => state)(function Home({ metamask, library, even
             totalBuyers,
             totalAssets,
             lastTimestamp: new Date(lastTimestamp * 1000),
+            marketStart: new Date(marketStart * 1000),
             timestamp: Date.now(),
           })
         }
       )
       .catch(console.log)
   }
+
+  console.log(data)
   useEffect(() => {
     if (library && !data && metamask.address) {
       loadData()
@@ -234,6 +263,23 @@ export default connect((state) => state)(function Home({ metamask, library, even
       loadData()
     }
   }, [eventTimestamp, data])
+  useEffect(() => {
+    if (data?.marketStart) {
+      let timerHandle;
+      const countDown = getCountDownTimer(data.marketStart.getTime())
+      setCountDown(countDown)
+      if (!countDown.finished) {
+        setInterval(() => {
+          const countDown = getCountDownTimer(data.marketStart.getTime())
+          setCountDown(countDown)
+          if (countDown.finished && timerHandle) clearInterval(timerHandle)
+        }, 1000)
+      }
+      return () => {
+        if (timerHandle) clearInterval(timerHandle)
+      }
+    }
+  }, [data])
 
   const [purchaseTx, setPurchaseTx] = useState('')
   const handleUnlock = () => {
@@ -414,9 +460,18 @@ export default connect((state) => state)(function Home({ metamask, library, even
                     UNLOCK
                   </Button>
                 ) : (
-                  <Button className="full-width" onClick={() => setShowPurchase(true)} disabled={purchaseTx}>
-                    PURCHASE
-                  </Button>
+                  <>
+                    {countDown?.finished ? (
+                      <Button className="full-width" onClick={() => setShowPurchase(true)} disabled={purchaseTx}>
+                        PURCHASE
+                      </Button>
+                    ) : (
+                      <div className="count-down">
+                        <h4 className="col-pink">Sale Begins In:</h4>
+                        <h2 className="col-green light">{countDown ? countDown.timer : ''}</h2>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>

@@ -30,7 +30,7 @@ const providerOptions = (network) => ({
   walletconnect: {
     package: WalletConnectProvider,
     options: {
-      // infuraId: infuras[network],
+      infuraId: infuras[network],
     },
   },
   // fortmatic: {
