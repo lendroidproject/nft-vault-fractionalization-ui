@@ -82,7 +82,7 @@ function PurchaseModal({
   const [token0Amount, setToken0Amount] = useState('')
 
   const handleChange = (e) => {
-    if (!e.target.value || (!Number.isNaN(Number(e.target.value)) && /^\s*[1-9]\d*(\.\d{0,2})?\s*$/.test(e.target.value))) {
+    if (!e.target.value || (!Number.isNaN(Number(e.target.value)) && /^\s*0?\d*(\.\d{0,2})?\s*$/.test(e.target.value))) {
       setToken0Amount(e.target.value)
     }
   }
@@ -115,6 +115,7 @@ function PurchaseModal({
             label={`No of ${token0Name} tokens`}
             value={token0Amount}
             onChange={handleChange}
+            pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
             suffix={inputSuffix}
           />
           <div className={`message${!isSufficientBalance ? ' error' : ''}`}>
