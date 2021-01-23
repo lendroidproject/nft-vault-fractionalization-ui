@@ -214,7 +214,7 @@ function ContributionsModal({ show, onHide, total, onPage, toNumber }) {
                 <tr key={item ? item.address : idx}>
                   <td>{item ? item.address : ' '}</td>
                   <td>{item ? item.hasWithdrawn || 0 : ' '}</td>
-                  <td>{item ? format(toNumber(item.weiContributed)) : ' '}</td>
+                  <td>{item ? format(toNumber(item.token1Amount)) : ' '}</td>
                 </tr>
               ))}
               {loading && (

@@ -69,16 +69,16 @@ const Content = styled.div`
   }
 `
 
-function PurchaseModal({ token0Name, token1Name, token1Balance = 0, token0PerToken1, purchaseTx = '', show, onHide, onContinue }) {
+function PurchaseModal({ token0Name, token1Name, token1Balance = 0, token1PerToken0, purchaseTx = '', show, onHide, onContinue }) {
   const [token0Amount, setToken0Amount] = useState('')
-  
+
   const handleChange = (e) => {
     if (!e.target.value || Number.isInteger(Number(e.target.value))) {
       setToken0Amount(e.target.value)
     }
   }
 
-  const token1Amount = new BigNumber((token0Amount || 0)).multipliedBy(token0PerToken1).toNumber()
+  const token1Amount = new BigNumber((token0Amount || 0)).multipliedBy(token1PerToken0).toNumber()
   const isSufficientBalance = token1Amount <= token1Balance
   const isValid = !!token1Amount && isSufficientBalance
 
