@@ -205,10 +205,10 @@ export default connect((state) => state)(function Home({ metamask, library, even
         <div className="body-content flex justify-between">
           <div className="body-right">
             <div className="body-title">
-              <h4 className="uppercase">B20 Keys</h4>
+              <h4 className="uppercase">B20 Buyout</h4>
             </div>
             <div className="desc">
-              Welcome to the Big B.20 Buyout. With a minimum bid of $12 mn, you can begin the buyout process. for the entire bundle. 
+              Welcome to the Big B.20 Buyout. With a minimum bid of $12 mn, you can begin the buyout process. for the entire bundle.
               <br />
               <br />
               Your bid will stand for 14 days, during which time someone else can outbid you,
@@ -223,15 +223,15 @@ export default connect((state) => state)(function Home({ metamask, library, even
               <div>
                 <p>Buyout Clock</p>
                 <h2 className="col-green light">
-                  12 D : 12 H : 40 M : 20S
+                  Begins on the 3rd of March, 2021, at 12am GMT
                 </h2>
               </div>
-              <div>
+              {/* <div>
                 <p>Total Contributions:</p>
                 <h2>
                   <img className="asset-icon" src="/assets/dai.svg" alt="DAI" />1000 DAI
                 </h2>
-              </div>
+              </div> */}
             </div>
             <div className="balance">
               <div>
@@ -239,7 +239,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                   To participate, you need DAI, B20 or a combination of the two.
                 </h4>
               </div>
-              <div><h3 className="col-blue">You have</h3></div>
+              {/* <div><h3 className="col-blue">You have</h3></div>
               <div>
                 <h3 className="light asset-balance">
                   <img className="asset-icon" src="/assets/dai.svg" alt="DAI" /> 320,0000
@@ -249,7 +249,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 <h3 className="light asset-balance">
                   <img className="asset-icon" src="/assets/b20.svg" alt="B20" /> 20,0000
                 </h3>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
