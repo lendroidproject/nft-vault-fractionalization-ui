@@ -111,6 +111,7 @@ const HomeWrapper = styled.div`
       .btn-end {
         background: #989898;
         opacity: 1;
+        cursor: default;
       }
     }
 
@@ -511,7 +512,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                     {data.marketClosed ? (
                       // <h4 className="col-red">Sale Has Ended</h4>
                       <Button className="full-width btn-end" disabled={true}>
-                        SALE HAS ENDED
+                        Sale Has Ended
                       </Button>
                     ) : countDown && !countDown.finished ? (
                       <div className="count-down">
