@@ -429,6 +429,12 @@ export default connect((state) => state)(function Home({ metamask, library, even
             </h4>
           </div>
           <div>
+            <p>Individual cap:</p>
+            <h4 className="light">
+              {1000} {data.contributeToken}
+            </h4>
+          </div>
+          <div>
             <p>Valuation:</p>
             <h4 className="light">{format(data.totalCap)}</h4>
           </div>
@@ -567,9 +573,10 @@ export default connect((state) => state)(function Home({ metamask, library, even
       />
       <SpinnerModal show={!!purchaseTx}>
         <h3 className="col-white">
-          <br/> <br />
+          <br />
+          <br />
           Transaction hash:
-          <br/>
+          <br />
           <a className="col-white light" href={txLink(purchaseTx, library.wallet.network)} target="_blank">
             {shorten(purchaseTx, 32)}
           </a>
