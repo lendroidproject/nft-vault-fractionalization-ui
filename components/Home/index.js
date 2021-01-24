@@ -429,7 +429,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
             </h4>
           </div>
           <div>
-            <p>Individual cap:</p>
+            <p>Individual Cap:</p>
             <h4 className="light">
               {1000} {data.contributeToken}
             </h4>
