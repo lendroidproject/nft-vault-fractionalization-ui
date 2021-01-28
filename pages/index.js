@@ -1,15 +1,13 @@
 import React from 'react'
-import { useRouter } from 'next/router'
 
 import SEO from 'layouts/seo'
-import Home from 'components/Home'
+import Buyout from 'components/Buyout'
 
-export default function HomePage() {
-  const router = useRouter()
+export default function BuyoutPage() {
   return (
     <>
-      <SEO title="Home" />
-      <Home />
+      <SEO title="Buyout" />
+      <Buyout />
     </>
   )
 }

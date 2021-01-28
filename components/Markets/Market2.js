@@ -3,14 +3,14 @@ import styled from 'styled-components'
 import { connect } from 'react-redux'
 import Button from 'components/common/Button'
 import qs from 'qs'
-import AssetList from 'components/Home/AssetList'
+import AssetList from 'components/Markets/AssetList'
 import ContributionsModal, { PAGE_SIZE } from './ContributionsModal'
 import { getAssets } from 'utils/api'
 import { format } from 'utils/number'
 import { addressLink, openseaLink, networks, connectNetworks, txLink } from 'utils/etherscan'
 import { shorten } from 'utils/string'
 import B20Spinner from 'components/common/B20Spinner'
-import PurchaseModal from 'components/Home/PurchaseModal'
+import PurchaseModal from 'components/Markets/PurchaseModal'
 import SpinnerModal from 'components/common/SpinnerModal'
 import { useTicker } from 'utils/hooks'
 
@@ -219,7 +219,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
       marketStart,
       marketClosed,
       marketStatus,
-    } = library.methods.Market
+    } = library.methods.Market2
     const { balanceOf, name, symbol: token0Symbol } = library.methods.Token0
     const { symbol: contributeToken, balanceOf: token1Balance, getAllowance: allowance } = library.methods.Token1
     const { totalAssets } = library.methods.Vault
@@ -228,10 +228,10 @@ export default connect((state) => state)(function Home({ metamask, library, even
     Promise.all([
       name(),
       token0Symbol(),
-      balanceOf(),
+      balanceOf(library.addresses.Market2),
       contributeToken(),
       token1Balance(metamask.address),
-      allowance(metamask.address),
+      allowance(metamask.address, library.addresses.Market2),
       totalCap(),
       totaltoken1Paid(),
       token1PerToken0(),
@@ -321,7 +321,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const [purchaseTx, setPurchaseTx] = useState('')
   const handleUnlock = () => {
     const { approve } = library.methods.Token1
-    approve(library.web3.utils.toWei(MIN_ALLOWANCE.toString()), {
+    approve(library.addresses.Market2, library.web3.utils.toWei(MIN_ALLOWANCE.toString()), {
       from: metamask.address,
     })
       .send()
@@ -341,7 +341,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
       })
   }
   const handlePurchase = (token1Amount) => {
-    const { contributeWei } = library.methods.Market
+    const { contributeWei } = library.methods.Market2
     setShowPurchase(false)
     contributeWei(library.web3.utils.toWei(token1Amount.toString()), {
       from: metamask.address,
@@ -491,7 +491,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                   </a>
                 </div>
                 <div>
-                  <a href={addressLink(library.addresses.Market, metamask.network)} target="_blank">
+                  <a href={addressLink(library.addresses.Market2, metamask.network)} target="_blank">
                     Sale Contract <img src="/assets/external-link.svg" />
                   </a>
                 </div>
@@ -554,7 +554,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
           marketStatus={data.marketStatus}
           token1PerToken0={data.token1PerToken0}
           onPage={(page) => {
-            const { contributors } = library.methods.Market
+            const { contributors } = library.methods.Market2
             return contributors(page * PAGE_SIZE, Math.min(data.totalBuyers - page * PAGE_SIZE, PAGE_SIZE))
           }}
           show={showContributors}

@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { connect } from 'react-redux'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Button from 'components/common/Button'
@@ -54,7 +55,7 @@ const Wrapper = styled.div`
   }
 `
 
-export default function Layout({ children }) {
+export default connect((state) => state)(function Layout({ children, metamask }) {
   const router = useRouter()
   return (
     <Wrapper>
@@ -64,10 +65,7 @@ export default function Layout({ children }) {
         </div>
         <div className="app-menu">
           <Link href="/">
-            <Button className={router.pathname === '/' ? 'active' : 'inactive'}>Market</Button>
-          </Link>
-          <Link href="/buyout">
-            <Button className={router.pathname === '/buyout' ? 'active' : 'inactive'}>Buyout</Button>
+            <Button className={router.pathname === '/' ? 'active' : 'inactive'}>Buyout</Button>
           </Link>
           <Link href="/redeem">
             <Button className={router.pathname === '/redeem' ? 'active' : 'inactive'}>Redeem</Button>
@@ -75,10 +73,16 @@ export default function Layout({ children }) {
           <Link href="/about">
             <Button className={router.pathname === '/about' ? 'active' : 'inactive'}>Know B20</Button>
           </Link>
+          <Link href="/market1">
+            <Button className={router.pathname === '/market1' ? 'active' : 'inactive'}>Sale 1</Button>
+          </Link>
+          <Link href="/market2">
+            <Button className={router.pathname === '/market2' ? 'active' : 'inactive'}>Sale 2</Button>
+          </Link>
         </div>
       </div>
-      {children}
+      {metamask && metamask.connected && children}
       <Account />
     </Wrapper>
   )
-}
+})

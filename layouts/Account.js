@@ -1,30 +1,44 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import styled from 'styled-components'
 import Web3Modal from 'web3modal'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import Library from 'whalestreet-js'
 import { infuras, isSupportedNetwork, networkLabel, networks, networkLabels } from 'utils/etherscan'
+import Button from 'components/common/Button'
 
 const addresses = {
   1: {
     Vault: '0xe846D7aB0BFfF2F0b9B9A818B845Fb99C94786c2',
     Token0: '0xc4De189Abf94c57f396bD4c52ab13b954FebEfD8',
     Token1: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-    Market: '0x37DB1941bcc5A687cF8E21aaB7058cDC43DD0b44',
+    Market1: '0xfdaa5becfd7a397fa189909419a9caec8096890e',
+    Market2: '0xaDb74ae0A618c0b7474B9f2e7B7CcecCF72f9676',
     Buyout: '0x0000000000000000000000000000000000000000',
     Redeem: '0x0000000000000000000000000000000000000000',
   },
   4: {
     Vault: '0x6C66dCC216B2324520bAcB9E3696A9F54238999a',
-    Token0: '0xB2B80416aC4534C2aa3c7F0981C1e764f88C3B05',
-    Token1: '0xd2eFff4ea9177ba2B220FA1Aec84BDD0ae4199b3',
-    Market: '0x143649b40dF5BDAFD7b621e35eD02E59e16E0816',
+    Token0: '0xe75f2c4D2E1AE65a77a6d3e28d989813906f0B29',
+    Token1: '0x50e871b7670719A832EB30D32C87C53843F912E0',
+    Market1: '0x594719f18d78dAA83e49C30660512d6592EE2B61',
+    Market2: '0x594719f18d78dAA83e49C30660512d6592EE2B61',
     Buyout: '0xb3c48fF6830ff7E9597882b207C7aC8191F7F208',
     Redeem: '0x8E8804663920fDFE22778eAAF646E12087A5d4C9',
   },
 }
 
 let web3Modal
+
+const Wrapper = styled.div`
+  background: var(--color-white);
+  padding: 24px 35px 20px;
+  width: 1216px;
+  max-width: 100%;
+  border: 1px solid #979797;
+  position: relative;
+  min-height: 630px;
+`
 
 const providerOptions = (network) => ({
   walletconnect: {
@@ -63,7 +77,7 @@ class Account extends Component {
   }
 
   componentWillUnmount() {
-    if (this.library) this.library.onDisconnect()
+    if (this.props.library) this.props.library.onDisconnect()
   }
 
   setWeb3Modal(network) {
@@ -141,6 +155,12 @@ class Account extends Component {
   }
 
   render() {
+    if (this.props.metamask && !this.props.metamask.connected)
+      return (
+        <Wrapper className="flex-all">
+          <Button onClick={this.connectWallet.bind(this)}>Connect Wallet</Button>
+        </Wrapper>
+      )
     return null
   }
 }
