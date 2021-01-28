@@ -428,12 +428,12 @@ export default connect((state) => state)(function Home({ metamask, library, even
               {format(data.token1PerToken0)} {data.contributeToken}
             </h4>
           </div>
-          <div>
+          {/* <div>
             <p>Individual Cap:</p>
             <h4 className="light">
               {1000} {data.contributeToken}
             </h4>
-          </div>
+          </div> */}
           <div>
             <p>Valuation:</p>
             <h4 className="light">{format(data.totalCap)}</h4>
