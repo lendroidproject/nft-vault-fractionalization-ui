@@ -515,7 +515,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                   </span>
                 </a>
               </div>
-              <div className="purcahse">
+              {/* <div className="purcahse">
                 {!Number(data.allowance) || Number(data.allowance) < Number(data.token1Balance) ? (
                   <Button className="full-width" onClick={handleUnlock} disabled={!!purchaseTx}>
                     UNLOCK
@@ -539,7 +539,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                     )}
                   </>
                 )}
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
