@@ -10,6 +10,9 @@ const Button = styled.button`
   border-radius: 4px;
   outline: none;
 
+  &.grey {
+    background: var(--linear-gradient3);
+  }
   &.full-width {
     width: 100%;
   }
@@ -21,7 +24,7 @@ const Button = styled.button`
   &.btn-outline {
     position: relative;
     color: var(--color-black);
-    background: linear-gradient(to bottom,#ddb2ea,#b0f0f6);
+    background: linear-gradient(to bottom, #ddb2ea, #b0f0f6);
     border-radius: 4px;
     font-size: 20px;
     line-height: 24px;
@@ -43,6 +46,6 @@ const Button = styled.button`
     opacity: 0.7;
     cursor: not-allowed;
   }
-`;
+`
 
-export default Button;
+export default Button

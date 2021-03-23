@@ -61,6 +61,7 @@ class App extends NextApp {
                 --box-shadow-dark: 6px 6px 17px 0 #121120;;
                 --linear-gradient1: linear-gradient(180deg, #0038FF 0%, #FF007E 100%);
                 --linear-gradient2: linear-gradient(180deg, #FFEAF2 0%, #F1FFFF 100%);
+                --linear-gradient3: linear-gradient(180deg, #A5A5A5 0%, #323131 100%);
                 --color-red1: #ff0006;
               }
               body { font-family: var(--font-family); font-size: 12px; line-height: 15px; color: var(--color-dark-grey); }

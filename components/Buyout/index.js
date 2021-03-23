@@ -1,13 +1,21 @@
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
-import Button from 'components/common/Button'
 import qs from 'qs'
+import Button from 'components/common/Button'
 import AssetList from 'components/Markets/AssetList'
+import B20Spinner from 'components/common/B20Spinner'
 import { getAssets } from 'utils/api'
 import { format } from 'utils/number'
 import { addressLink, openseaLink, networks, connectNetworks } from 'utils/etherscan'
-import B20Spinner from 'components/common/B20Spinner'
+import { getDuration, useTicker } from 'utils/hooks'
+import { shorten } from 'utils/string'
+
+const STATUS = Object.freeze({
+  STATUS_ACTIVE: 1,
+  STATUS_REVOKED: 2,
+  STATUS_ENDED: 3,
+})
 
 const Wrapper = styled.div`
   flex: 1;
@@ -112,41 +120,93 @@ const Wrapper = styled.div`
 `
 
 export default connect((state) => state)(function Home({ metamask, library, eventTimestamp }) {
+  const [now] = useTicker()
   const [assets, setAssets] = useState([])
   const [data, setData] = useState(null)
 
   const loading = !data
-  const loadData = () => {
+  const loadData = (first) => {
     const { totalAssets } = library.methods.Vault
+    const { symbol: symbol0, balanceOf: balance0 } = library.methods.Token0
+    const { symbol: symbol2, balanceOf: balance2 } = library.methods.Token2
+    const {
+      EPOCH_PERIOD,
+      HEART_BEAT_START_TIME,
+      epochs,
+      status,
+      startThreshold,
+      highestBidder,
+      highestBidValues,
+      currentBidId,
+      token0Staked,
+      lastVetoedBidId,
+    } = library.methods.Buyout
     const { getBlock } = library.methods.web3
 
     Promise.all([
       totalAssets(),
       getBlock(),
       // contributors(),
+      first
+        ? Promise.all([
+            EPOCH_PERIOD(),
+            HEART_BEAT_START_TIME(),
+            epochs(1),
+            status(),
+            startThreshold(),
+            symbol0(),
+            symbol2(),
+          ])
+        : Promise.resolve([]),
+      Promise.all([
+        balance0(metamask.address),
+        balance2(metamask.address),
+        highestBidder(),
+        highestBidValues(0),
+        currentBidId(),
+        token0Staked(metamask.address),
+        lastVetoedBidId(metamask.address),
+      ]),
     ])
       .then(
         ([
           totalAssets,
           lastTimestamp,
           // contributors,
+          buyoutInfo,
+          [balance0, balance2, bidder, bidValue, currentBidId, token0Staked, lastVetoedBidId],
         ]) => {
-          console.log({
-            totalAssets,
-            lastTimestamp,
-          })
-          setData({
+          const newData = {
             totalAssets,
             lastTimestamp: new Date(lastTimestamp * 1000),
             timestamp: Date.now(),
-          })
+            bidder,
+            bidValue,
+            balance: [library.web3.utils.fromWei(balance0), library.web3.utils.fromWei(balance2)],
+            currentBidId,
+            token0Staked,
+            lastVetoedBidId,
+          }
+          if (first) {
+            const [EPOCH_PERIOD, HEART_BEAT_START_TIME, epochs, status, startThreshold, symbol0, symbol2] = buyoutInfo
+            newData.buyoutInfo = {
+              EPOCH_PERIOD,
+              HEART_BEAT_START_TIME,
+              endTime: (+HEART_BEAT_START_TIME + EPOCH_PERIOD * epochs) * 1000,
+              epochs: Number(epochs),
+              status: Number(status),
+              startThreshold: library.web3.utils.fromWei(startThreshold),
+              symbol: [symbol0, symbol2],
+            }
+          }
+          setData(newData)
         }
       )
       .catch(console.log)
   }
   useEffect(() => {
     if (library && !data && metamask.address) {
-      loadData()
+      loadData(true)
     }
   }, [library, data, metamask])
   useEffect(() => {
@@ -211,12 +271,13 @@ export default connect((state) => state)(function Home({ metamask, library, even
               <h4 className="uppercase">B20 Buyout</h4>
             </div>
             <div className="desc">
-              Welcome to the Big B.20 Buyout. With a minimum bid of $10 mn (tentative estimate), you can begin the buyout process. for the
-              entire bundle.
+              Welcome to the Big B.20 Buyout. With a minimum bid of $10 mn (tentative estimate), you can begin the
+              buyout process. for the entire bundle.
               <br />
               <br />
-              Your bid will stand for 48 epochs (each epoch is 8 hours), during which time someone else can outbid you, or the community can veto
-              the bid with a 25% consensus. If the community veto is successful, the minimum bid increases by 8%.
+              Your bid will stand for 48 epochs (each epoch is 8 hours), during which time someone else can outbid you,
+              or the community can veto the bid with a 25% consensus. If the community veto is successful, the minimum
+              bid increases by 8%.
               <br />
               <br />
               Good luck!
@@ -229,31 +290,60 @@ export default connect((state) => state)(function Home({ metamask, library, even
             <div className="subscriptions">
               <div>
                 <p>Buyout Clock</p>
-                <h2 className="col-green light">Begins on the 3rd of March, 2021, at 12am GMT</h2>
+                {data ? (
+                  data.buyoutInfo.status === STATUS.STATUS_ACTIVE ? (
+                    <h2 className="col-green light">Ends in {getDuration(now, data.buyoutInfo.endTime)}</h2>
+                  ) : data.buyoutInfo.status === STATUS.STATUS_ENDED ? (
+                    <h2 className="col-red light">Buyout has ended</h2>
+                  ) : (
+                    <h2 className="light">Awaiting minimum bid of {data.buyoutInfo.startThreshold} DAI</h2>
+                  )
+                ) : (
+                  <h2 className="light">...</h2>
+                )}
               </div>
-              {/* <div>
-                <p>Total Contributions:</p>
-                <h2>
-                  <img className="asset-icon" src="/assets/dai.svg" alt="DAI" />1000 DAI
+              <div>
+                <p>Highest bid:</p>
+                <h2 className="light" style={{ fontSize: '125%' }}>
+                  {data && [STATUS.STATUS_ACTIVE, STATUS.STATUS_ENDED].includes(data.buyoutInfo.status) ? (
+                    <>
+                      <img className="asset-icon" src="/assets/dai.svg" alt="DAI" />
+                      {data.bidValue} DAI by{' '}
+                      <a href={addressLink(data.bidder)} target="_blank">
+                        {shorten(data.bidder)}
+                      </a>
+                    </>
+                  ) : (
+                    '---'
+                  )}
                 </h2>
-              </div> */}
+              </div>
             </div>
             <div className="balance">
               <div>
-                <h4 className="light balance-desc">To participate, you need DAI, B20 or a combination of the two.</h4>
+                <h4 className="light balance-desc">
+                  To place a bid, you need DAI and 5% of all B20.
+                  <br />
+                  To veto a bid, you just need B20.
+                </h4>
               </div>
-              {/* <div><h3 className="col-blue">You have</h3></div>
+              <div>
+                <h3 className="col-blue">You currently have</h3>
+              </div>
               <div>
                 <h3 className="light asset-balance">
-                  <img className="asset-icon" src="/assets/dai.svg" alt="DAI" /> 320,0000
+                  <img className="asset-icon" src="/assets/dai.svg" alt="DAI" /> {data && data.balance[1]} DAI
                 </h3>
               </div>
               <div>
                 <h3 className="light asset-balance">
-                  <img className="asset-icon" src="/assets/b20.svg" alt="B20" /> 20,0000
+                  <img className="asset-icon" src="/assets/b20.svg" alt="B20" /> {data && data.balance[1]} B20
                 </h3>
-              </div> */}
+              </div>
             </div>
+            <Button className="full-width grey">Bid</Button>
+            <h3 className="center light">or</h3>
+            <Button className="full-width">Veto</Button>
           </div>
         </div>
       </div>
