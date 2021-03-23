@@ -67,9 +67,6 @@ export default connect((state) => state)(function Layout({ children, metamask })
           <Link href="/">
             <Button className={router.pathname === '/' ? 'active' : 'inactive'}>Buyout</Button>
           </Link>
-          <Link href="/redeem">
-            <Button className={router.pathname === '/redeem' ? 'active' : 'inactive'}>Redeem</Button>
-          </Link>
           <Link href="/about">
             <Button className={router.pathname === '/about' ? 'active' : 'inactive'}>Know B20</Button>
           </Link>
