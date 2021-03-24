@@ -94,6 +94,10 @@ const Wrapper = styled.div`
       }
     }
 
+    .or-divider {
+      margin: 10px 0;
+    }
+
     .asset-icon {
       border-radius: 50%;
       width: 24px;
@@ -410,7 +414,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                     <>
                       <img className="asset-icon" src="/assets/dai.svg" alt="DAI" />
                       {data.bidValue} DAI by{' '}
-                      <a href={addressLink(data.bidder)} target="_blank">
+                      <a href={addressLink(data.bidder, library?.wallet?.network)} target="_blank">
                         {shorten(data.bidder)}
                       </a>
                     </>
@@ -451,7 +455,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
             >
               Bid
             </Button>
-            <h3 className="center light">or</h3>
+            <h3 className="center light or-divider">or</h3>
             <Button className="full-width" onClick={() => setShowVetoModal(true)}>
               Veto
             </Button>
