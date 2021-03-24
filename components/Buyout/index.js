@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
 import qs from 'qs'
@@ -7,9 +7,11 @@ import AssetList from 'components/Markets/AssetList'
 import B20Spinner from 'components/common/B20Spinner'
 import { getAssets } from 'utils/api'
 import { format } from 'utils/number'
-import { addressLink, openseaLink, networks, connectNetworks } from 'utils/etherscan'
+import { addressLink, openseaLink, networks, connectNetworks, txLink } from 'utils/etherscan'
 import { getDuration, useTicker } from 'utils/hooks'
 import { shorten } from 'utils/string'
+import BidModal from 'components/Buyout/BidModal'
+import SpinnerModal from 'components/common/SpinnerModal'
 
 const STATUS = Object.freeze({
   STATUS_ACTIVE: 1,
@@ -119,16 +121,114 @@ const Wrapper = styled.div`
   }
 `
 
+const MIN_ALLOWANCE = 10 ** 10
+
 export default connect((state) => state)(function Home({ metamask, library, eventTimestamp }) {
   const [now] = useTicker()
   const [assets, setAssets] = useState([])
   const [data, setData] = useState(null)
+  const [showBidModal, setShowBidModal] = useState(false)
+  const [showVetoModal, setShowVetoModal] = useState(false)
+  const [pendingTx, setPendingTx] = useState('')
+
+  const handleBid = (total, token2) => {
+    if (library?.methods?.Buyout?.placeBid && total && token2) {
+      library.methods.Buyout.placeBid(
+        library.web3.utils.toWei(total.toString()),
+        library.web3.utils.toWei(token2.toString()),
+        {
+          from: metamask.address,
+        }
+      )
+        .send()
+        .on('transactionHash', function (hash) {
+          setPendingTx(hash)
+          setShowBidModal(false)
+        })
+        .on('receipt', function (receipt) {
+          setPendingTx('')
+        })
+        .on('error', (err) => {
+          setPendingTx('')
+        })
+    }
+  }
+
+  const handleVetoWithdraw = () => {
+
+  }
+
+  const handleVetoExtend = () => {
+
+  }
+
+  const handleVetoAdd = () => {
+
+  }
+
+  const handleApproveToken0 = (amount) => {
+    const { approve } = library.methods.Token0
+    const allowAmount = Math.max(amount, MIN_ALLOWANCE)
+    approve(library.addresses.BuyOut, library.web3.utils.toWei(allowAmount.toString()), {
+      from: metamask.address,
+    })
+      .send()
+      .on('transactionHash', function (hash) {
+        setPendingTx(hash)
+      })
+      .on('receipt', function (receipt) {
+        setPendingTx('')
+        data['allowance'][0] = allowAmount
+        setData({ ...data })
+      })
+      .on('error', (err) => {
+        setPurchaseTx('')
+        console.log(err)
+      })
+  }
+
+  const handleApproveToken2 = (amount) => {
+    const { approve } = library.methods.Token2
+    const allowAmount = Math.max(amount, MIN_ALLOWANCE)
+    approve(library.addresses.BuyOut, library.web3.utils.toWei(allowAmount.toString()), {
+      from: metamask.address,
+    })
+      .send()
+      .on('transactionHash', function (hash) {
+        setPendingTx(hash)
+      })
+      .on('receipt', function (receipt) {
+        setPendingTx('')
+        data['allowance'][1] = allowAmount
+        setData({ ...data })
+      })
+      .on('error', (err) => {
+        setPurchaseTx('')
+        console.log(err)
+      })
+  }
+
+  const getRequiredToken0ToBid = useCallback(async (total, token2) => {
+    let result = 0
+    if (library?.methods?.Buyout?.requiredToken0ToBid && total && token2) {
+      try {
+        result = await library.methods.Buyout.requiredToken0ToBid(
+          library.web3.utils.toWei(total.toString()),
+          library.web3.utils.toWei(token2.toString())
+        )
+        result = Number(library.web3.utils.fromWei(result)).toFixed(2)
+      } catch (err) {
+        console.log(err)
+      }
+    }
+    return result;
+  }, [library?.methods?.Buyout?.requiredToken0ToBid]);
 
   const loading = !data
   const loadData = (first) => {
     const { totalAssets } = library.methods.Vault
-    const { symbol: symbol0, balanceOf: balance0 } = library.methods.Token0
-    const { symbol: symbol2, balanceOf: balance2 } = library.methods.Token2
+    const { symbol: symbol0, balanceOf: balance0, getAllowance: allowance0 } = library.methods.Token0
+    const { symbol: symbol2, balanceOf: balance2, getAllowance: allowance2 } = library.methods.Token2
     const {
       EPOCH_PERIOD,
       HEART_BEAT_START_TIME,
@@ -161,6 +261,8 @@ export default connect((state) => state)(function Home({ metamask, library, even
       Promise.all([
         balance0(metamask.address),
         balance2(metamask.address),
+        allowance0(metamask.address, library.addresses.BuyOut),
+        allowance2(metamask.address, library.addresses.BuyOut),
         highestBidder(),
         highestBidValues(0),
         currentBidId(),
@@ -174,7 +276,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
           lastTimestamp,
           // contributors,
           buyoutInfo,
-          [balance0, balance2, bidder, bidValue, currentBidId, token0Staked, lastVetoedBidId],
+          [balance0, balance2, allowance0, allowance2, bidder, bidValue, currentBidId, token0Staked, lastVetoedBidId],
         ]) => {
           const newData = {
             totalAssets,
@@ -183,6 +285,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
             bidder,
             bidValue,
             balance: [library.web3.utils.fromWei(balance0), library.web3.utils.fromWei(balance2)],
+            allowance: [library.web3.utils.fromWei(allowance0), library.web3.utils.fromWei(allowance2)],
             currentBidId,
             token0Staked,
             lastVetoedBidId,
@@ -337,16 +440,40 @@ export default connect((state) => state)(function Home({ metamask, library, even
               </div>
               <div>
                 <h3 className="light asset-balance">
-                  <img className="asset-icon" src="/assets/b20.svg" alt="B20" /> {data && data.balance[1]} B20
+                  <img className="asset-icon" src="/assets/b20.svg" alt="B20" /> {data && data.balance[0]} B20
                 </h3>
               </div>
             </div>
-            <Button className="full-width grey">Bid</Button>
+            <Button className="full-width grey" onClick={() => setShowBidModal(true)}>Bid</Button>
             <h3 className="center light">or</h3>
-            <Button className="full-width">Veto</Button>
+            <Button className="full-width" onClick={() => setShowVetoModal(true)}>Veto</Button>
           </div>
         </div>
       </div>
+      <BidModal
+        minTotal={data?.buyoutInfo?.startThreshold}
+        b20Balance={data?.balance[0]}
+        b20Allowance={data?.allowance[0]}
+        daiBalance={data?.balance[1]}
+        daiAllowance={data?.allowance[1]}
+        getRequiredB20={getRequiredToken0ToBid}
+        show={showBidModal}
+        onHide={() => setShowBidModal(false)}
+        onContinue={handleBid}
+        onApproveB20={handleApproveToken0}
+        onApproveDai={handleApproveToken2}
+      />
+      <SpinnerModal show={!!pendingTx}>
+        <h3 className="col-white">
+          <br />
+          <br />
+          Transaction hash:
+          <br />
+          <a className="col-white light" href={txLink(pendingTx, library.wallet.network)} target="_blank">
+            {shorten(pendingTx, 32)}
+          </a>
+        </h3>
+      </SpinnerModal>
     </Wrapper>
   )
 })
