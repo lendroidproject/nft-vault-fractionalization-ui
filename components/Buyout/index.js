@@ -154,22 +154,16 @@ export default connect((state) => state)(function Home({ metamask, library, even
     }
   }
 
-  const handleVetoWithdraw = () => {
+  const handleVetoWithdraw = () => {}
 
-  }
+  const handleVetoExtend = () => {}
 
-  const handleVetoExtend = () => {
-
-  }
-
-  const handleVetoAdd = () => {
-
-  }
+  const handleVetoAdd = () => {}
 
   const handleApproveToken0 = (amount) => {
     const { approve } = library.methods.Token0
     const allowAmount = Math.max(amount, MIN_ALLOWANCE)
-    approve(library.addresses.BuyOut, library.web3.utils.toWei(allowAmount.toString()), {
+    approve(library.addresses.Buyout, library.web3.utils.toWei(allowAmount.toString()), {
       from: metamask.address,
     })
       .send()
@@ -190,7 +184,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const handleApproveToken2 = (amount) => {
     const { approve } = library.methods.Token2
     const allowAmount = Math.max(amount, MIN_ALLOWANCE)
-    approve(library.addresses.BuyOut, library.web3.utils.toWei(allowAmount.toString()), {
+    approve(library.addresses.Buyout, library.web3.utils.toWei(allowAmount.toString()), {
       from: metamask.address,
     })
       .send()
@@ -208,21 +202,24 @@ export default connect((state) => state)(function Home({ metamask, library, even
       })
   }
 
-  const getRequiredToken0ToBid = useCallback(async (total, token2) => {
-    let result = 0
-    if (library?.methods?.Buyout?.requiredToken0ToBid && total && token2) {
-      try {
-        result = await library.methods.Buyout.requiredToken0ToBid(
-          library.web3.utils.toWei(total.toString()),
-          library.web3.utils.toWei(token2.toString())
-        )
-        result = Number(library.web3.utils.fromWei(result)).toFixed(2)
-      } catch (err) {
-        console.log(err)
+  const getRequiredToken0ToBid = useCallback(
+    async (total, token2) => {
+      let result = 0
+      if (library?.methods?.Buyout?.requiredToken0ToBid && total && token2) {
+        try {
+          result = await library.methods.Buyout.requiredToken0ToBid(
+            library.web3.utils.toWei(total.toString()),
+            library.web3.utils.toWei(token2.toString())
+          )
+          result = Number(library.web3.utils.fromWei(result)).toFixed(2)
+        } catch (err) {
+          console.log(err)
+        }
       }
-    }
-    return result;
-  }, [library?.methods?.Buyout?.requiredToken0ToBid]);
+      return result
+    },
+    [library?.methods?.Buyout?.requiredToken0ToBid]
+  )
 
   const loading = !data
   const loadData = (first) => {
@@ -261,8 +258,8 @@ export default connect((state) => state)(function Home({ metamask, library, even
       Promise.all([
         balance0(metamask.address),
         balance2(metamask.address),
-        allowance0(metamask.address, library.addresses.BuyOut),
-        allowance2(metamask.address, library.addresses.BuyOut),
+        allowance0(metamask.address, library.addresses.Buyout),
+        allowance2(metamask.address, library.addresses.Buyout),
         highestBidder(),
         highestBidValues(0),
         currentBidId(),
@@ -279,11 +276,12 @@ export default connect((state) => state)(function Home({ metamask, library, even
           [balance0, balance2, allowance0, allowance2, bidder, bidValue, currentBidId, token0Staked, lastVetoedBidId],
         ]) => {
           const newData = {
+            ...data,
             totalAssets,
             lastTimestamp: new Date(lastTimestamp * 1000),
             timestamp: Date.now(),
             bidder,
-            bidValue,
+            bidValue: library.web3.utils.fromWei(bidValue),
             balance: [library.web3.utils.fromWei(balance0), library.web3.utils.fromWei(balance2)],
             allowance: [library.web3.utils.fromWei(allowance0), library.web3.utils.fromWei(allowance2)],
             currentBidId,
@@ -435,18 +433,28 @@ export default connect((state) => state)(function Home({ metamask, library, even
               </div>
               <div>
                 <h3 className="light asset-balance">
-                  <img className="asset-icon" src="/assets/dai.svg" alt="DAI" /> {data && data.balance[1]} DAI
+                  <img className="asset-icon" src="/assets/dai.svg" alt="DAI" /> {data && format(data.balance[1], 0)}{' '}
+                  DAI
                 </h3>
               </div>
               <div>
                 <h3 className="light asset-balance">
-                  <img className="asset-icon" src="/assets/b20.svg" alt="B20" /> {data && data.balance[0]} B20
+                  <img className="asset-icon" src="/assets/b20.svg" alt="B20" /> {data && format(data.balance[0], 0)}{' '}
+                  B20
                 </h3>
               </div>
             </div>
-            <Button className="full-width grey" onClick={() => setShowBidModal(true)}>Bid</Button>
+            <Button
+              className="full-width grey"
+              onClick={() => setShowBidModal(true)}
+              disabled={data && data.bidder === metamask.address}
+            >
+              Bid
+            </Button>
             <h3 className="center light">or</h3>
-            <Button className="full-width" onClick={() => setShowVetoModal(true)}>Veto</Button>
+            <Button className="full-width" onClick={() => setShowVetoModal(true)}>
+              Veto
+            </Button>
           </div>
         </div>
       </div>
