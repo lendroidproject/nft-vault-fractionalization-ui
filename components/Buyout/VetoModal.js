@@ -309,12 +309,12 @@ function VetoModal({
               suffix={inputSuffix}
             />
             <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
-              <span></span>
+              <span>Max: {b20Staked}</span>
               <span>Balance: {b20Balance}</span>
             </div>
           </div>
           <Button
-            onClick={() => onWithdraw && onWithdraw()}
+            onClick={() => onWithdraw && onWithdraw(formData.b20.value)}
             disabled={!formData.b20.isValid}
           >
             <span>Withdraw Stake</span>
@@ -328,7 +328,7 @@ function VetoModal({
     }
   ]
   return ReactDOM.createPortal(
-    <Wrapper className={`flex-all ${show ? 'show' : 'hide'}`} onMouseDown={() => onHide && onHide()}>
+    <Wrapper className={`flex-all ${show ? 'show' : 'hide'}`}>
       <Content onMouseDown={(e) => e.stopPropagation()}>
         <div className="modal-body">
           <button className="btn-close" onClick={() => onHide && onHide()}>
