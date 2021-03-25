@@ -4,13 +4,13 @@ import { connect } from 'react-redux'
 import qs from 'qs'
 import Button from 'components/common/Button'
 import AssetList from 'components/Markets/AssetList'
-import B20Spinner from 'components/common/B20Spinner'
 import { getAssets } from 'utils/api'
 import { format } from 'utils/number'
 import { addressLink, openseaLink, networks, connectNetworks, txLink } from 'utils/etherscan'
 import { getDuration, useTicker } from 'utils/hooks'
 import { shorten } from 'utils/string'
 import BidModal from 'components/Buyout/BidModal'
+import VetoModal from 'components/Buyout/VetoModal'
 import SpinnerModal from 'components/common/SpinnerModal'
 
 const STATUS = Object.freeze({
@@ -95,7 +95,7 @@ const Wrapper = styled.div`
     }
 
     .or-divider {
-      margin: 10px 0;
+      margin: 5px 0;
     }
 
     .asset-icon {
@@ -151,6 +151,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
         })
         .on('receipt', function (receipt) {
           setPendingTx('')
+          loadData()
         })
         .on('error', (err) => {
           setPendingTx('')
@@ -158,11 +159,70 @@ export default connect((state) => state)(function Home({ metamask, library, even
     }
   }
 
-  const handleVetoWithdraw = () => {}
+  const handleVeto = (amount) => {
+    if (library?.methods?.Buyout?.veto && amount) {
+      library.methods.Buyout.veto(
+        library.web3.utils.toWei(amount.toString()),
+        {
+          from: metamask.address,
+        }
+      )
+        .send()
+        .on('transactionHash', function (hash) {
+          setPendingTx(hash)
+        })
+        .on('receipt', function (receipt) {
+          setPendingTx('')
+          loadData()
+        })
+        .on('error', (err) => {
+          setPendingTx('')
+        })
+    }
+  }
 
-  const handleVetoExtend = () => {}
+  const handleExtend = () => {
+    if (library?.methods?.Buyout?.extendVeto) {
+      library.methods.Buyout.veto(
+        {
+          from: metamask.address,
+        }
+      )
+        .send()
+        .on('transactionHash', function (hash) {
+          setPendingTx(hash)
+        })
+        .on('receipt', function (receipt) {
+          setPendingTx('')
+          loadData()
+        })
+        .on('error', (err) => {
+          setPendingTx('')
+        })
+    }
+  }
 
-  const handleVetoAdd = () => {}
+  const handleWithdraw = (amount) => {
+    if (library?.methods?.Buyout?.withdrawStakedToken0 && amount) {
+      library.methods.Buyout.withdrawStakedToken0(
+        library.web3.utils.toWei(amount.toString()),
+        {
+          from: metamask.address,
+        }
+      )
+        .send()
+        .on('transactionHash', function (hash) {
+          setPendingTx(hash)
+        })
+        .on('receipt', function (receipt) {
+          setPendingTx('')
+          loadData()
+        })
+        .on('error', (err) => {
+          setPendingTx('')
+        })
+    }
+  }
 
   const handleApproveToken0 = (amount) => {
     const { approve } = library.methods.Token0
@@ -289,7 +349,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
             balance: [library.web3.utils.fromWei(balance0), library.web3.utils.fromWei(balance2)],
             allowance: [library.web3.utils.fromWei(allowance0), library.web3.utils.fromWei(allowance2)],
             currentBidId,
-            token0Staked,
+            token0Staked: library.web3.utils.fromWei(token0Staked),
             lastVetoedBidId,
           }
           if (first) {
@@ -449,21 +509,21 @@ export default connect((state) => state)(function Home({ metamask, library, even
               </div>
             </div>
             <Button
-              className="full-width grey"
+              className="full-width"
               onClick={() => setShowBidModal(true)}
-              disabled={data && data.bidder === metamask.address}
+              // disabled={data && data.bidder === metamask.address}
             >
               Bid
             </Button>
             <h3 className="center light or-divider">or</h3>
-            <Button className="full-width" onClick={() => setShowVetoModal(true)}>
+            <Button className="full-width grey" onClick={() => setShowVetoModal(true)}>
               Veto
             </Button>
           </div>
         </div>
       </div>
       <BidModal
-        minTotal={data?.buyoutInfo?.startThreshold}
+        minTotal={data?.buyoutInfo?.status === STATUS.STATUS_ACTIVE ? data?.bidValue : data?.buyoutInfo?.startThreshold}
         b20Balance={data?.balance[0]}
         b20Allowance={data?.allowance[0]}
         daiBalance={data?.balance[1]}
@@ -474,6 +534,19 @@ export default connect((state) => state)(function Home({ metamask, library, even
         onContinue={handleBid}
         onApproveB20={handleApproveToken0}
         onApproveDai={handleApproveToken2}
+      />
+      <VetoModal
+        b20Staked={data?.token0Staked}
+        lastVetoedBidId={data?.lastVetoedBidId}
+        currentBidId={data?.currentBidId}
+        b20Balance={data?.balance[0]}
+        b20Allowance={data?.allowance[0]}
+        show={showVetoModal}
+        onHide={() => setShowVetoModal(false)}
+        onVeto={handleVeto}
+        onExtend={handleExtend}
+        onWithdraw={handleWithdraw}
+        onApproveB20={handleApproveToken0}
       />
       <SpinnerModal show={!!pendingTx}>
         <h3 className="col-white">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import NumberFormat from 'react-number-format';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -112,8 +113,10 @@ const Input = (
   return (
     <Wrapper className={`input ${wrapperClass}`} suffix={!!suffix}>
       {label && <label>{label}</label>}
-      <input
+      <NumberFormat
         {...props}
+        thousandSeparator=","
+        decimalSeparator="."
         onFocus={() => setFocus(true)}
         onBlur={() => {
           setTimeout(() => setFocus(false), 150)
@@ -151,3 +154,4 @@ const Input = (
 };
 
 export default Input;
+

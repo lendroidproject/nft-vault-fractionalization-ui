@@ -6,7 +6,7 @@ const fmt = {
   groupSeparator: ',',
   groupSize: 3,
   secondaryGroupSize: 0,
-  fractionGroupSeparator: ' ',
+  fractionGroupSeparator: '',
   fractionGroupSize: 0,
   suffix: ''
 }

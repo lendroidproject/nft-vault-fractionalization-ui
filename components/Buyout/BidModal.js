@@ -2,8 +2,8 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 import Button from 'components/common/Button'
-import Input from 'components/common/Input'
-import BigNumber from 'bignumber.js'
+import Input from 'components/common/NumberInput'
+import { format } from 'utils/number'
 
 const Wrapper = styled.div`
   position: fixed;
@@ -24,17 +24,10 @@ const Wrapper = styled.div`
 `
 
 const Content = styled.div`
-  width: 885px;
-  max-width: 95%;
-  background: rgba(255,255,255,0.7);
-  padding: 30px 30px 50px;
-  border-radius: 6px;
-
   .modal-header {
     text-align: center;
     border-bottom: 2px solid var(--color-pink);
-    margin: auto;
-    margin-bottom: 24px;
+    margin: 12px auto 24px;
     width: 423px;
     max-width: 100%;
     h1 {
@@ -47,7 +40,7 @@ const Content = styled.div`
     width: 423px;
     max-width: 100%;
     margin: auto;
-    padding: 30px;
+    padding: 20px 24px 24px;
     position: relative;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
@@ -63,7 +56,6 @@ const Content = styled.div`
     padding: 20px;
     margin-top: 25px;
   }
-  
   .btn-close {
     font-size: 20px;
     font-weight: bold;
@@ -76,6 +68,14 @@ const Content = styled.div`
       height: 16px;
       margin-right: 10px;
     }
+  }
+  .btn-approve {
+    font-size: 12px;
+    background: var(--color-pink);
+    color: var(--color-white);
+    line-height: 14px;
+    padding: 5px;
+    margin-right: 5px;
   }
   .input .suffix {
     width: unset;
@@ -146,7 +146,7 @@ function BidModal({
 
   const totalValidator = useCallback((value) => (value >= minTotal), [minTotal])
   const daiValidator = useCallback((value) => (value >= 0 && value <= formData.total.value), [formData.total.value])
-  const b20Validator = useCallback((value) => (value >= minB20), [minB20])
+  const b20Validator = useCallback((value) => (value >= Math.max(minB20, MIN_B20_AMOUNT)), [minB20])
 
   const validators = {
     total: totalValidator,
@@ -154,9 +154,7 @@ function BidModal({
     b20: b20Validator,
   }
 
-  const handleChange = (e) => {
-    const name = e.target.name
-    const value = Number(e.target.value)
+  const handleChange = (name, { floatValue: value }) => {
     const isValid = validators[name](value)
     setFormData({
       ...formData,
@@ -169,6 +167,29 @@ function BidModal({
     })
   }
 
+  const resetForm = () => {
+    setFormData({
+      total: {
+        value: minTotal ? minTotal : '',
+        hasError: false,
+        isValid: true,
+        error: ''
+      },
+      dai: {
+        value: '',
+        hasError: false,
+        isValid: false,
+        error: ''
+      },
+      b20: {
+        value: '',
+        hasError: false,
+        isValid: false,
+        error: ''
+      },
+    })
+  }
+
   const input1Suffix = () => (
     <div className="suffix">
       <img className="asset-icon" src="/assets/dai.svg" alt="DAI" />
@@ -178,11 +199,21 @@ function BidModal({
   )
   const input2Suffix = () => (
     <div className="suffix">
+      {(daiAllowance < formData.dai.value) && (
+        <Button className="btn-approve" onClick={() => onApproveDai && onApproveDai(formData.dai.value)}>
+          Approve
+        </Button>
+      )}
       <img className="asset-icon" src="/assets/dai.svg" alt="DAI" />
     </div>
   )
   const input3Suffix = () => (
     <div className="suffix">
+      {(b20Allowance < formData.b20.value) && (
+        <Button className="btn-approve" onClick={() => onApproveB20 && onApproveB20(formData.b20.value)}>
+          Approve
+        </Button>
+      )}
       <img className="asset-icon" src="/assets/b20.svg" alt="B20" />
     </div>
   )
@@ -190,21 +221,25 @@ function BidModal({
   useEffect(() => {
     const getMinB20 = async () => {
       const result = await getRequiredB20(formData.total.value, formData.dai.value);
-      setMinB20(Math.max(result, MIN_B20_AMOUNT))
+      setMinB20(result)
     }
     getMinB20()
   }, [getRequiredB20, formData.total.value, formData.dai.value])
 
+  useEffect(() => {
+    if (show) { resetForm() }
+  }, [show])
+
   return ReactDOM.createPortal(
-    <Wrapper className={`flex-all ${show ? 'show' : 'hide'}`} onMouseDown={() => onHide && onHide()}>
+    <Wrapper className={`flex-all ${show ? 'show' : 'hide'}`}>
       <Content onMouseDown={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h1 className="col-blue modal-title">Buyout</h1>
-        </div>
         <div className="modal-body">
           <button className="btn-close" onClick={() => onHide && onHide()}>
             <img src="/assets/arrow-right-black.svg" />Go Back
           </button>
+          <div className="modal-header">
+            <h1 className="col-blue modal-title">Buyout</h1>
+          </div>
           <div className="modal-content">
             <div className="form-input">
               <Input
@@ -212,71 +247,60 @@ function BidModal({
                 name="total"
                 label="Total Bid Value"
                 value={formData.total.value}
-                onChange={handleChange}
+                onValueChange={(v) => handleChange('total', v)}
                 pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
                 suffix={input1Suffix}
               />
               <div className={`message${formData.total.hasError ? ' error' : ''}`}>
-                <span>Min. Required: {minTotal}</span>
+                <span>Min. Required: {format(minTotal)}</span>
                 {/* {errors.total && `Insufficient ${token1Name} balance.`} */}
               </div>
             </div>
-            {formData.total.isValid && (
-              <>
-                <div className="form-input">
-                  <Input
-                    id="dai"
-                    name="dai"
-                    label="DAI"
-                    value={formData.dai.value}
-                    onChange={handleChange}
-                    pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
-                    suffix={input2Suffix}
-                  />
-                  <div className={`message${formData.dai.hasError ? ' error' : ''}`}>
-                    <span>Max: {formData.total.value}</span>
-                    <span>Balance: {daiBalance}</span>
-                  </div>
-                </div>
-                <div className="form-input">
-                  <Input
-                    id="b20"
-                    name="b20"
-                    label="B20"
-                    value={formData.b20.value}
-                    onChange={handleChange}
-                    pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
-                    suffix={input3Suffix}
-                  />
-                  <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
-                    <span>Min. Required: {minB20}</span>
-                    <span>Balance: {b20Balance}</span>
-                    {/* {errors.total && `Insufficient ${token1Name} balance.`} */}
-                  </div>
-                </div>
-              </>
-            )}
+            <div className="form-input">
+              <Input
+                id="dai"
+                name="dai"
+                label="DAI"
+                value={formData.dai.value}
+                onValueChange={(v) => handleChange('dai', v)}
+                pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
+                suffix={input2Suffix}
+              />
+              <div className={`message${formData.dai.hasError ? ' error' : ''}`}>
+                <span>Max: {format(formData.total.value)}</span>
+                <span>Balance: {format(daiBalance, 2)}</span>
+              </div>
+            </div>
+            <div className="form-input">
+              <Input
+                id="b20"
+                name="b20"
+                label="B20"
+                value={minB20}
+                onValueChange={(v) => handleChange('b20', v)}
+                pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
+                readOnly={true}
+                suffix={input3Suffix}
+              />
+              <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
+                <span>Min. Required: {format(MIN_B20_AMOUNT)}</span>
+                <span>Balance: {format(b20Balance, 2)}</span>
+                {/* {errors.total && `Insufficient ${token1Name} balance.`} */}
+              </div>
+            </div>
             <div className="modal-footer">
-              {daiAllowance < formData.dai.value ? (
-                <Button
-                  onClick={() => onApproveDai && onApproveDai(formData.dai.value)}
-                >
-                  <span>Approve DAI</span>
-                </Button>
-              ) : b20Allowance < formData.b20.value ? (
-                <Button
-                  onClick={() => onApproveB20 && onApproveB20(formData.b20.value)}
-                >
-                  <span>Approve B20</span>
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => onContinue && onContinue(formData.total.value, formData.dai.value)}
-                  disabled={!formData.total.isValid || !formData.dai.isValid || !formData.b20.isValid}
-                >
-                  <span>Continue</span>
-                </Button>
-              )}
+              <Button
+                onClick={() => onContinue && onContinue(formData.total.value, formData.dai.value)}
+                disabled={
+                  daiAllowance < formData.dai.value || 
+                  b20Allowance < formData.b20.value ||
+                  !formData.total.isValid ||
+                  !formData.dai.isValid ||
+                  !formData.b20.isValid
+                }
+              >
+                <span>Continue</span>
+              </Button>
             </div>
           </div>
         </div>
