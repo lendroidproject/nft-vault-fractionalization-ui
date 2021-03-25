@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 import Button from 'components/common/Button'
-import Input from 'components/common/Input'
-import BigNumber from 'bignumber.js'
+import Input from 'components/common/NumberInput'
 
 const Wrapper = styled.div`
   position: fixed;
@@ -183,12 +182,10 @@ function VetoModal({
     b20: b20Validator,
   }
 
-  const handleChange = (e) => {
-    const name = e.target.name
-    const value = Number(e.target.value)
+  const handleChange = ({ floatValue: value }) => {
+    const name = 'b20'
     const isValid = validators[name](value)
     setFormData({
-      ...formData,
       [name]: {
         value,
         hasError: !isValid,
@@ -248,7 +245,7 @@ function VetoModal({
               name="b20"
               label="B20"
               value={formData.b20.value}
-              onChange={handleChange}
+              onValueChange={handleChange}
               pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
               suffix={inputSuffix}
             />
@@ -276,7 +273,7 @@ function VetoModal({
               name="b20"
               label="B20"
               value={formData.b20.value}
-              onChange={handleChange}
+              onValueChange={handleChange}
               pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
               suffix={inputSuffix}
             />
@@ -304,7 +301,7 @@ function VetoModal({
               name="b20"
               label="B20"
               value={formData.b20.value}
-              onChange={handleChange}
+              onValueChange={handleChange}
               pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
               suffix={inputSuffix}
             />

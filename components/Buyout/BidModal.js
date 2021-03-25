@@ -2,8 +2,7 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 import Button from 'components/common/Button'
-import Input from 'components/common/Input'
-import BigNumber from 'bignumber.js'
+import Input from 'components/common/NumberInput'
 
 const Wrapper = styled.div`
   position: fixed;
@@ -154,9 +153,7 @@ function BidModal({
     b20: b20Validator,
   }
 
-  const handleChange = (e) => {
-    const name = e.target.name
-    const value = Number(e.target.value)
+  const handleChange = (name, { floatValue: value }) => {
     const isValid = validators[name](value)
     setFormData({
       ...formData,
@@ -249,7 +246,7 @@ function BidModal({
                 name="total"
                 label="Total Bid Value"
                 value={formData.total.value}
-                onChange={handleChange}
+                onValueChange={(v) => handleChange('total', v)}
                 pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
                 suffix={input1Suffix}
               />
@@ -264,7 +261,7 @@ function BidModal({
                 name="dai"
                 label="DAI"
                 value={formData.dai.value}
-                onChange={handleChange}
+                onValueChange={(v) => handleChange('dai', v)}
                 pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
                 suffix={input2Suffix}
               />
@@ -279,7 +276,7 @@ function BidModal({
                 name="b20"
                 label="B20"
                 value={minB20}
-                onChange={handleChange}
+                onValueChange={(v) => handleChange('b20', v)}
                 pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
                 readOnly={true}
                 suffix={input3Suffix}
