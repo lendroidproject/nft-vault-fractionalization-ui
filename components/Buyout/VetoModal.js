@@ -178,7 +178,7 @@ function VetoModal({
     },
   })
   const [curTab, setCurTab] = useState(0)
-  const b20Validator = useCallback((value) => (curTab === 2 ? (value > 0 && value <= b20Staked) : true), [b20Staked, curTab])
+  const b20Validator = useCallback((value) => (curTab === 2 ? (value <= b20Staked) : true), [b20Staked, curTab])
   const validators = {
     b20: b20Validator,
   }
