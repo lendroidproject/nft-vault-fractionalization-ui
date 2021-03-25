@@ -27,8 +27,7 @@ const Content = styled.div`
   .modal-header {
     text-align: center;
     border-bottom: 2px solid var(--color-pink);
-    margin: auto;
-    margin-bottom: 24px;
+    margin: 12px auto 24px;
     width: 423px;
     max-width: 100%;
     h1 {
@@ -41,7 +40,7 @@ const Content = styled.div`
     width: 641px;
     max-width: 100%;
     margin: auto;
-    padding: 30px;
+    padding: 20px 24px 24px;
     position: relative;
     border: 1px solid #e0e0e0;
     border-radius: 4px;

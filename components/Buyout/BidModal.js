@@ -24,17 +24,10 @@ const Wrapper = styled.div`
 `
 
 const Content = styled.div`
-  width: 885px;
-  max-width: 95%;
-  background: rgba(255,255,255,0.7);
-  padding: 30px 30px 50px;
-  border-radius: 6px;
-
   .modal-header {
     text-align: center;
     border-bottom: 2px solid var(--color-pink);
-    margin: auto;
-    margin-bottom: 24px;
+    margin: 12px auto 24px;
     width: 423px;
     max-width: 100%;
     h1 {
@@ -47,7 +40,7 @@ const Content = styled.div`
     width: 423px;
     max-width: 100%;
     margin: auto;
-    padding: 30px;
+    padding: 20px 24px 24px;
     position: relative;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
@@ -198,13 +191,13 @@ function BidModal({
   return ReactDOM.createPortal(
     <Wrapper className={`flex-all ${show ? 'show' : 'hide'}`} onMouseDown={() => onHide && onHide()}>
       <Content onMouseDown={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h1 className="col-blue modal-title">Buyout</h1>
-        </div>
         <div className="modal-body">
           <button className="btn-close" onClick={() => onHide && onHide()}>
             <img src="/assets/arrow-right-black.svg" />Go Back
           </button>
+          <div className="modal-header">
+            <h1 className="col-blue modal-title">Buyout</h1>
+          </div>
           <div className="modal-content">
             <div className="form-input">
               <Input
