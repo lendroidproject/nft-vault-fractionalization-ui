@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 import Button from 'components/common/Button'
 import Input from 'components/common/NumberInput'
+import { format } from 'utils/number'
 
 const Wrapper = styled.div`
   position: fixed;
@@ -177,7 +178,7 @@ function VetoModal({
     },
   })
   const [curTab, setCurTab] = useState(0)
-  const b20Validator = useCallback((value) => (value > 0), [])
+  const b20Validator = useCallback((value) => (curTab === 2 ? (value > 0 && value <= b20Staked) : true), [b20Staked, curTab])
   const validators = {
     b20: b20Validator,
   }
@@ -251,7 +252,7 @@ function VetoModal({
             />
             <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
               <span></span>
-              <span>Balance: {b20Balance}</span>
+              <span>Balance: {format(b20Balance, 2)}</span>
             </div>
           </div>
           <Button
@@ -279,7 +280,7 @@ function VetoModal({
             />
             <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
               <span></span>
-              <span>Balance: {b20Balance}</span>
+              <span>Balance: {format(b20Balance, 2)}</span>
             </div>
           </div>
           <Button
@@ -306,8 +307,8 @@ function VetoModal({
               suffix={inputSuffix}
             />
             <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
-              <span>Max: {b20Staked}</span>
-              <span>Balance: {b20Balance}</span>
+              <span>Max: {format(b20Staked, 2)}</span>
+              <span>Balance: {format(b20Balance, 2)}</span>
             </div>
           </div>
           <Button
@@ -336,7 +337,7 @@ function VetoModal({
           </div>
           <div className="modal-content">
             <div className="score">
-              Your Veto Score: <span className="col-black">{b20Staked}</span>
+              Your Veto Score: <span className="col-black">{format(b20Staked)}</span>
             </div>
             <div className="tabs">
               <div className="tab-header">

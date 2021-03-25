@@ -511,7 +511,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
             <Button
               className="full-width"
               onClick={() => setShowBidModal(true)}
-              disabled={data && data.bidder === metamask.address}
+              // disabled={data && data.bidder === metamask.address}
             >
               Bid
             </Button>

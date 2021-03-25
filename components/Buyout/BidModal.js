@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 import Button from 'components/common/Button'
 import Input from 'components/common/NumberInput'
+import { format } from 'utils/number'
 
 const Wrapper = styled.div`
   position: fixed;
@@ -251,7 +252,7 @@ function BidModal({
                 suffix={input1Suffix}
               />
               <div className={`message${formData.total.hasError ? ' error' : ''}`}>
-                <span>Min. Required: {minTotal}</span>
+                <span>Min. Required: {format(minTotal)}</span>
                 {/* {errors.total && `Insufficient ${token1Name} balance.`} */}
               </div>
             </div>
@@ -266,8 +267,8 @@ function BidModal({
                 suffix={input2Suffix}
               />
               <div className={`message${formData.dai.hasError ? ' error' : ''}`}>
-                <span>Max: {formData.total.value}</span>
-                <span>Balance: {daiBalance}</span>
+                <span>Max: {format(formData.total.value)}</span>
+                <span>Balance: {format(daiBalance, 2)}</span>
               </div>
             </div>
             <div className="form-input">
@@ -282,8 +283,8 @@ function BidModal({
                 suffix={input3Suffix}
               />
               <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
-                <span>Min. Required: {MIN_B20_AMOUNT}</span>
-                <span>Balance: {b20Balance}</span>
+                <span>Min. Required: {format(MIN_B20_AMOUNT)}</span>
+                <span>Balance: {format(b20Balance, 2)}</span>
                 {/* {errors.total && `Insufficient ${token1Name} balance.`} */}
               </div>
             </div>
