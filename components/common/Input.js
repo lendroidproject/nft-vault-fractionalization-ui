@@ -12,6 +12,7 @@ const Wrapper = styled.div`
     font-size: 14px;
     line-height: 17px;
     color: var(--color-grey);
+    text-align: left;
   }
 
   input {

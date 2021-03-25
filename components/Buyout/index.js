@@ -4,13 +4,13 @@ import { connect } from 'react-redux'
 import qs from 'qs'
 import Button from 'components/common/Button'
 import AssetList from 'components/Markets/AssetList'
-import B20Spinner from 'components/common/B20Spinner'
 import { getAssets } from 'utils/api'
 import { format } from 'utils/number'
 import { addressLink, openseaLink, networks, connectNetworks, txLink } from 'utils/etherscan'
 import { getDuration, useTicker } from 'utils/hooks'
 import { shorten } from 'utils/string'
 import BidModal from 'components/Buyout/BidModal'
+import VetoModal from 'components/Buyout/VetoModal'
 import SpinnerModal from 'components/common/SpinnerModal'
 
 const STATUS = Object.freeze({
@@ -95,7 +95,7 @@ const Wrapper = styled.div`
     }
 
     .or-divider {
-      margin: 10px 0;
+      margin: 5px 0;
     }
 
     .asset-icon {
@@ -471,6 +471,19 @@ export default connect((state) => state)(function Home({ metamask, library, even
         getRequiredB20={getRequiredToken0ToBid}
         show={showBidModal}
         onHide={() => setShowBidModal(false)}
+        onContinue={handleBid}
+        onApproveB20={handleApproveToken0}
+        onApproveDai={handleApproveToken2}
+      />
+      <VetoModal
+        minTotal={data?.buyoutInfo?.startThreshold}
+        b20Balance={data?.balance[0]}
+        b20Allowance={data?.allowance[0]}
+        daiBalance={data?.balance[1]}
+        daiAllowance={data?.allowance[1]}
+        getRequiredB20={getRequiredToken0ToBid}
+        show={showVetoModal}
+        onHide={() => setShowVetoModal(false)}
         onContinue={handleBid}
         onApproveB20={handleApproveToken0}
         onApproveDai={handleApproveToken2}
