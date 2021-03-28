@@ -237,8 +237,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
       .catch(console.log)
   }
 
-  console.log(data)
-
   const handleBid = (total, token2) => {
     if (library?.methods?.Buyout?.placeBid && total && token2) {
       library.methods.Buyout.placeBid(
