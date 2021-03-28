@@ -178,7 +178,8 @@ function VetoModal({
     },
   })
   const [curTab, setCurTab] = useState(0)
-  const b20Validator = useCallback((value) => (curTab === 2 ? (value <= b20Staked) : true), [b20Staked, curTab])
+  const activeTab = b20Staked > 0 ? curTab : 0;
+  const b20Validator = useCallback((value) => (activeTab === 2 ? (value <= b20Staked) : true), [b20Staked, activeTab])
   const validators = {
     b20: b20Validator,
   }
@@ -207,12 +208,6 @@ function VetoModal({
     });
   }
 
-  useEffect(() => {
-    if (show === true) {
-      resetForm();
-    }
-  }, [show])
-
   const inputSuffix = () => (
     <div className="suffix">
       {(b20Allowance < formData.b20.value) && (
@@ -224,107 +219,92 @@ function VetoModal({
     </div>
   )
 
-  const tabs = [
-    {
-      tabName: b20Staked > 0 ? 'EXTEND VETO' : 'Add Veto',
-      tabContent: b20Staked > 0 ? (
-        <div className="tab-panel-content">
-          <h3 className="light tab-desc">You have already vetoed this bid</h3>
-          {currentBidId !== lastVetoedBidId && (
+  const bidDiff = currentBidId - lastVetoedBidId
+
+  const extendVetoTab = {
+    tabName: 'Extend Veto',
+    tabContent: (
+      <div className="tab-panel-content">
+        {bidDiff === 0 ? (
+          <h3 className="light tab-desc">You have already vetoed this bid.</h3>  
+        ): (
+          <>
+            <h3 className="light tab-desc">Your last veto was {bidDiff} {bidDiff > 1 ? 'bids' : 'bid'} ago.</h3>
             <Button
               onClick={() => onExtend && onExtend()}
             >
               <span>Continue Veto</span>
             </Button>
-          )}
-        </div>
-      ) : (
-        <div className="tab-panel-content">
-          <div className="form-input">
-            <Input
-              id="b20"
-              name="b20"
-              label="B20"
-              value={formData.b20.value}
-              onValueChange={handleChange}
-              pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
-              suffix={inputSuffix}
-            />
-            <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
-              <span></span>
-              <span>Balance: {format(b20Balance, 2)}</span>
-            </div>
+          </>
+        )}
+      </div>
+    )
+  }
+  const addVetoTab = {
+    tabName: b20Staked > 0 ? 'Add More Veto' : 'Add Veto',
+    tabContent: (
+      <div className="tab-panel-content">
+        <div className="form-input">
+          <Input
+            id="b20"
+            name="b20"
+            label="B20"
+            value={formData.b20.value}
+            onValueChange={handleChange}
+            pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
+            suffix={inputSuffix}
+          />
+          <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
+            <span></span>
+            <span>Balance: {format(b20Balance, 2)}</span>
           </div>
-          <Button
-            onClick={() => onVeto && onVeto(formData.b20.value)}
-            disabled={!formData.b20.isValid}
-          >
-            Continue
-          </Button>
         </div>
-      ),
-    },
-    {
-      tabName: 'Add More Veto',
-      tabContent: (
-        <div className="tab-panel-content">
-          <div className="form-input">
-            <Input
-              id="b20"
-              name="b20"
-              label="B20"
-              value={formData.b20.value}
-              onValueChange={handleChange}
-              pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
-              suffix={inputSuffix}
-            />
-            <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
-              <span></span>
-              <span>Balance: {format(b20Balance, 2)}</span>
-            </div>
+        <Button
+          onClick={() => onVeto && onVeto(formData.b20.value)}
+          disabled={!formData.b20.isValid}
+        >
+          {b20Staked > 0 ? 'Veto Some More' : 'Veto'}
+        </Button>
+      </div>
+    )
+  }
+  const withdrawTab = {
+    tabName: 'Withdraw Stake',
+    tabContent: (
+      <div className="tab-panel-content">
+        <div className="form-input">
+          <Input
+            id="b20"
+            name="b20"
+            label="B20"
+            value={formData.b20.value}
+            onValueChange={handleChange}
+            pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
+            suffix={inputSuffix}
+          />
+          <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
+            <span>Max: {format(b20Staked, 2)}</span>
+            <span>Balance: {format(b20Balance, 2)}</span>
           </div>
-          <Button
-            onClick={() => onVeto && onVeto(formData.b20.value)}
-            disabled={!formData.b20.isValid}
-          >
-            Veto Some More
-          </Button>
         </div>
-      ),
-    },
-    {
-      tabName: 'Withdraw Stake',
-      tabContent: b20Staked > 0 ? (
-        <div className="tab-panel-content">
-          <div className="form-input">
-            <Input
-              id="b20"
-              name="b20"
-              label="B20"
-              value={formData.b20.value}
-              onValueChange={handleChange}
-              pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
-              suffix={inputSuffix}
-            />
-            <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
-              <span>Max: {format(b20Staked, 2)}</span>
-              <span>Balance: {format(b20Balance, 2)}</span>
-            </div>
-          </div>
-          <Button
-            onClick={() => onWithdraw && onWithdraw(formData.b20.value)}
-            disabled={!formData.b20.isValid}
-          >
-            <span>Withdraw Stake</span>
-          </Button>
-        </div>
-      ) : (
-        <div className="tab-panel-content">
-          <h3 className="light tab-desc">You have never vetoed yet</h3>
-        </div>
-      ),
+        <Button
+          onClick={() => onWithdraw && onWithdraw(formData.b20.value)}
+          disabled={!formData.b20.isValid}
+        >
+          <span>Withdraw Stake</span>
+        </Button>
+      </div>
+    )
+  }
+
+  const tabs = b20Staked > 0 ? [extendVetoTab, addVetoTab, withdrawTab] : [addVetoTab]
+
+  useEffect(() => {
+    if (show === true) {
+      resetForm();
     }
-  ]
+  }, [activeTab, show])
+  
   return ReactDOM.createPortal(
     <Wrapper className={`flex-all ${show ? 'show' : 'hide'}`}>
       <Content onMouseDown={(e) => e.stopPropagation()}>
@@ -341,18 +321,18 @@ function VetoModal({
             </div>
             <div className="tabs">
               <div className="tab-header">
-                {tabs.map((tab, idx) => (
+                {tabs.map((tab, idx) => tab ? (
                   <Button
                     key={`tab-${idx}`}
-                    className={`tab-btn ${idx === curTab ? 'selected' : ''}`}
+                    className={`tab-btn ${idx === activeTab ? 'selected' : ''}`}
                     onClick={() => { setCurTab(idx); resetForm() }}
                   >
                     {tab.tabName}
                   </Button>
-                ))}
+                ) : null)}
               </div>
               <div className="tab-panel">
-                {tabs[curTab].tabContent}
+                {tabs[activeTab].tabContent}
               </div>
             </div>
           </div>

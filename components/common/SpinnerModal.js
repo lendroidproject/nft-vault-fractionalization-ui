@@ -14,7 +14,7 @@ const Wrapper = styled.div`
   background: transparent;
   transition: all 0.2s;
   &.show {
-    z-index: 101;
+    z-index: 201;
     opacity: 1;
     background: var(--color-opacity09);
   }
