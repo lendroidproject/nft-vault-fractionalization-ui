@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
 import qs from 'qs'
@@ -11,12 +11,15 @@ import { getDuration, useTicker } from 'utils/hooks'
 import { shorten } from 'utils/string'
 import BidModal from 'components/Buyout/BidModal'
 import VetoModal from 'components/Buyout/VetoModal'
+import RedeemModal from 'components/Buyout/RedeemModal'
 import SpinnerModal from 'components/common/SpinnerModal'
 
 const STATUS = Object.freeze({
-  STATUS_ACTIVE: 1,
-  STATUS_REVOKED: 2,
-  STATUS_ENDED: 3,
+  STATUS_INITIAL: 0, // Buyout started but no bid yet
+  STATUS_ACTIVE: 1, // Buyout started and an active bid
+  STATUS_REVOKED: 2, // Buyout revoked
+  STATUS_ENDED: 3, // Buyout ended
+  STATUS_TIMEOUT: 4, // Internal status for "buying out time ended but auction not ended for some reason.
 })
 
 const Wrapper = styled.div`
@@ -133,7 +136,108 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const [data, setData] = useState(null)
   const [showBidModal, setShowBidModal] = useState(false)
   const [showVetoModal, setShowVetoModal] = useState(false)
+  const [showRedeemModa, setShowRedeemModal] = useState(false)
   const [pendingTx, setPendingTx] = useState('')
+
+  const loading = !data
+  const loadData = (first) => {
+    const { totalAssets } = library.methods.Vault
+    const { symbol: symbol0, balanceOf: balance0, getAllowance: allowance0, totalSupply: token0TotalSupply } = library.methods.Token0
+    const { symbol: symbol2, balanceOf: balance2, getAllowance: allowance2, totalSupply: token1TotalSupply } = library.methods.Token2
+    const {
+      EPOCH_PERIOD,
+      HEART_BEAT_START_TIME,
+      epochs,
+      status,
+      startThreshold,
+      highestBidder,
+      highestBidValues,
+      currentBidId,
+      token0Staked,
+      lastVetoedBidId,
+      currentBidToken0Staked,
+      stopThresholdPercent,
+      redeemToken2Amount
+    } = library.methods.Buyout
+    const { getBlock } = library.methods.web3
+
+    Promise.all([
+      totalAssets(),
+      getBlock(),
+      // contributors(),
+      Promise.all([
+        EPOCH_PERIOD(),
+        HEART_BEAT_START_TIME(),
+        epochs(1),
+        status(),
+        startThreshold(),
+        stopThresholdPercent(),
+        currentBidToken0Staked(),
+        symbol0(),
+        symbol2(),
+      ]),
+      Promise.all([
+        balance0(metamask.address),
+        balance2(metamask.address),
+        allowance0(metamask.address, library.addresses.Buyout),
+        allowance2(metamask.address, library.addresses.Buyout),
+        token0TotalSupply(),
+        // token1TotalSupply(),
+        highestBidder(),
+        highestBidValues(0),
+        currentBidId(),
+        token0Staked(metamask.address),
+        lastVetoedBidId(metamask.address),
+        redeemToken2Amount(),
+      ]),
+    ])
+      .then(
+        ([
+          totalAssets,
+          lastTimestamp,
+          // contributors,
+          buyoutInfo,
+          [balance0, balance2, allowance0, allowance2, token0TotalSupply, /* token1TotalSupply, */  bidder, bidValue, currentBidId, token0Staked, lastVetoedBidId, redeemToken2Amount],
+        ]) => {
+          const newData = {
+            ...data,
+            totalAssets,
+            lastTimestamp: new Date(lastTimestamp * 1000),
+            timestamp: Date.now(),
+            bidder,
+            bidValue: library.web3.utils.fromWei(bidValue),
+            balance: [library.web3.utils.fromWei(balance0), library.web3.utils.fromWei(balance2)],
+            allowance: [library.web3.utils.fromWei(allowance0), library.web3.utils.fromWei(allowance2)],
+            totalSupply: [library.web3.utils.fromWei(token0TotalSupply)],
+            currentBidId,
+            token0Staked: library.web3.utils.fromWei(token0Staked),
+            lastVetoedBidId,
+            redeemToken2Amount: library.web3.utils.fromWei(redeemToken2Amount),
+            rate: redeemToken2Amount / token0TotalSupply,
+          }
+          const [EPOCH_PERIOD, HEART_BEAT_START_TIME, epochs, status, startThreshold, stopThresholdPercent, currentBidToken0Staked, symbol0, symbol2] = buyoutInfo
+          newData.buyoutInfo = {
+            EPOCH_PERIOD,
+            HEART_BEAT_START_TIME,
+            endTime: (+HEART_BEAT_START_TIME + EPOCH_PERIOD * epochs) * 1000,
+            epochs: Number(epochs),
+            status: Number(status),
+            startThreshold: library.web3.utils.fromWei(startThreshold),
+            stopThresholdPercent: stopThresholdPercent,
+            currentBidToken0Staked: library.web3.utils.fromWei(currentBidToken0Staked),
+            symbol: [symbol0, symbol2],
+          }
+          // Please see the "STATUS_TIMEOUT" explanation above
+          if (newData?.buyoutInfo?.status === STATUS.STATUS_ACTIVE && now > newData?.buyoutInfo?.endTime) {
+            newData.buyoutInfo.status = STATUS.STATUS_TIMEOUT
+          }
+          setData(newData)
+        }
+      )
+      .catch(console.log)
+  }
+
+  console.log(data)
 
   const handleBid = (total, token2) => {
     if (library?.methods?.Buyout?.placeBid && total && token2) {
@@ -183,7 +287,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
 
   const handleExtend = () => {
     if (library?.methods?.Buyout?.extendVeto) {
-      library.methods.Buyout.veto(
+      library.methods.Buyout.extendVeto(
         {
           from: metamask.address,
         }
@@ -240,7 +344,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
         setData({ ...data })
       })
       .on('error', (err) => {
-        setPurchaseTx('')
+        setPendingTx('')
         console.log(err)
       })
   }
@@ -261,9 +365,32 @@ export default connect((state) => state)(function Home({ metamask, library, even
         setData({ ...data })
       })
       .on('error', (err) => {
-        setPurchaseTx('')
+        setPendingTx('')
         console.log(err)
       })
+  }
+
+  const handleRedeem = (amount) => {
+    if (library?.methods?.Buyout?.redeem && amount) {
+      library.methods.Buyout.redeem(
+        library.web3.utils.toWei(amount.toString()),
+        {
+          from: metamask.address,
+        }
+      )
+        .send()
+        .on('transactionHash', function (hash) {
+          setPendingTx(hash)
+        })
+        .on('receipt', function (receipt) {
+          setPendingTx('')
+          setShowRedeemModal(false)
+          loadData()
+        })
+        .on('error', (err) => {
+          setPendingTx('')
+        })
+    }
   }
 
   const getRequiredToken0ToBid = useCallback(
@@ -285,90 +412,15 @@ export default connect((state) => state)(function Home({ metamask, library, even
     [library?.methods?.Buyout?.requiredToken0ToBid]
   )
 
-  const loading = !data
-  const loadData = (first) => {
-    const { totalAssets } = library.methods.Vault
-    const { symbol: symbol0, balanceOf: balance0, getAllowance: allowance0 } = library.methods.Token0
-    const { symbol: symbol2, balanceOf: balance2, getAllowance: allowance2 } = library.methods.Token2
-    const {
-      EPOCH_PERIOD,
-      HEART_BEAT_START_TIME,
-      epochs,
-      status,
-      startThreshold,
-      highestBidder,
-      highestBidValues,
-      currentBidId,
-      token0Staked,
-      lastVetoedBidId,
-    } = library.methods.Buyout
-    const { getBlock } = library.methods.web3
+  const vetoMeter = useMemo(() => {
+    if (data?.totalSupply[0] && data?.buyoutInfo?.currentBidToken0Staked && data?.buyoutInfo?.stopThresholdPercent) {
+      const numerator = data?.buyoutInfo?.currentBidToken0Staked
+      const denominator = ( data.totalSupply[0] * data.buyoutInfo.stopThresholdPercent ) / 100
+      return (numerator / denominator) * 100
+    }
+    return 0;
+  }, [data?.totalSupply[0], data?.buyoutInfo?.currentBidToken0Staked, data?.buyoutInfo?.stopThresholdPercent]);
 
-    Promise.all([
-      totalAssets(),
-      getBlock(),
-      // contributors(),
-      first
-        ? Promise.all([
-            EPOCH_PERIOD(),
-            HEART_BEAT_START_TIME(),
-            epochs(1),
-            status(),
-            startThreshold(),
-            symbol0(),
-            symbol2(),
-          ])
-        : Promise.resolve([]),
-      Promise.all([
-        balance0(metamask.address),
-        balance2(metamask.address),
-        allowance0(metamask.address, library.addresses.Buyout),
-        allowance2(metamask.address, library.addresses.Buyout),
-        highestBidder(),
-        highestBidValues(0),
-        currentBidId(),
-        token0Staked(metamask.address),
-        lastVetoedBidId(metamask.address),
-      ]),
-    ])
-      .then(
-        ([
-          totalAssets,
-          lastTimestamp,
-          // contributors,
-          buyoutInfo,
-          [balance0, balance2, allowance0, allowance2, bidder, bidValue, currentBidId, token0Staked, lastVetoedBidId],
-        ]) => {
-          const newData = {
-            ...data,
-            totalAssets,
-            lastTimestamp: new Date(lastTimestamp * 1000),
-            timestamp: Date.now(),
-            bidder,
-            bidValue: library.web3.utils.fromWei(bidValue),
-            balance: [library.web3.utils.fromWei(balance0), library.web3.utils.fromWei(balance2)],
-            allowance: [library.web3.utils.fromWei(allowance0), library.web3.utils.fromWei(allowance2)],
-            currentBidId,
-            token0Staked: library.web3.utils.fromWei(token0Staked),
-            lastVetoedBidId,
-          }
-          if (first) {
-            const [EPOCH_PERIOD, HEART_BEAT_START_TIME, epochs, status, startThreshold, symbol0, symbol2] = buyoutInfo
-            newData.buyoutInfo = {
-              EPOCH_PERIOD,
-              HEART_BEAT_START_TIME,
-              endTime: (+HEART_BEAT_START_TIME + EPOCH_PERIOD * epochs) * 1000,
-              epochs: Number(epochs),
-              status: Number(status),
-              startThreshold: library.web3.utils.fromWei(startThreshold),
-              symbol: [symbol0, symbol2],
-            }
-          }
-          setData(newData)
-        }
-      )
-      .catch(console.log)
-  }
   useEffect(() => {
     if (library && !data && metamask.address) {
       loadData(true)
@@ -452,73 +504,116 @@ export default connect((state) => state)(function Home({ metamask, library, even
             </div>
           </div>
           <div className="body-left">
-            <div className="subscriptions">
-              <div>
+            {data?.buyoutInfo?.status === STATUS.STATUS_TIMEOUT ? (
+              <div className="subscriptions">
+                <div>
+                  <p>Buyout Clock</p>
+                  <h2 className="light" style={{ fontSize: '125%' }}>
+                    Buyout has ended. B20 redemption will be enabled soon.
+                  </h2>
+                </div>
+              </div>
+            ) : data?.buyoutInfo?.status === STATUS.STATUS_ENDED ? (
+              <div className="subscriptions">
+                <div>
                 <p>Buyout Clock</p>
-                {data ? (
-                  data.buyoutInfo.status === STATUS.STATUS_ACTIVE ? (
-                    <h2 className="col-green light">Ends in {getDuration(now, data.buyoutInfo.endTime)}</h2>
-                  ) : data.buyoutInfo.status === STATUS.STATUS_ENDED ? (
-                    <h2 className="col-red light">Buyout has ended</h2>
-                  ) : (
-                    <h2 className="light">Awaiting minimum bid of {data.buyoutInfo.startThreshold} DAI</h2>
-                  )
-                ) : (
-                  <h2 className="light">...</h2>
-                )}
+                  <h2 className="light" style={{ fontSize: '125%' }}>
+                    {data ? `B20 is available for redemption @ ${format(rate, 2)} DAI per B20` : '---'}
+                  </h2>
+                </div>
               </div>
-              <div>
-                <p>Highest bid:</p>
-                <h2 className="light" style={{ fontSize: '125%' }}>
-                  {data && [STATUS.STATUS_ACTIVE, STATUS.STATUS_ENDED].includes(data.buyoutInfo.status) ? (
-                    <>
-                      <img className="asset-icon" src="/assets/dai.svg" alt="DAI" />
-                      {data.bidValue} DAI by{' '}
-                      <a href={addressLink(data.bidder, library?.wallet?.network)} target="_blank">
-                        {shorten(data.bidder)}
-                      </a>
-                    </>
+            ) : (
+              <div className="subscriptions">
+                <div>
+                  <p>Buyout Clock</p>
+                  {data ? (
+                    data.buyoutInfo.status === STATUS.STATUS_ACTIVE ? (
+                      <h2 className="col-green light">Ends in {getDuration(now, data.buyoutInfo.endTime)}</h2>
+                    ): (
+                      <h2 className="light">Awaiting minimum bid of {data.buyoutInfo.startThreshold} DAI</h2>
+                    )
                   ) : (
-                    '---'
+                    <h2 className="light">...</h2>
                   )}
-                </h2>
+                </div>
+                <div>
+                  <p>Highest Bid:</p>
+                  <h2 className="light" style={{ fontSize: '125%' }}>
+                    {(data && data.buyoutInfo.status === STATUS.STATUS_ACTIVE) ? (
+                      <>
+                        <img className="asset-icon" src="/assets/dai.svg" alt="DAI" />
+                        {data.bidValue} DAI by{' '}
+                        <a href={addressLink(data.bidder, library?.wallet?.network)} target="_blank">
+                          {shorten(data.bidder)}
+                        </a>
+                      </>
+                    ) : (
+                      '---'
+                    )}
+                  </h2>
+                </div>
+                <div>
+                  <p>Veto Meter:</p>
+                  {(data && data.buyoutInfo.status === STATUS.STATUS_ACTIVE) ? (
+                    <h2 className="light">{format(vetoMeter, 2)}%</h2>
+                  ) : (
+                    <h2 className="light">...</h2>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="balance">
-              <div>
-                <h4 className="light balance-desc">
-                  To place a bid, you need DAI and 5% of all B20.
-                  <br />
-                  To veto a bid, you just need B20.
-                </h4>
+            )}
+            {data?.buyoutInfo?.status === STATUS.STATUS_ACTIVE && (
+              <div className="balance">
+                <div>
+                  <h4 className="light balance-desc">
+                    To place a bid, you need DAI and 5% of all B20.
+                    <br />
+                    To veto a bid, you just need B20.
+                  </h4>
+                </div>
+                <div>
+                  <h3 className="col-blue">You currently have</h3>
+                </div>
+                <div>
+                  <h3 className="light asset-balance">
+                    <img className="asset-icon" src="/assets/dai.svg" alt="DAI" /> {data && format(data.balance[1], 0)}{' '}
+                    DAI
+                  </h3>
+                </div>
+                <div>
+                  <h3 className="light asset-balance">
+                    <img className="asset-icon" src="/assets/b20.svg" alt="B20" /> {data && format(data.balance[0], 0)}{' '}
+                    B20
+                  </h3>
+                </div>
               </div>
-              <div>
-                <h3 className="col-blue">You currently have</h3>
-              </div>
-              <div>
-                <h3 className="light asset-balance">
-                  <img className="asset-icon" src="/assets/dai.svg" alt="DAI" /> {data && format(data.balance[1], 0)}{' '}
-                  DAI
-                </h3>
-              </div>
-              <div>
-                <h3 className="light asset-balance">
-                  <img className="asset-icon" src="/assets/b20.svg" alt="B20" /> {data && format(data.balance[0], 0)}{' '}
-                  B20
-                </h3>
-              </div>
-            </div>
-            <Button
-              className="full-width"
-              onClick={() => setShowBidModal(true)}
-              disabled={data && data.bidder === metamask.address}
-            >
-              Bid
-            </Button>
-            <h3 className="center light or-divider">or</h3>
-            <Button className="full-width grey" onClick={() => setShowVetoModal(true)}>
-              Veto
-            </Button>
+            )}
+            {(data?.buyoutInfo?.status === STATUS.STATUS_ENDED || data?.buyoutInfo?.status === STATUS.STATUS_TIMEOUT) ? (
+              <Button
+                className="full-width"
+                onClick={() => setShowRedeemModal(true)}
+                disabled={data?.buyoutInfo?.status !== STATUS.STATUS_ENDED}
+              >
+                Redeem
+              </Button>
+            ) : (
+              <>
+                <Button
+                  className="full-width"
+                  onClick={() => setShowBidModal(true)}
+                >
+                  Bid
+                </Button>
+                <h3 className="center light or-divider">or</h3>
+                <Button
+                  className="full-width grey"
+                  onClick={() => setShowVetoModal(true)}
+                  disabled={data?.buyoutInfo?.status !== STATUS.STATUS_ACTIVE}
+                >
+                  Veto
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -546,6 +641,15 @@ export default connect((state) => state)(function Home({ metamask, library, even
         onVeto={handleVeto}
         onExtend={handleExtend}
         onWithdraw={handleWithdraw}
+        onApproveB20={handleApproveToken0}
+      />
+      <RedeemModal
+        rate={data?.rate}
+        b20Balance={data?.balance[0]}
+        b20Allowance={data?.allowance[0]}
+        show={showRedeemModa}
+        onHide={() => setShowRedeemModal(false)}
+        onRedeem={handleRedeem}
         onApproveB20={handleApproveToken0}
       />
       <SpinnerModal show={!!pendingTx}>
