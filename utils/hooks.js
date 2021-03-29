@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 export function useMounted() {
   const [mounted, setMounted] = useState(false)
@@ -39,4 +39,21 @@ export function getDuration(start, end) {
   const hours = (remaining - (remaining % 60)) / 60
   if (hours > 72) return `${Math.ceil(hours / 24)} days`
   return `${hours < 10 ? `00${hours}`.slice(-2) : hours}:${mins}:${seconds}`
+}
+
+export function useThrottle(callback, delay) {
+  const [ticker, setTicker] = useState(-1)
+  const savedCallback = useRef()
+
+  // Remember the latest callback.
+  useEffect(() => {
+    savedCallback.current = callback
+  }, [callback])
+
+  function tick() {
+    if (ticker) clearTimeout(ticker)
+    setTicker(setTimeout(() => callback(), delay))
+  }
+
+  return [tick]
 }

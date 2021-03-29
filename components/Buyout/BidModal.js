@@ -1,9 +1,11 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 import Button from 'components/common/Button'
 import Input from 'components/common/NumberInput'
 import { format } from 'utils/number'
+import RangeInput from 'components/common/RangeInput'
+import { useThrottle } from 'utils/hooks'
 
 const Wrapper = styled.div`
   position: fixed;
@@ -45,14 +47,14 @@ const Content = styled.div`
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     background-color: #fbfbfb;
-    box-shadow: 0 6px 8px 0 rgba(0,0,0,0.5);
+    box-shadow: 0 6px 8px 0 rgba(0, 0, 0, 0.5);
   }
 
   .modal-content {
     width: 100%;
     border-radius: 4px;
-    background-color: #FBFBFB;
-    box-shadow: 0 2px 15px 0 rgba(0,0,0,0.14);
+    background-color: #fbfbfb;
+    box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.14);
     padding: 20px;
     margin-top: 25px;
   }
@@ -93,10 +95,6 @@ const Content = styled.div`
     line-height: 17px;
     display: flex;
     justify-content: space-between;
-
-    &.error {
-      color: var(--color-red);
-    }
   }
   .modal-footer {
     margin-top: 36px;
@@ -104,6 +102,9 @@ const Content = styled.div`
     button {
       min-width: 175px;
     }
+  }
+  .error {
+    color: var(--color-red);
   }
 `
 
@@ -121,32 +122,37 @@ function BidModal({
   onContinue,
   onApproveB20,
   onApproveDai,
+  contract,
 }) {
+  const [agree, setAgree] = useState(false)
+  useEffect(() => {
+    setAgree(false)
+  }, [show])
+
   const [formData, setFormData] = useState({
     total: {
       value: '',
       hasError: false,
       isValid: false,
-      error: ''
+      error: '',
     },
     dai: {
       value: '',
       hasError: false,
       isValid: false,
-      error: ''
+      error: '',
     },
     b20: {
       value: '',
       hasError: false,
       isValid: false,
-      error: ''
+      error: '',
     },
   })
-  const [minB20, setMinB20] = useState(MIN_B20_AMOUNT)
 
-  const totalValidator = useCallback((value) => (value >= minTotal), [minTotal])
-  const daiValidator = useCallback((value) => (value >= 0 && value <= formData.total.value), [formData.total.value])
-  const b20Validator = useCallback((value) => (value >= Math.max(minB20, MIN_B20_AMOUNT)), [minB20])
+  const totalValidator = useCallback((value) => value >= minTotal, [minTotal])
+  const daiValidator = useCallback((value) => value >= 0 && value <= formData.total.value, [formData.total.value])
+  const b20Validator = useCallback((value) => value >= MIN_B20_AMOUNT && value <= b20Balance, [formData.b20.value])
 
   const validators = {
     total: totalValidator,
@@ -162,8 +168,8 @@ function BidModal({
         value,
         hasError: !isValid,
         isValid,
-        error: ''
-      }
+        error: '',
+      },
     })
   }
 
@@ -173,19 +179,19 @@ function BidModal({
         value: minTotal ? minTotal : '',
         hasError: false,
         isValid: true,
-        error: ''
+        error: '',
       },
       dai: {
         value: '',
         hasError: false,
         isValid: false,
-        error: ''
+        error: '',
       },
       b20: {
         value: '',
         hasError: false,
         isValid: false,
-        error: ''
+        error: '',
       },
     })
   }
@@ -197,45 +203,48 @@ function BidModal({
       <img className="asset-icon" src="/assets/b20.svg" alt="B20" />
     </div>
   )
-  const input2Suffix = () => (
-    <div className="suffix">
-      {(daiAllowance < formData.dai.value) && (
-        <Button className="btn-approve" onClick={() => onApproveDai && onApproveDai(formData.dai.value)}>
-          Approve
-        </Button>
-      )}
-      <img className="asset-icon" src="/assets/dai.svg" alt="DAI" />
-    </div>
-  )
-  const input3Suffix = () => (
-    <div className="suffix">
-      {(b20Allowance < formData.b20.value) && (
-        <Button className="btn-approve" onClick={() => onApproveB20 && onApproveB20(formData.b20.value)}>
-          Approve
-        </Button>
-      )}
-      <img className="asset-icon" src="/assets/b20.svg" alt="B20" />
-    </div>
-  )
+  const input2Suffix = () =>
+    daiAllowance < formData.dai.value && (
+      <Button className="btn-approve" onClick={() => onApproveDai && onApproveDai(formData.dai.value)}>
+        Approve DAI
+      </Button>
+    )
+  const input3Suffix = () =>
+    b20Allowance < formData.b20.value && (
+      <Button className="btn-approve" onClick={() => onApproveB20 && onApproveB20(formData.b20.value)}>
+        Approve B20
+      </Button>
+    )
 
+  const [getB20] = useThrottle(async () => {
+    const result = await getRequiredB20(formData.total.value, formData.dai.value)
+    handleChange('b20', { floatValue: Number(result) })
+  }, 0.25 * 1000)
   useEffect(() => {
-    const getMinB20 = async () => {
-      const result = await getRequiredB20(formData.total.value, formData.dai.value);
-      setMinB20(result)
-    }
-    getMinB20()
+    getB20()
   }, [getRequiredB20, formData.total.value, formData.dai.value])
 
   useEffect(() => {
-    if (show) { resetForm() }
+    if (show) {
+      resetForm()
+    }
   }, [show])
+
+  const isValid = !(
+    daiAllowance < formData.dai.value ||
+    b20Allowance < formData.b20.value ||
+    !formData.total.isValid ||
+    !formData.dai.isValid ||
+    !formData.b20.isValid
+  )
 
   return ReactDOM.createPortal(
     <Wrapper className={`flex-all ${show ? 'show' : 'hide'}`}>
       <Content onMouseDown={(e) => e.stopPropagation()}>
         <div className="modal-body">
           <button className="btn-close" onClick={() => onHide && onHide()}>
-            <img src="/assets/arrow-right-black.svg" />Go Back
+            <img src="/assets/arrow-right-black.svg" />
+            Go Back
           </button>
           <div className="modal-header">
             <h1 className="col-blue modal-title">Buyout</h1>
@@ -257,14 +266,13 @@ function BidModal({
               </div>
             </div>
             <div className="form-input">
-              <Input
-                id="dai"
-                name="dai"
+              <RangeInput
                 label="DAI"
+                icon="/assets/dai.svg"
+                max={formData.total.value}
                 value={formData.dai.value}
-                onValueChange={(v) => handleChange('dai', v)}
-                pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
-                suffix={input2Suffix}
+                approve={input2Suffix()}
+                onChange={(v) => handleChange('dai', { floatValue: v })}
               />
               <div className={`message${formData.dai.hasError ? ' error' : ''}`}>
                 <span>Max: {format(formData.total.value)}</span>
@@ -272,15 +280,13 @@ function BidModal({
               </div>
             </div>
             <div className="form-input">
-              <Input
-                id="b20"
-                name="b20"
+              <RangeInput
                 label="B20"
-                value={minB20}
-                onValueChange={(v) => handleChange('b20', v)}
-                pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
-                readOnly={true}
-                suffix={input3Suffix}
+                icon="/assets/b20.svg"
+                value={formData.b20.value}
+                decimals={2}
+                approve={input3Suffix()}
+                disabled
               />
               <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
                 <span>Min. Required: {format(MIN_B20_AMOUNT)}</span>
@@ -288,16 +294,20 @@ function BidModal({
                 {/* {errors.total && `Insufficient ${token1Name} balance.`} */}
               </div>
             </div>
+            <div className="form-input">
+              <p className={`terms${isValid && !agree ? ' error' : ''}`} style={{ fontSize: '88%', lineHeight: 1.5 }}>
+                <input type="checkbox" checked={agree} onChange={() => setAgree(!agree)} />
+                Your DAI and B20 will be locked up in the{' '}
+                <a href={contract} target="_blank">
+                  Buyout contract
+                </a>{' '}
+                until either your bid is vetoed or a higher bid is placed.
+              </p>
+            </div>
             <div className="modal-footer">
               <Button
                 onClick={() => onContinue && onContinue(formData.total.value, formData.dai.value)}
-                disabled={
-                  daiAllowance < formData.dai.value || 
-                  b20Allowance < formData.b20.value ||
-                  !formData.total.isValid ||
-                  !formData.dai.isValid ||
-                  !formData.b20.isValid
-                }
+                disabled={!isValid || !agree}
               >
                 <span>Continue</span>
               </Button>

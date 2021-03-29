@@ -52,6 +52,7 @@ class App extends NextApp {
                 --color-cyan: #3d9fff;
                 --color-light-blue: #413bff;
                 --color-grey: #828282;
+                --color-dark: #d8d8d8;
                 --color-dark-grey: #505050;
                 --color-border: #bcbcbc;
                 --color-border2: #5752fc;
@@ -62,6 +63,7 @@ class App extends NextApp {
                 --linear-gradient1: linear-gradient(180deg, #0038FF 0%, #FF007E 100%);
                 --linear-gradient2: linear-gradient(180deg, #FFEAF2 0%, #F1FFFF 100%);
                 --linear-gradient3: linear-gradient(180deg, #A5A5A5 0%, #323131 100%);
+                --linear-gradient4: linear-gradient(90deg, #0038FF 0%, #FF007E 100%);
                 --color-red1: #ff0006;
               }
               body { font-family: var(--font-family); font-size: 12px; line-height: 15px; color: var(--color-dark-grey); }
@@ -109,6 +111,11 @@ class App extends NextApp {
                 font-size: 14px;
                 line-height: 17px;
                 color: var(--color-grey);
+              }
+              p > input[type="checkbox"] {
+                position: relative;
+                margin-right: 5px;
+                top: 3px;
               }
               a {
                 color: var(--color-blue);

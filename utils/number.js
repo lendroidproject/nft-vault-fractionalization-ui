@@ -14,5 +14,5 @@ const fmt = {
 BigNumber.config({ FORMAT: fmt })
 
 export function format(value, decimals) {
-  return new BigNumber(value).toFormat(decimals)
+  return new BigNumber(value).toFormat(decimals, 1)
 }
