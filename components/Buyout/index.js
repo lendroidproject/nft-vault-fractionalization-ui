@@ -139,7 +139,9 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const [showRedeemModa, setShowRedeemModal] = useState(false)
   const [pendingTx, setPendingTx] = useState('')
 
-  const loading = !data
+  const buyoutStatus = data?.buyoutInfo?.status
+
+  // const loading = !data
   const loadData = (first) => {
     const { totalAssets } = library.methods.Vault
     const { symbol: symbol0, balanceOf: balance0, getAllowance: allowance0, totalSupply: token0TotalSupply } = library.methods.Token0
@@ -502,7 +504,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
             </div>
           </div>
           <div className="body-left">
-            {data?.buyoutInfo?.status === STATUS.STATUS_TIMEOUT ? (
+            {buyoutStatus === STATUS.STATUS_TIMEOUT ? (
               <div className="subscriptions">
                 <div>
                   <p>Buyout Clock</p>
@@ -511,7 +513,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                   </h2>
                 </div>
               </div>
-            ) : data?.buyoutInfo?.status === STATUS.STATUS_ENDED ? (
+            ) : buyoutStatus === STATUS.STATUS_ENDED ? (
               <div className="subscriptions">
                 <div>
                 <p>Buyout Clock</p>
@@ -560,7 +562,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 </div>
               </div>
             )}
-            {data?.buyoutInfo?.status === STATUS.STATUS_ACTIVE && (
+            {[STATUS.STATUS_ACTIVE, STATUS.STATUS_REVOKED].includes(buyoutStatus) && (
               <div className="balance">
                 <div>
                   <h4 className="light balance-desc">
@@ -586,11 +588,11 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 </div>
               </div>
             )}
-            {(data?.buyoutInfo?.status === STATUS.STATUS_ENDED || data?.buyoutInfo?.status === STATUS.STATUS_TIMEOUT) ? (
+            {([STATUS.STATUS_ENDED, STATUS.STATUS_TIMEOUT].includes(buyoutStatus)) ? (
               <Button
                 className="full-width"
                 onClick={() => setShowRedeemModal(true)}
-                disabled={data?.buyoutInfo?.status !== STATUS.STATUS_ENDED}
+                disabled={buyoutStatus !== STATUS.STATUS_ENDED}
               >
                 Redeem
               </Button>
@@ -606,7 +608,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 <Button
                   className="full-width grey"
                   onClick={() => setShowVetoModal(true)}
-                  disabled={data?.buyoutInfo?.status !== STATUS.STATUS_ACTIVE}
+                  disabled={![STATUS.STATUS_ACTIVE, STATUS.STATUS_REVOKED].includes(buyoutStatus)}
                 >
                   Veto
                 </Button>
@@ -616,7 +618,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
         </div>
       </div>
       <BidModal
-        minTotal={data?.buyoutInfo?.status === STATUS.STATUS_ACTIVE ? data?.bidValue : data?.buyoutInfo?.startThreshold}
+        minTotal={buyoutStatus === STATUS.STATUS_ACTIVE ? data?.bidValue : data?.buyoutInfo?.startThreshold}
         b20Balance={data?.balance[0]}
         b20Allowance={data?.allowance[0]}
         daiBalance={data?.balance[1]}
@@ -629,6 +631,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
         onApproveDai={handleApproveToken2}
       />
       <VetoModal
+        vetoDisabled={buyoutStatus === STATUS.STATUS_REVOKED}
         b20Staked={data?.token0Staked}
         lastVetoedBidId={data?.lastVetoedBidId}
         currentBidId={data?.currentBidId}

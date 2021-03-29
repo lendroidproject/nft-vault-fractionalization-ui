@@ -157,6 +157,7 @@ const Content = styled.div`
 const MIN_B20_AMOUNT = 500000
 
 function VetoModal({
+  vetoDisabled = true,
   b20Staked = 0,
   lastVetoedBidId = 0,
   currentBidId = 0,
@@ -226,7 +227,7 @@ function VetoModal({
     tabContent: (
       <div className="tab-panel-content">
         {bidDiff === 0 ? (
-          <h3 className="light tab-desc">You have already vetoed this bid.</h3>  
+          <h3 className="light tab-desc">You have already vetoed this bid.</h3>
         ): (
           <>
             <h3 className="light tab-desc">Your last veto was {bidDiff} {bidDiff > 1 ? 'bids' : 'bid'} ago.</h3>
@@ -297,14 +298,14 @@ function VetoModal({
     )
   }
 
-  const tabs = b20Staked > 0 ? [extendVetoTab, addVetoTab, withdrawTab] : [addVetoTab]
+  const tabs = vetoDisabled ? [withdrawTab] : b20Staked > 0 ? [extendVetoTab, addVetoTab, withdrawTab] : [addVetoTab]
 
   useEffect(() => {
     if (show === true) {
       resetForm();
     }
   }, [activeTab, show])
-  
+
   return ReactDOM.createPortal(
     <Wrapper className={`flex-all ${show ? 'show' : 'hide'}`}>
       <Content onMouseDown={(e) => e.stopPropagation()}>

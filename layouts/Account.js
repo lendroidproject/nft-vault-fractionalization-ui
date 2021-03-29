@@ -25,6 +25,7 @@ const addresses = {
     Market1: '0x594719f18d78dAA83e49C30660512d6592EE2B61',
     Market2: '0x594719f18d78dAA83e49C30660512d6592EE2B61',
     Buyout: '0xb369C516e9c11Cc8D4244a800C40bCa3B7A61FB1',
+    // Buyout: '0x46beA64127391947da26edc8d537d74DB8225a54', // Revoked
   },
 }
 
