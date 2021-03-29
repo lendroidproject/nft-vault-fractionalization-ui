@@ -180,7 +180,7 @@ function VetoModal({
   })
   const [curTab, setCurTab] = useState(0)
   const activeTab = b20Staked > 0 ? curTab : 0;
-  const b20Validator = useCallback((value) => (activeTab === 2 ? (value <= b20Staked) : true), [b20Staked, activeTab])
+  const b20Validator = useCallback((value) => ((vetoDisabled || activeTab === 2) ? (value <= b20Staked) : true), [b20Staked, activeTab, vetoDisabled])
   const validators = {
     b20: b20Validator,
   }
