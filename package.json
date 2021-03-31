@@ -26,6 +26,8 @@
     "axios": "^0.21.1",
     "bignumber.js": "^9.0.1",
     "dotenv": "^8.2.0",
+    "echarts": "^5.0.2",
+    "echarts-for-react": "^3.0.1",
     "ethereumjs-util": "^7.0.7",
     "evm-chains": "^0.2.0",
     "fortmatic": "^2.2.1",

@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import Button from 'components/common/Button'
 import { format } from 'utils/number'
 import RangeInput from 'components/common/RangeInput'
+import Gauge from 'components/common/Gauge'
 
 const Wrapper = styled.div`
   position: fixed;
@@ -107,9 +108,9 @@ const Content = styled.div`
   }
   .score {
     font-size: 18px;
-    background-color: #dfe3f7;
-    text-align: center;
-    color: var(--color-grey);
+    line-height: 1.5;
+    background-color: #f0f7ff;
+    color: #616161;
     padding: 15px;
     border-radius: 4px;
     margin-bottom: 18px;
@@ -154,8 +155,6 @@ const Content = styled.div`
   }
 `
 
-const MIN_B20_AMOUNT = 500000
-
 function VetoModal({
   vetoDisabled = true,
   b20Staked = 0,
@@ -170,6 +169,7 @@ function VetoModal({
   onVeto,
   onWithdraw,
   onApproveB20,
+  gauge,
 }) {
   const [formData, setFormData] = useState({
     b20: {
@@ -183,6 +183,7 @@ function VetoModal({
   const activeTab = b20Staked > 0 ? curTab : 0
   const b20Validator = useCallback(
     (value) => {
+      if (value === 0) return false
       if (vetoDisabled) {
         return value <= b20Staked
       } else {
@@ -198,7 +199,7 @@ function VetoModal({
         }
       }
     },
-    [b20Staked, activeTab, vetoDisabled]
+    [b20Balance, b20Staked, activeTab, vetoDisabled]
   )
   const validators = {
     b20: b20Validator,
@@ -328,8 +329,12 @@ function VetoModal({
             <h1 className="col-blue modal-title">Veto</h1>
           </div>
           <div className="modal-content">
-            <div className="score">
-              Your Veto Score: <span className="col-black">{format(b20Staked)}</span>
+            <div className="score flex-center justify-between">
+              <div>
+                Your Veto Score
+                <br /> <span className="col-black">{format(b20Staked)}</span>
+              </div>
+              {gauge && <Gauge {...gauge} height={160} />}
             </div>
             <div className="tabs">
               <div className="tab-header">

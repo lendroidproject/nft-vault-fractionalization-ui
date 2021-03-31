@@ -4,7 +4,7 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 import AssetModal from './AssetModal'
 import Spinner from 'components/common/Spinner'
 
-const DEFAULT_IMAGE_URL = '/assets/default-asset-img.jpg';
+const DEFAULT_IMAGE_URL = '/assets/default-asset-img.jpg'
 
 const Wrapper = styled.div`
   position: relative;
@@ -13,7 +13,7 @@ const Wrapper = styled.div`
     position: absolute;
     height: 328px;
     width: 7%;
-    background: linear-gradient(90deg, rgba(238,238,238,0) 0%, #636363 100%);
+    background: linear-gradient(90deg, rgba(238, 238, 238, 0) 0%, #636363 100%);
     top: 40px;
     right: 0;
   }
@@ -77,10 +77,10 @@ const Wrapper = styled.div`
       bottom: 20px;
       opacity: 1;
       height: 6px;
-      border: 1px solid #FFFFFF;
+      border: 1px solid #ffffff;
       border-radius: 3.5px;
-      background-color: #332DE5;
-      box-shadow: 0 2px 4px 0 rgba(0,0,0,0.5);
+      background-color: #332de5;
+      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
       margin: 0 4%;
       max-width: 92%;
       left: 5%;
@@ -88,10 +88,10 @@ const Wrapper = styled.div`
     .ps__thumb-x {
       box-sizing: border-box;
       height: 17px;
-      border: 1px solid #FFFFFF;
+      border: 1px solid #ffffff;
       border-radius: 9px;
-      background: linear-gradient(180deg, #0038FF 0%, #FF007E 100%);
-      box-shadow: 0 2px 4px 0 rgba(0,0,0,0.5);
+      background: linear-gradient(180deg, #0038ff 0%, #ff007e 100%);
+      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
       bottom: -6px;
     }
   }
@@ -104,9 +104,9 @@ const categoryOrder = ['Beeple Crap', 'Land', 'Monument', 'Soundspace']
 function groupByCategory(assets) {
   const group = {}
   assets.forEach((asset, idx) => {
-    const category = asset.category ? asset.category : 'Other';
-    asset.orderId = idx + 1;
-    asset.category = category;
+    const category = asset.category ? asset.category : 'Other'
+    asset.orderId = idx + 1
+    asset.category = category
     if (group[category]) {
       group[category].push(asset)
     } else {
@@ -120,11 +120,11 @@ function groupByCategory(assets) {
     return (aOrder === -1 ? 100 : aOrder) - (bOrder === -1 ? 100 : bOrder)
   })
 
-  const result = [];
-  
-  sortedKeys.forEach(key => {
+  const result = []
+
+  sortedKeys.forEach((key) => {
     result.push({ category: key, assets: [] })
-    for(let i = 0; i < group[key].length; i++) {
+    for (let i = 0; i < group[key].length; i++) {
       if (result[result.length - 1].assets.length >= MAX_GROUP_SIZE) {
         result.push({ category: key, assets: [] })
       }
@@ -152,39 +152,45 @@ export default function AssetList({ assets = [], loading = false }) {
 
   const handlePrev = () => {
     const orderId = Math.max(1, selectedAsset.orderId - 1)
-    const prevAsset = assets.find(asset => asset.orderId === orderId)
+    const prevAsset = assets.find((asset) => asset.orderId === orderId)
     setSelectedAsset(prevAsset)
   }
 
   const handleNext = () => {
     const orderId = Math.min(assets.length, selectedAsset.orderId + 1)
-    const nextAsset = assets.find(asset => asset.orderId === orderId)
+    const nextAsset = assets.find((asset) => asset.orderId === orderId)
     setSelectedAsset(nextAsset)
   }
 
   return (
     <Wrapper>
       <PerfectScrollbar className="scrollview" option={{ suppressScrollY: true }}>
-        {loading ? <Spinner /> : groupedAssets.map((categoryGroup, categoryIdx) => (
-          <div className="asset-group" key={`category-${categoryIdx}`}>
-            <div className="cateogry">{categoryGroup.category}</div>
-            <div className="asset-group-assets">
-              {categoryGroup.assets.map((asset, assetIdx) => (
-                <div
-                  key={`${categoryGroup.category}-${assetIdx}`}
-                  className="asset-group-asset"
-                  style={{
-                    backgroundColor: asset.background_color || '#ccc',
-                    backgroundImage: `url(${asset.image_url || asset.asset_contract?.image_url || DEFAULT_IMAGE_URL})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center'
-                  }}
-                  onClick={() => handleClick(asset)}
-                />
-              ))}
+        {loading ? (
+          <Spinner />
+        ) : (
+          groupedAssets.map((categoryGroup, categoryIdx) => (
+            <div className="asset-group" key={`category-${categoryIdx}`}>
+              <div className="cateogry">{categoryGroup.category}</div>
+              <div className="asset-group-assets">
+                {categoryGroup.assets.map((asset, assetIdx) => (
+                  <div
+                    key={`${categoryGroup.category}-${assetIdx}`}
+                    className="asset-group-asset"
+                    style={{
+                      backgroundColor: asset.background_color || '#ccc',
+                      backgroundImage: `url(${
+                        asset.image_url || asset.asset_contract?.image_url || DEFAULT_IMAGE_URL
+                      })`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                    onClick={() => handleClick(asset)}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </PerfectScrollbar>
       {selectedAsset && (
         <AssetModal
@@ -196,6 +202,6 @@ export default function AssetList({ assets = [], loading = false }) {
           onNext={handleNext}
         />
       )}
-    </Wrapper>  
+    </Wrapper>
   )
 }

@@ -14,6 +14,7 @@ import BidModal from 'components/Buyout/BidModal'
 import VetoModal from 'components/Buyout/VetoModal'
 import RedeemModal from 'components/Buyout/RedeemModal'
 import SpinnerModal from 'components/common/SpinnerModal'
+import Gauge from 'components/common/Gauge'
 
 const STATUS = Object.freeze({
   STATUS_INITIAL: 0, // Buyout started but no bid yet
@@ -61,6 +62,7 @@ const Wrapper = styled.div`
       border: 1px solid #e0e0e0;
       border-radius: 4px;
       margin-bottom: 24px;
+      text-align: center;
       > div {
         margin-bottom: 20px;
         &:last-of-type {
@@ -69,7 +71,12 @@ const Wrapper = styled.div`
       }
       p {
         font-size: 12px;
-        margin-bottom: 5px;
+      }
+      h2 span {
+        font-size: 12px;
+      }
+      a {
+        text-decoration: none;
       }
     }
     .balance {
@@ -80,7 +87,7 @@ const Wrapper = styled.div`
       border-radius: 4px;
       margin-bottom: 24px;
       > div {
-        margin-bottom: 16px;
+        margin-bottom: 12px;
         &:last-of-type {
           margin-bottom: 0;
         }
@@ -133,38 +140,6 @@ const RefreshTimer = styled.span`
   position: absolute;
   right: 0;
   bottom: 0;
-`
-
-const Meter = styled.div`
-  display: flex;
-  height: 35px;
-  border-radius: 6px;
-  overflow: hidden;
-  width: 100%;
-  position: relative;
-
-  .filled {
-    background: var(--linear-gradient1);
-    overflow: hidden;
-    position: relative;
-  }
-
-  h2 {
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    white-space: nowrap;
-  }
-
-  .empty {
-    background: var(--color-white);
-    overflow: hidden;
-    position: relative;
-
-    h2 {
-      transform: translate(50%, -50%);
-    }
-  }
 `
 
 const MIN_ALLOWANCE = 10 ** 10
@@ -619,14 +594,18 @@ export default connect((state) => state)(function Home({ metamask, library, even
                   <>
                     <div>
                       <p>Highest Bid:</p>
-                      <h2 className="light" style={{ fontSize: '125%' }}>
+                      <h2>
                         {buyoutStatus === STATUS.STATUS_ACTIVE ? (
                           <>
                             <img className="asset-icon" src="/assets/dai.svg" alt="DAI" />
-                            {format(data.bidValue, 0)} DAI by{' '}
-                            <a href={addressLink(data.bidder, library?.wallet?.network)} target="_blank">
-                              {shorten(data.bidder)}
-                            </a>
+                            {format(data.bidValue, 0)} DAI
+                            <br />
+                            <span>
+                              by{' '}
+                              <a href={addressLink(data.bidder, library?.wallet?.network)} target="_blank">
+                                {shorten(data.bidder)}
+                              </a>
+                            </span>
                           </>
                         ) : (
                           '---'
@@ -634,51 +613,30 @@ export default connect((state) => state)(function Home({ metamask, library, even
                       </h2>
                     </div>
                     <div>
-                      <p className="flex-center justify-between">
-                        Veto Meter:{' '}
-                        <span className="col-black">
-                          <span className="col-green">{format(vetoMeter[0], 0)}</span> / {format(vetoMeter[1], 0)} B20
-                        </span>
-                      </p>
-                      <Meter value={vetoMeter[2]} ref={meterRef}>
-                        <div className="filled" style={{ width: `${vetoMeter[2]}%` }}>
-                          <h2 className="col-white" style={{ left: meterWidth / 2 }}>
-                            {format(vetoMeter[2])} %
-                          </h2>
-                        </div>
-                        <div className="empty" style={{ width: `${100 - vetoMeter[2]}%` }}>
-                          <h2 className="col-black" style={{ right: meterWidth / 2 }}>
-                            {format(vetoMeter[2])} %
-                          </h2>
-                        </div>
-                      </Meter>
+                      <Gauge value={vetoMeter[2]} max={vetoMeter[1]} />
                     </div>
                   </>
                 )}
               </div>
             )}
             {buyoutStatus !== STATUS.STATUS_ENDED && (
-              <div className="balance">
+              <div className="balance center">
                 <div>
                   <h4 className="light balance-desc">
-                    To place a bid, you need DAI and 5% of all B20.
-                    <br />
-                    To veto a bid, you just need B20.
+                    To place a bid, you need DAI and 5% of all B20. To veto a bid, you just need B20.
                   </h4>
                 </div>
                 <div>
-                  <h3 className="col-blue">You currently have</h3>
+                  <h3 className="col-blue light">You currently have</h3>
                 </div>
                 <div>
                   <h3 className="light asset-balance">
-                    <img className="asset-icon" src="/assets/dai.svg" alt="DAI" /> {data && format(data.balance[1], 0)}{' '}
-                    DAI
+                    <img className="asset-icon" src="/assets/dai.svg" alt="DAI" /> {data && format(data.balance[1], 0)}
                   </h3>
                 </div>
                 <div>
                   <h3 className="light asset-balance">
-                    <img className="asset-icon" src="/assets/b20.svg" alt="B20" /> {data && format(data.balance[0], 0)}{' '}
-                    B20
+                    <img className="asset-icon" src="/assets/b20.svg" alt="B20" /> {data && format(data.balance[0], 0)}
                   </h3>
                 </div>
               </div>
@@ -741,6 +699,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
         onExtend={handleExtend}
         onWithdraw={handleWithdraw}
         onApproveB20={handleApproveToken0}
+        gauge={data && { value: vetoMeter[2], max: vetoMeter[1] }}
       />
       <RedeemModal
         rate={data?.rate}
