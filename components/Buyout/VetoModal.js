@@ -275,7 +275,7 @@ function VetoModal({
             <span>Balance: {format(b20Balance, 2)}</span>
           </div>
         </div>
-        <Button onClick={() => onVeto && onVeto(formData.b20.value)} disabled={!formData.b20.isValid}>
+        <Button onClick={() => onVeto && onVeto(formData.b20.value)} disabled={!formData.b20.isValid || formData.b20.value > b20Allowance}>
           {b20Staked > 0 ? 'Veto Some More' : 'Veto'}
         </Button>
       </div>
