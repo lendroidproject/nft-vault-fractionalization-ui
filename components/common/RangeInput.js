@@ -11,7 +11,7 @@ const Wrapper = styled.div`
   position: relative;
 
   input {
-    margin: 8px 0;
+    margin: 5px 0 8px;
     font-size: 20px;
     font-weight: normal;
     line-height: 24px;

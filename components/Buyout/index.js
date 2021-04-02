@@ -698,6 +698,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
         epochPassed={buyoutStatus === STATUS.STATUS_ACTIVE && data?.buyoutInfo.epochs >= data?.currentEpoch}
         b20Balance={data?.balance[0]}
         b20Allowance={data?.allowance[0]}
+        contract={addressLink(library.addresses.Buyout, library.wallet.network)}
         show={showVetoModal}
         onHide={() => setShowVetoModal(false)}
         onVeto={handleVeto}

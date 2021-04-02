@@ -37,7 +37,6 @@ const Content = styled.div`
       padding-bottom: 24px;
     }
   }
-
   .modal-body {
     width: 423px;
     max-width: 100%;
@@ -49,7 +48,6 @@ const Content = styled.div`
     background-color: #fbfbfb;
     box-shadow: 0 6px 8px 0 rgba(0, 0, 0, 0.5);
   }
-
   .modal-content {
     width: 100%;
     border-radius: 4px;
@@ -211,26 +209,24 @@ function BidModal({
       </span>
     </div>
   )
-
   const labelDai = (
     <div className="input-label">
       <span>
         <img src="/assets/dai.svg" alt="DAI" />&nbsp;&nbsp;DAI
       </span>
-      {(true || daiAllowance < formData.dai.value) && (
+      {daiAllowance < formData.dai.value && (
         <Button className="btn-approve" onClick={() => onApproveDai && onApproveDai(formData.dai.value)}>
           Approve DAI
         </Button>
       )}
     </div>
   )
-
   const labelB20 = (
     <div className="input-label">
       <span>
         <img src="/assets/b20.svg" alt="B20" />&nbsp;&nbsp;B20
       </span>
-      {(true || b20Allowance < formData.b20.value) && (
+      {b20Allowance < formData.b20.value && (
         <Button className="btn-approve" onClick={() => onApproveB20 && onApproveB20(formData.b20.value)}>
           Approve B20
         </Button>
