@@ -76,14 +76,22 @@ const Content = styled.div`
     color: var(--color-white);
     line-height: 14px;
     padding: 5px;
-    margin-right: 5px;
   }
-  .input .suffix {
-    width: unset;
-    color: var(--color-grey);
-    > img {
+  .form-input{
+    margin-bottom: 30px;
+  }
+  .input-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    span {
+      display: flex;
+      align-items: center;
+    }
+    img {
+      border-radius: 50%;
       width: 24px;
-      border-radius: 12px;
     }
   }
   .message {
@@ -163,6 +171,7 @@ function VetoModal({
   epochPassed = true,
   b20Balance = 0,
   b20Allowance = 0,
+  contract = '',
   show,
   onHide,
   onExtend,
@@ -173,7 +182,13 @@ function VetoModal({
 }) {
   const [formData, setFormData] = useState({
     b20: {
-      value: '',
+      value: 0,
+      hasError: false,
+      isValid: false,
+      error: '',
+    },
+    agree: {
+      value: false,
       hasError: false,
       isValid: false,
       error: '',
@@ -201,14 +216,16 @@ function VetoModal({
     },
     [b20Balance, b20Staked, activeTab, vetoDisabled]
   )
+  const agreeValidator = useCallback((value) => !!value, [])
   const validators = {
     b20: b20Validator,
+    agree: agreeValidator,
   }
 
-  const handleChange = ({ floatValue: value }) => {
-    const name = 'b20'
+  const handleChange = (name, value) => {
     const isValid = validators[name](value)
     setFormData({
+      ...formData,
       [name]: {
         value,
         hasError: !isValid,
@@ -221,20 +238,19 @@ function VetoModal({
   const resetForm = () => {
     setFormData({
       b20: {
-        value: '',
+        value: 0,
+        hasError: false,
+        isValid: false,
+        error: '',
+      },
+      agree: {
+        value: false,
         hasError: false,
         isValid: false,
         error: '',
       },
     })
   }
-
-  const inputSuffix = () =>
-    b20Allowance < formData.b20.value && (
-      <Button className="btn-approve" onClick={() => onApproveB20 && onApproveB20(formData.b20.value)}>
-        Approve
-      </Button>
-    )
 
   const bidDiff = currentBidId - lastVetoedBidId
 
@@ -249,7 +265,17 @@ function VetoModal({
             <h3 className="light tab-desc">
               Your last veto was {bidDiff} {bidDiff > 1 ? 'bids' : 'bid'} ago.
             </h3>
-            <Button onClick={() => onExtend && onExtend()}>
+            <div className="form-input">
+              <p className={`terms${formData.agree.isValid ? ' error' : ''}`} style={{ fontSize: '88%', lineHeight: 1.5 }}>
+                <input type="checkbox" checked={formData.agree.value} onChange={() => handleChange('agree', !formData.agree.value)} />
+                Your B20 will be locked up in the{' '}
+                <a href={contract} target="_blank">
+                  Buyout contract
+                </a>{' '}
+                until either your bid is vetoed or a higher bid is placed.
+              </p>
+            </div>
+            <Button onClick={() => onExtend && onExtend()} disabled={!formData.agree.isValid}>
               <span>Continue Veto</span>
             </Button>
           </>
@@ -263,19 +289,41 @@ function VetoModal({
       <div className="tab-panel-content">
         <div className="form-input">
           <RangeInput
-            label="B20"
-            icon="/assets/b20.svg"
+            label={(
+              <div className="input-label">
+                <span>
+                  <img src="/assets/b20.svg" alt="B20" />&nbsp;&nbsp;B20
+                </span>
+                {b20Allowance < formData.b20.value && (
+                  <Button className="btn-approve" onClick={() => onApproveB20 && onApproveB20(formData.b20.value)}>
+                    Approve B20
+                  </Button>
+                )}
+              </div>
+            )}
+            inputProps={{
+              className: 'center'
+            }}
             max={b20Balance}
             value={formData.b20.value}
-            onChange={(v) => handleChange({ floatValue: v })}
-            approve={inputSuffix()}
+            onChange={(v) => handleChange('b20', v)}
           />
           <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
             <span></span>
             <span>Balance: {format(b20Balance, 2)}</span>
           </div>
         </div>
-        <Button onClick={() => onVeto && onVeto(formData.b20.value)} disabled={!formData.b20.isValid}>
+        <div className="form-input">
+          <p className={`terms${formData.agree.isValid ? ' error' : ''}`} style={{ fontSize: '88%', lineHeight: 1.5 }}>
+            <input type="checkbox" checked={formData.agree.value} onChange={() => handleChange('agree', !formData.agree.value)} />
+            Your B20 will be locked up in the{' '}
+            <a href={contract} target="_blank">
+              Buyout contract
+            </a>{' '}
+            until either your bid is vetoed or a higher bid is placed.
+          </p>
+        </div>
+        <Button onClick={() => onVeto && onVeto(formData.b20.value)} disabled={!formData.b20.isValid || formData.b20.value > b20Allowance || !formData.agree.isValid}>
           {b20Staked > 0 ? 'Veto Some More' : 'Veto'}
         </Button>
       </div>
@@ -290,12 +338,19 @@ function VetoModal({
         <div className="tab-panel-content">
           <div className="form-input">
             <RangeInput
-              label="B20"
-              icon="/assets/b20.svg"
+              label={(
+                <div className="input-label">
+                  <span>
+                    <img src="/assets/b20.svg" alt="B20" />&nbsp;&nbsp;B20
+                  </span>
+                </div>
+              )}
+              inputProps={{
+                className: 'center'
+              }}
               max={b20Staked}
               value={formData.b20.value}
-              onChange={(v) => handleChange({ floatValue: v })}
-              approve={inputSuffix()}
+              onChange={(v) => handleChange('b20', v)}
             />
             <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
               <span>Max: {format(b20Staked, 2)}</span>

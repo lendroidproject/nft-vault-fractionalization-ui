@@ -1,27 +1,24 @@
 import React from 'react'
 import styled from 'styled-components'
-
 import Slider from 'rc-slider'
+import NumberFormat from 'react-number-format'
 import 'rc-slider/assets/index.css'
 import { format } from 'utils/number'
+import Input from './NumberInput'
 
 const Wrapper = styled.div`
   width: 100%;
   position: relative;
 
-  label {
-    display: flex;
-    align-items: center;
-
-    img {
-      border-radius: 50%;
-      width: 24px;
-      margin-right: 6px;
-    }
-  }
-
-  h2 {
-    margin: 5px 0;
+  input {
+    margin: 5px 0 8px;
+    font-size: 20px;
+    font-weight: normal;
+    line-height: 24px;
+    color: var(--color-black);
+    border: none;
+    max-width: 100%;
+    background: transparent;
   }
 
   .rc-slider {
@@ -45,14 +42,21 @@ const Wrapper = styled.div`
   }
 `
 
-const RangeInput = ({ label, icon, min = 0, max, value, decimals = 0, approve, disabled, onChange }) => {
+const RangeInput = ({ label = null, min = 0, max, value, disabled, onChange, inputProps = {}, sliderProps = {} }) => {
   return (
     <Wrapper className={`slider`}>
       <label>
-        <img src={icon} /> {label}
+        {label}
       </label>
-      <h2 className={`light ${disabled ? '' : 'center'}`}>{approve ? approve : format(value || min, decimals)}</h2>
-      {!disabled && <Slider {...{ min, max, value, onChange }} />}
+      <NumberFormat
+        {...inputProps}
+        value={value}
+        thousandSeparator=","
+        decimalSeparator="."
+        disabled={!!disabled}
+        onValueChange={({ floatValue }) => onChange && onChange(floatValue)}
+      />
+      {!disabled && <Slider {...sliderProps} {...{ min, max, value, onChange }} />}
     </Wrapper>
   )
 }
