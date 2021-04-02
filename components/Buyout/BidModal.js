@@ -77,21 +77,28 @@ const Content = styled.div`
     color: var(--color-white);
     line-height: 14px;
     padding: 5px;
-    margin-right: 5px;
   }
-  .input .suffix {
-    width: unset;
-    color: var(--color-grey);
-    > img {
+  .form-input{
+    margin-bottom: 30px;
+  }
+  .input-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    span {
+      display: flex;
+      align-items: center;
+    }
+    img {
+      border-radius: 50%;
       width: 24px;
-      border-radius: 12px;
     }
   }
   .message {
     font-size: 11px;
     color: var(--color-grey);
-    margin-top: 8px;
-    margin-bottom: 20px;
+    margin: 8px 0;
     line-height: 17px;
     display: flex;
     justify-content: space-between;
@@ -137,13 +144,13 @@ function BidModal({
       error: '',
     },
     dai: {
-      value: '',
+      value: 0,
       hasError: false,
       isValid: false,
       error: '',
     },
     b20: {
-      value: '',
+      value: 0,
       hasError: false,
       isValid: false,
       error: '',
@@ -160,7 +167,7 @@ function BidModal({
     b20: b20Validator,
   }
 
-  const handleChange = (name, { floatValue: value }) => {
+  const handleChange = (name, value) => {
     const isValid = validators[name](value)
     setFormData({
       ...formData,
@@ -182,13 +189,13 @@ function BidModal({
         error: '',
       },
       dai: {
-        value: '',
+        value: 0,
         hasError: false,
         isValid: false,
         error: '',
       },
       b20: {
-        value: '',
+        value: 0,
         hasError: false,
         isValid: false,
         error: '',
@@ -196,29 +203,44 @@ function BidModal({
     })
   }
 
-  const input1Suffix = () => (
-    <div className="suffix">
-      <img className="asset-icon" src="/assets/dai.svg" alt="DAI" />
-      &nbsp;+&nbsp;
-      <img className="asset-icon" src="/assets/b20.svg" alt="B20" />
+  const labelTotal = (
+    <div className="input-label">
+      <span>
+        <img src="/assets/dai.svg" alt="DAI" />&nbsp;+&nbsp;<img src="/assets/b20.svg" alt="B20" />
+        &nbsp;&nbsp;Total Bid Value
+      </span>
     </div>
   )
-  const input2Suffix = () =>
-    daiAllowance < formData.dai.value && (
-      <Button className="btn-approve" onClick={() => onApproveDai && onApproveDai(formData.dai.value)}>
-        Approve DAI
-      </Button>
-    )
-  const input3Suffix = () =>
-    b20Allowance < formData.b20.value && (
-      <Button className="btn-approve" onClick={() => onApproveB20 && onApproveB20(formData.b20.value)}>
-        Approve B20
-      </Button>
-    )
+
+  const labelDai = (
+    <div className="input-label">
+      <span>
+        <img src="/assets/dai.svg" alt="DAI" />&nbsp;&nbsp;DAI
+      </span>
+      {(true || daiAllowance < formData.dai.value) && (
+        <Button className="btn-approve" onClick={() => onApproveDai && onApproveDai(formData.dai.value)}>
+          Approve DAI
+        </Button>
+      )}
+    </div>
+  )
+
+  const labelB20 = (
+    <div className="input-label">
+      <span>
+        <img src="/assets/b20.svg" alt="B20" />&nbsp;&nbsp;B20
+      </span>
+      {(true || b20Allowance < formData.b20.value) && (
+        <Button className="btn-approve" onClick={() => onApproveB20 && onApproveB20(formData.b20.value)}>
+          Approve B20
+        </Button>
+      )}
+    </div>
+  )
 
   const [getB20] = useThrottle(async () => {
     const result = await getRequiredB20(formData.total.value, formData.dai.value)
-    handleChange('b20', { floatValue: Number(result) })
+    handleChange('b20', Number(result))
   }, 0.25 * 1000)
   useEffect(() => {
     getB20()
@@ -251,14 +273,15 @@ function BidModal({
           </div>
           <div className="modal-content">
             <div className="form-input">
-              <Input
-                id="total"
-                name="total"
-                label="Total Bid Value"
+              <RangeInput
+                label={labelTotal}
+                inputProps={{
+                  className: 'center'
+                }}
+                min={minTotal}
+                max={10**9}
                 value={formData.total.value}
-                onValueChange={(v) => handleChange('total', v)}
-                pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
-                suffix={input1Suffix}
+                onChange={(v) => handleChange('total', v)}
               />
               <div className={`message${formData.total.hasError ? ' error' : ''}`}>
                 <span>Min. Required: {format(minTotal)}</span>
@@ -267,12 +290,13 @@ function BidModal({
             </div>
             <div className="form-input">
               <RangeInput
-                label="DAI"
-                icon="/assets/dai.svg"
+                label={labelDai}
+                inputProps={{
+                  className: 'center'
+                }}
                 max={formData.total.value}
                 value={formData.dai.value}
-                approve={input2Suffix()}
-                onChange={(v) => handleChange('dai', { floatValue: v })}
+                onChange={(v) => handleChange('dai', v)}
               />
               <div className={`message${formData.dai.hasError ? ' error' : ''}`}>
                 <span>Max: {format(formData.total.value)}</span>
@@ -281,11 +305,9 @@ function BidModal({
             </div>
             <div className="form-input">
               <RangeInput
-                label="B20"
-                icon="/assets/b20.svg"
+                label={labelB20}
                 value={formData.b20.value}
                 decimals={2}
-                approve={input3Suffix()}
                 disabled
               />
               <div className={`message${formData.b20.hasError ? ' error' : ''}`}>

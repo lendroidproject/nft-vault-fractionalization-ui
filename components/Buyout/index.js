@@ -675,7 +675,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
       <BidModal
         minTotal={
           buyoutStatus === STATUS.STATUS_ACTIVE
-            ? new BigNumber(data?.bidValue).plus(1).toString(10)
+            ? new BigNumber(data?.bidValue).plus(1).toNumber(10)
             : data?.buyoutInfo?.startThreshold
         }
         b20Balance={data?.balance[0]}
