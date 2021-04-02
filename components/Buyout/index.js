@@ -563,7 +563,12 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 <div>
                   <p>Buyout Clock</p>
                   <h2 className="light" style={{ fontSize: '125%' }}>
-                    Buyout has ended. B20 redemption will be enabled soon.
+                    Buyout has ended with a winning bid of {format(data.bidValue, 2)} by&nbsp;
+                    <a href={addressLink(data.bidder, library?.wallet?.network)} target="_blank">
+                      {shorten(data.bidder)}
+                    </a>.
+                    <br/>
+                    B20 redemption will be enabled soon.
                   </h2>
                 </div>
               </div>
