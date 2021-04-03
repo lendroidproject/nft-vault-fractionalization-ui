@@ -6,7 +6,7 @@ import Button from 'components/common/Button'
 import Account from './Account'
 
 const Wrapper = styled.div`
-  background: url('/assets/bg.jpg') rgba(5,5,5,.4);
+  background: url('/assets/bg.jpg') rgba(5, 5, 5, 0.4);
   background-repeat: no-repeat;
   background-size: cover;
   background-blend-mode: overlay;
@@ -23,7 +23,7 @@ const Wrapper = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    .app-logo{
+    .app-logo {
       > img {
         width: 70px;
       }
@@ -31,7 +31,7 @@ const Wrapper = styled.div`
     .app-menu {
       button {
         margin: 10px 5px;
-        background: rgba(255,255,255,0.2);
+        background: rgba(255, 255, 255, 0.2);
         border: 2px solid var(--color-pink);
         border-radius: 4px;
         min-width: 145px;
@@ -47,7 +47,7 @@ const Wrapper = styled.div`
       }
     }
   }
-  @media(max-width: 767px) {
+  @media (max-width: 767px) {
     padding: 20px 20px;
     .app-header {
       padding: 0 20px;
@@ -55,8 +55,11 @@ const Wrapper = styled.div`
   }
 `
 
+const statics = ['/about']
+
 export default connect((state) => state)(function Layout({ children, metamask }) {
   const router = useRouter()
+  const isStatic = statics.includes(router.pathname)
   return (
     <Wrapper>
       <div className="app-header">
@@ -78,8 +81,8 @@ export default connect((state) => state)(function Layout({ children, metamask })
           </Link>
         </div>
       </div>
-      {metamask && metamask.connected && children}
-      <Account />
+      {isStatic ? children : metamask && metamask.connected && children}
+      {!isStatic && <Account />}
     </Wrapper>
   )
 })

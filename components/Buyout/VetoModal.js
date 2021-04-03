@@ -77,7 +77,7 @@ const Content = styled.div`
     line-height: 14px;
     padding: 5px;
   }
-  .form-input{
+  .form-input {
     margin-bottom: 30px;
   }
   .input-label {
@@ -266,8 +266,15 @@ function VetoModal({
               Your last veto was {bidDiff} {bidDiff > 1 ? 'bids' : 'bid'} ago.
             </h3>
             <div className="form-input">
-              <p className={`terms${formData.agree.isValid ? ' error' : ''}`} style={{ fontSize: '88%', lineHeight: 1.5 }}>
-                <input type="checkbox" checked={formData.agree.value} onChange={() => handleChange('agree', !formData.agree.value)} />
+              <p
+                className={`terms${formData.agree.isValid ? ' error' : ''}`}
+                style={{ fontSize: '88%', lineHeight: 1.5 }}
+              >
+                <input
+                  type="checkbox"
+                  checked={formData.agree.value}
+                  onChange={() => handleChange('agree', !formData.agree.value)}
+                />
                 Your B20 will be locked up in the{' '}
                 <a href={contract} target="_blank">
                   Buyout contract
@@ -289,10 +296,11 @@ function VetoModal({
       <div className="tab-panel-content">
         <div className="form-input">
           <RangeInput
-            label={(
+            label={
               <div className="input-label">
                 <span>
-                  <img src="/assets/b20.svg" alt="B20" />&nbsp;&nbsp;B20
+                  <img src="/assets/b20.svg" alt="B20" />
+                  &nbsp;&nbsp;B20
                 </span>
                 {b20Allowance < formData.b20.value && (
                   <Button className="btn-approve" onClick={() => onApproveB20 && onApproveB20(formData.b20.value)}>
@@ -300,9 +308,9 @@ function VetoModal({
                   </Button>
                 )}
               </div>
-            )}
+            }
             inputProps={{
-              className: 'center'
+              className: 'center',
             }}
             max={b20Balance}
             value={formData.b20.value}
@@ -315,7 +323,11 @@ function VetoModal({
         </div>
         <div className="form-input">
           <p className={`terms${formData.agree.isValid ? ' error' : ''}`} style={{ fontSize: '88%', lineHeight: 1.5 }}>
-            <input type="checkbox" checked={formData.agree.value} onChange={() => handleChange('agree', !formData.agree.value)} />
+            <input
+              type="checkbox"
+              checked={formData.agree.value}
+              onChange={() => handleChange('agree', !formData.agree.value)}
+            />
             Your B20 will be locked up in the{' '}
             <a href={contract} target="_blank">
               Buyout contract
@@ -323,7 +335,10 @@ function VetoModal({
             until either your bid is vetoed or a higher bid is placed.
           </p>
         </div>
-        <Button onClick={() => onVeto && onVeto(formData.b20.value)} disabled={!formData.b20.isValid || formData.b20.value > b20Allowance || !formData.agree.isValid}>
+        <Button
+          onClick={() => onVeto && onVeto(formData.b20.value)}
+          disabled={!formData.b20.isValid || formData.b20.value > b20Allowance || !formData.agree.isValid}
+        >
           {b20Staked > 0 ? 'Veto Some More' : 'Veto'}
         </Button>
       </div>
@@ -338,15 +353,16 @@ function VetoModal({
         <div className="tab-panel-content">
           <div className="form-input">
             <RangeInput
-              label={(
+              label={
                 <div className="input-label">
                   <span>
-                    <img src="/assets/b20.svg" alt="B20" />&nbsp;&nbsp;B20
+                    <img src="/assets/b20.svg" alt="B20" />
+                    &nbsp;&nbsp;B20
                   </span>
                 </div>
-              )}
+              }
               inputProps={{
-                className: 'center'
+                className: 'center',
               }}
               max={b20Staked}
               value={formData.b20.value}
@@ -389,7 +405,7 @@ function VetoModal({
                 Your Veto Score
                 <br /> <span className="col-black">{format(b20Staked)}</span>
               </div>
-              {gauge && <Gauge {...gauge} height={160} />}
+              {gauge && <Gauge {...gauge} />}
             </div>
             <div className="tabs">
               <div className="tab-header">

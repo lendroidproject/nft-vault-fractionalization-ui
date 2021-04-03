@@ -157,24 +157,30 @@ const RefreshTimer = styled.span`
 
     ellipse {
       fill: #6622cc;
-      animation: color-change 6s infinite;
-      animation-delay: calc(var(--nth-child) / 4 * 1s);
+      opacity: 0.2;
+      animation: color-change 12s infinite;
+      animation-delay: calc(var(--nth-child) / 2 * 1s);
     }
     @keyframes color-change {
       0% {
         fill: #6622cc;
+        opacity: 0.2;
       }
       3.33% {
         fill: #ce1fca;
+        opacity: 1;
       }
       50% {
         fill: #ce1fca;
+        opacity: 1;
       }
       96.66% {
         fill: #6622cc;
+        opacity: 0.2;
       }
       100% {
         fill: #6622cc;
+        opacity: 0.2;
       }
     }
   }

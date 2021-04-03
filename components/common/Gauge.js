@@ -1,4 +1,5 @@
 import ReactECharts from 'echarts-for-react'
+import styled from 'styled-components'
 import { currencyFormatter } from 'utils/number'
 
 const option = ({ title, value, max }) => ({
@@ -75,24 +76,21 @@ const option = ({ title, value, max }) => ({
       detail: {
         valueAnimation: true,
         fontFamily: "'Goldman', cursive",
-        fontSize: 8,
+        fontSize: 14,
         lineHeight: 1.3,
         borderRadius: 15,
         color: 'white',
         backgroundColor: '#CE1FCA',
-        offsetCenter: [0, '80%'],
+        offsetCenter: [0, '70%'],
         formatter: function (value) {
           return `${value.toFixed(2)} %`
         },
-        width: 100,
-        height: 20,
+        width: 80,
+        height: 12,
       },
       data: [
         {
           value,
-          detail: {
-            fontSize: 20,
-          },
         },
       ],
       startAngle: 200,
@@ -101,11 +99,25 @@ const option = ({ title, value, max }) => ({
   ],
 })
 
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  position: relative;
+
+  p {
+    position: absolute;
+    top: calc(100% - 5px);
+    font-size: 12px;
+  }
+`
+
 export default function Gauge({ title = 'Veto Meter', value, max, height = 180 }) {
   return (
-    <ReactECharts
-      option={option({ title: `${title} (${currencyFormatter((value * max) / 100)})`, value, max })}
-      style={{ height, marginBottom: -25, minWidth: 200 }}
-    />
+    <Wrapper>
+      <ReactECharts option={option({ title, value, max })} style={{ height, marginBottom: -25, minWidth: 230 }} />
+      <p>({currencyFormatter((value * max) / 100)} / {currencyFormatter(max)} B20)</p>
+    </Wrapper>
   )
 }
