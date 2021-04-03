@@ -83,7 +83,7 @@ const option = ({ title, value, max }) => ({
         backgroundColor: '#CE1FCA',
         offsetCenter: [0, '70%'],
         formatter: function (value) {
-          return `${value.toFixed(2)} %`
+          return `${Number(value).toFixed(2)} %`
         },
         width: 80,
         height: 12,
