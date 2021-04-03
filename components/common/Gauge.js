@@ -75,17 +75,17 @@ const option = ({ title, value, max }) => ({
       detail: {
         valueAnimation: true,
         fontFamily: "'Goldman', cursive",
-        fontSize: 10,
-        lineHeight: 16,
+        fontSize: 8,
+        lineHeight: 1.3,
         borderRadius: 15,
         color: 'white',
         backgroundColor: '#CE1FCA',
-        offsetCenter: [0, '70%'],
+        offsetCenter: [0, '80%'],
         formatter: function (value) {
           return `${value.toFixed(2)} %`
         },
-        width: 80,
-        height: 20
+        width: 100,
+        height: 20,
       },
       data: [
         {
@@ -104,8 +104,7 @@ const option = ({ title, value, max }) => ({
 export default function Gauge({ title = 'Veto Meter', value, max, height = 180 }) {
   return (
     <ReactECharts
-      option={option({ title, value, max })}
-      title={title}
+      option={option({ title: `${title} (${currencyFormatter((value * max) / 100)})`, value, max })}
       style={{ height, marginBottom: -25, minWidth: 200 }}
     />
   )

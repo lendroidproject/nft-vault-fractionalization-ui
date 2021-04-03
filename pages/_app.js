@@ -156,6 +156,11 @@ class App extends NextApp {
               :nth-child(5) { --nth-child: 8 }
               :nth-child(6) { --nth-child: 10 }
               :nth-child(7) { --nth-child: 12 }
+              :nth-child(8) { --nth-child: 14 }
+              :nth-child(9) { --nth-child: 16 }
+              :nth-child(10) { --nth-child: 18 }
+              :nth-child(11) { --nth-child: 20 }
+              :nth-child(12) { --nth-child: 22 }
             `,
             }}
           />

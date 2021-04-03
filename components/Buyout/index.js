@@ -139,7 +139,45 @@ const Wrapper = styled.div`
 const RefreshTimer = styled.span`
   position: absolute;
   right: 0;
-  bottom: 0;
+  bottom: 10px;
+  color: #8a4ad0;
+  font-size: 14px;
+
+  display: flex;
+  align-items: center;
+
+  svg {
+    width: 35px;
+    height: 35px;
+    margin-left: 0px;
+
+    text {
+      fill: #ce1fca;
+    }
+
+    ellipse {
+      fill: #6622cc;
+      animation: color-change 6s infinite;
+      animation-delay: calc(var(--nth-child) / 4 * 1s);
+    }
+    @keyframes color-change {
+      0% {
+        fill: #6622cc;
+      }
+      3.33% {
+        fill: #ce1fca;
+      }
+      50% {
+        fill: #ce1fca;
+      }
+      96.66% {
+        fill: #6622cc;
+      }
+      100% {
+        fill: #6622cc;
+      }
+    }
+  }
 `
 
 const MIN_ALLOWANCE = 10 ** 10
@@ -532,7 +570,32 @@ export default connect((state) => state)(function Home({ metamask, library, even
       <div className="home-header">
         <div className="header-title border-bottom">
           <h1 className="col-pink">THE BIG B.20 BUYOUT</h1>
-          <RefreshTimer className="refresh-timer">Refreshing in {timer} seconds</RefreshTimer>
+          <RefreshTimer className="refresh-timer">
+            Refreshing in
+            <svg width="126px" height="128px" viewBox="0 0 126 128">
+              <g id="Artboard" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                <g id="Group-2" transform="translate(5.000000, 4.000000)">
+                  <text x="46%" y="50%" style={{ fontSize: 45 }} fill="balck" textAnchor="middle" dominantBaseline="middle">
+                    {timer}
+                  </text>
+                  <g id="Group">
+                    <ellipse cx="58.1176471" cy="8.10191083" rx="8.10588235" ry="8.10191083"></ellipse>
+                    <ellipse cx="82.2823529" cy="16.5095541" rx="8.10588235" ry="8.10191083"></ellipse>
+                    <ellipse cx="103.082353" cy="30.7261146" rx="8.10588235" ry="8.10191083"></ellipse>
+                    <ellipse cx="108.894118" cy="56.1019108" rx="8.10588235" ry="8.10191083"></ellipse>
+                    <ellipse cx="102.164706" cy="82.089172" rx="8.10588235" ry="8.10191083"></ellipse>
+                    <ellipse cx="86.2588235" cy="102.726115" rx="8.10588235" ry="8.10191083"></ellipse>
+                    <ellipse cx="59.8" cy="111.898089" rx="8.10588235" ry="8.10191083"></ellipse>
+                    <ellipse cx="33.3411765" cy="103.184713" rx="8.10588235" ry="8.10191083"></ellipse>
+                    <ellipse cx="14.2235294" cy="84.6878981" rx="8.10588235" ry="8.10191083"></ellipse>
+                    <ellipse cx="8.10588235" cy="59.3121019" rx="8.10588235" ry="8.10191083"></ellipse>
+                    <ellipse cx="14.5294118" cy="34.3949045" rx="8.10588235" ry="8.10191083"></ellipse>
+                    <ellipse cx="33.0352941" cy="16.3566879" rx="8.10588235" ry="8.10191083"></ellipse>
+                  </g>
+                </g>
+              </g>
+            </svg>
+          </RefreshTimer>
         </div>
       </div>
       <div className="home-body">
@@ -566,8 +629,9 @@ export default connect((state) => state)(function Home({ metamask, library, even
                     Buyout has ended with a winning bid of {format(data.bidValue, 2)} by&nbsp;
                     <a href={addressLink(data.bidder, library?.wallet?.network)} target="_blank">
                       {shorten(data.bidder)}
-                    </a>.
-                    <br/>
+                    </a>
+                    .
+                    <br />
                     B20 redemption will be enabled soon.
                   </h2>
                 </div>
