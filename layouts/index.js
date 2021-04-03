@@ -82,7 +82,7 @@ export default connect((state) => state)(function Layout({ children, metamask })
         </div>
       </div>
       {isStatic ? children : metamask && metamask.connected && children}
-      {!isStatic && <Account />}
+      <Account isStatic={isStatic} />
     </Wrapper>
   )
 })

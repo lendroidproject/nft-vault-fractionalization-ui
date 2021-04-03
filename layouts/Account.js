@@ -93,6 +93,7 @@ class Account extends Component {
   }
 
   connectWallet() {
+    if (this.props.isStatic) return
     web3Modal
       .connect()
       .then((provider) => {
@@ -156,6 +157,7 @@ class Account extends Component {
   }
 
   render() {
+    if (this.props.isStatic) return null
     if (this.props.metamask && !this.props.metamask.connected)
       return (
         <Wrapper className="flex-all">
