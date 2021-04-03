@@ -181,7 +181,7 @@ function BidModal({
   const resetForm = () => {
     setFormData({
       total: {
-        value: minTotal ? minTotal : '',
+        value: minTotal ? minTotal : 0,
         hasError: false,
         isValid: true,
         error: '',
@@ -274,14 +274,13 @@ function BidModal({
                 inputProps={{
                   className: 'center'
                 }}
-                min={minTotal}
+                min={Number(minTotal)}
                 max={10**9}
                 value={formData.total.value}
                 onChange={(v) => handleChange('total', v)}
               />
               <div className={`message${formData.total.hasError ? ' error' : ''}`}>
                 <span>Min. Required: {format(minTotal)}</span>
-                {/* {errors.total && `Insufficient ${token1Name} balance.`} */}
               </div>
             </div>
             <div className="form-input">
@@ -309,7 +308,6 @@ function BidModal({
               <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
                 <span>Min. Required: {format(MIN_B20_AMOUNT)}</span>
                 <span>Balance: {format(b20Balance, 2)}</span>
-                {/* {errors.total && `Insufficient ${token1Name} balance.`} */}
               </div>
             </div>
             <div className="form-input">

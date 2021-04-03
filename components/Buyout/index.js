@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo, createRef } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
 import BigNumber from 'bignumber.js'
@@ -197,12 +197,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const [showVetoModal, setShowVetoModal] = useState(false)
   const [showRedeemModa, setShowRedeemModal] = useState(false)
   const [pendingTx, setPendingTx] = useState('')
-  const meterRef = createRef()
-  const [meterWidth, setMeterWidth] = useState(0)
-
-  useEffect(() => {
-    if (meterRef && meterRef.current) setMeterWidth(meterRef.current.offsetWidth)
-  }, [data])
 
   const buyoutStatus = data?.buyoutInfo?.status
 
@@ -310,7 +304,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
               epochs: Number(epochs),
               status: Number(status),
               startThreshold: new BigNumber(library.web3.utils.fromWei(startThreshold)).plus('250000').toString(10),
-              currentBidToken0Staked: library.web3.utils.fromWei(currentBidToken0Staked),
+              currentBidToken0Staked: Number(library.web3.utils.fromWei(currentBidToken0Staked)),
             },
           }
           if (buyoutInfo) {
