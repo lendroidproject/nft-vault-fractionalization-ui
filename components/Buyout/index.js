@@ -541,7 +541,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
     },
     [library?.methods?.Buyout?.requiredToken0ToBid]
   )
-
   const vetoMeter = useMemo(() => {
     if (data?.totalSupply[0] && data?.buyoutInfo?.currentBidToken0Staked && data?.buyoutInfo?.stopThresholdPercent) {
       const numerator = data?.buyoutInfo?.currentBidToken0Staked
@@ -797,7 +796,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
       <BidModal
         minTotal={
           buyoutStatus === STATUS.STATUS_ACTIVE
-            ? new BigNumber(data?.bidValue).plus(1).toNumber(10)
+            ? new BigNumber(data?.bidValue).plus(250000).toNumber(10)
             : data?.buyoutInfo?.startThreshold
         }
         b20Balance={data?.balance[0]}
