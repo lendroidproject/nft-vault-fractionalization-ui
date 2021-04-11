@@ -225,7 +225,9 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const [showRedeemModa, setShowRedeemModal] = useState(false)
   const [pendingTx, setPendingTx] = useState('')
 
-  const buyoutStatus = now < BUYOUT_START_TIME.getTime() ? STATUS.STATUS_NOT_STARTED : data?.buyoutInfo?.status
+  // const buyoutStatus = now < BUYOUT_START_TIME.getTime() ? STATUS.STATUS_NOT_STARTED : data?.buyoutInfo?.status
+  const buyoutStatus = data?.buyoutInfo?.status
+
   const countDown = getCountDownTimer(BUYOUT_START_TIME.getTime())
 
   const loadData = (first) => {
@@ -259,7 +261,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
     } = library.methods.Buyout
     const { getBlock } = library.methods.web3
 
-    const resolveOnly = (promise, defaults = '0') => new Promise(resolve => promise.then(resolve).catch(() => resolve(defaults)))
+    const resolveOnly = (promise, defaults = '0') => new Promise(resolve => promise.then(resolve).catch((err) => { console.log('---------', err); resolve(defaults) } ))
 
     Promise.all([
       getBlock(),
@@ -362,6 +364,8 @@ export default connect((state) => state)(function Home({ metamask, library, even
       )
       .catch(console.log)
   }
+
+  console.log(data)
 
   const [timer, setTimer] = useState(REFRESH_TIME)
   useEffect(() => {
