@@ -337,7 +337,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
             token0Staked: library.web3.utils.fromWei(token0Staked),
             lastVetoedBidId,
             redeemToken2Amount: library.web3.utils.fromWei(redeemToken2Amount),
-            rate: redeemToken2Amount / token0TotalSupply,
+            rate: new BigNumber(redeemToken2Amount).dividedBy(token0TotalSupply).toNumber(),
             buyoutInfo: {
               ...(data && data.buyoutInfo),
               epochs: Number(epochs),
@@ -656,7 +656,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
               the entire bundle.
               <br />
               <br />
-              Your bid will stand for 48 epochs (each epoch is 8 hours), during which time someone else can outbid you.
+              Your bid will stand for 42 epochs (each epoch is 8 hours), during which time someone else can outbid you.
               If outbid, the new bid stands for 9 epochs. The community can veto a bid with a 12% consensus. If the
               community veto is successful, the minimum bid increases by 8%.
               <br />
