@@ -10,15 +10,26 @@ const Wrapper = styled.div`
   width: 100%;
   position: relative;
 
-  input {
-    margin: 5px 0 8px;
-    font-size: 20px;
-    font-weight: normal;
-    line-height: 24px;
-    color: var(--color-black);
-    border: none;
-    max-width: 100%;
-    background: transparent;
+  .input-wrapper {
+    position: relative;
+    input {
+      margin: 5px 0 8px;
+      font-size: 20px;
+      font-weight: normal;
+      line-height: 24px;
+      color: var(--color-black);
+      border: none;
+      max-width: 100%;
+      background: transparent;
+    }
+    .input-editable {
+      position: absolute;
+      right: 5px;
+      width: 16px;
+      top: 10px;
+      opacity: 0.9;
+      pointer-events: none;
+    }
   }
 
   .rc-slider {
@@ -42,21 +53,25 @@ const Wrapper = styled.div`
   }
 `
 
-const RangeInput = ({ label = null, min = 0, max, value, disabled, onChange, inputProps = {}, sliderProps = {} }) => {
+const RangeInput = ({ label = null, min = 0, max, value, disabled, readOnly, onChange, inputProps = {}, sliderProps = {} }) => {
   return (
     <Wrapper className={`slider`}>
       <label>
         {label}
       </label>
-      <NumberFormat
-        {...inputProps}
-        value={value}
-        thousandSeparator=","
-        decimalSeparator="."
-        disabled={!!disabled}
-        onValueChange={({ floatValue }) => onChange && onChange(floatValue)}
-      />
-      {!disabled && <Slider {...sliderProps} {...{ min, max, value, onChange }} />}
+      <div className="input-wrapper">
+        <NumberFormat
+          {...inputProps}
+          value={value}
+          thousandSeparator=","
+          decimalSeparator="."
+          disabled={!!disabled}
+          readOnly={!!readOnly}
+          onValueChange={({ floatValue }) => onChange && onChange(floatValue)}
+        />
+        {(!disabled && !readOnly) && <img className="input-editable" src="/assets/edit.svg" alt="Edit" />}
+      </div>
+      {(!disabled && !readOnly) && <Slider {...sliderProps} {...{ min, max, value, onChange }} />}
     </Wrapper>
   )
 }
