@@ -656,7 +656,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
             {buyoutStatus === STATUS.STATUS_NOT_STARTED ? (
               <div className="subscriptions">
                 <div>
-                  <p>Buyout Clock</p>
+                  <h3 className="light">Buyout begins in</h3>
                   <div className="count-down">
                     <h2 className="col-green light">{countDown ? countDown.timer : ''}</h2>
                   </div>
