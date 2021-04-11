@@ -697,7 +697,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 <div>
                   <p>Buyout Clock</p>
                   <h2 className="light" style={{ fontSize: '125%' }}>
-                    {data ? `B20 is available for redemption @ ${format(rate, 2)} DAI per B20` : '---'}
+                    {data ? `B20 is available for redemption @ ${format(data.rate, 2)} DAI per B20` : '---'}
                   </h2>
                 </div>
               </div>
