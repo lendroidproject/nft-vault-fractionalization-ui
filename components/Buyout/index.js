@@ -214,7 +214,7 @@ const getCountDownTimer = (endTime) => {
   }
 }
 
-const BUYOUT_START_TIME = new Date('12 April 2021 00:00 GMT');
+const BUYOUT_START_TIME = new Date('12 April 2021 00:00 GMT')
 
 export default connect((state) => state)(function Home({ metamask, library, eventTimestamp }) {
   const [now] = useTicker()
@@ -261,19 +261,24 @@ export default connect((state) => state)(function Home({ metamask, library, even
     } = library.methods.Buyout
     const { getBlock } = library.methods.web3
 
-    const resolveOnly = (promise, defaults = '0') => new Promise(resolve => promise.then(resolve).catch((err) => { console.log('---------', err); resolve(defaults) } ))
+    const resolveOnly = (promise, defaults = '0') =>
+      new Promise((resolve) =>
+        promise.then(resolve).catch((err) => {
+          resolve(defaults)
+        })
+      )
 
     Promise.all([
       getBlock(),
       // contributors(),
       first
         ? Promise.all([
-          resolveOnly(EPOCH_PERIOD()),
-          resolveOnly(HEART_BEAT_START_TIME()),
-          resolveOnly(stopThresholdPercent()),
-          symbol0(),
-          symbol2()
-        ])
+            resolveOnly(EPOCH_PERIOD()),
+            resolveOnly(HEART_BEAT_START_TIME()),
+            resolveOnly(stopThresholdPercent()),
+            symbol0(),
+            symbol2(),
+          ])
         : Promise.resolve(null),
       Promise.all([
         resolveOnly(epochs(1)),
@@ -364,8 +369,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
       )
       .catch(console.log)
   }
-
-  console.log(data)
 
   const [timer, setTimer] = useState(REFRESH_TIME)
   useEffect(() => {
@@ -612,7 +615,14 @@ export default connect((state) => state)(function Home({ metamask, library, even
             <svg width="126px" height="128px" viewBox="0 0 126 128">
               <g id="Artboard" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
                 <g id="Group-2" transform="translate(5.000000, 4.000000)">
-                  <text x="46%" y="50%" style={{ fontSize: 45 }} fill="balck" textAnchor="middle" dominantBaseline="middle">
+                  <text
+                    x="46%"
+                    y="50%"
+                    style={{ fontSize: 45 }}
+                    fill="balck"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                  >
                     {timer}
                   </text>
                   <g id="Group">
@@ -642,12 +652,13 @@ export default connect((state) => state)(function Home({ metamask, library, even
               <h4 className="uppercase">B20 Buyout</h4>
             </div>
             <div className="desc">
-              Welcome to the Big B.20 Buyout. With a minimum bid of $58 million, you can begin the buyout process, for the entire bundle.
+              Welcome to the Big B.20 Buyout. With a minimum bid of $58 million, you can begin the buyout process, for
+              the entire bundle.
               <br />
               <br />
               Your bid will stand for 48 epochs (each epoch is 8 hours), during which time someone else can outbid you.
-              If outbid, the new bid stands for 9 epochs. The community can veto a bid with a 12% consensus. 
-              If the community veto is successful, the minimum bid increases by 8%.
+              If outbid, the new bid stands for 9 epochs. The community can veto a bid with a 12% consensus. If the
+              community veto is successful, the minimum bid increases by 8%.
               <br />
               <br />
               Good luck!
@@ -737,9 +748,8 @@ export default connect((state) => state)(function Home({ metamask, library, even
               <div className="balance center">
                 <div>
                   <h4 className="light balance-desc">
-                    To place a bid, you need DAI and 1% of all B20.
-                    To veto a bid, you just need B20.
-                    A bid is vetoed if 12% of all B20 is staked.
+                    To place a bid, you need DAI and 1% of all B20. To veto a bid, you just need B20. A bid is vetoed if
+                    12% of all B20 is staked.
                   </h4>
                 </div>
                 <div>
@@ -757,8 +767,8 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 </div>
               </div>
             )}
-            {(buyoutStatus !== STATUS.STATUS_NOT_STARTED) && (
-              [STATUS.STATUS_ENDED, STATUS.STATUS_TIMEOUT].includes(buyoutStatus) ? (
+            {buyoutStatus !== STATUS.STATUS_NOT_STARTED &&
+              ([STATUS.STATUS_ENDED, STATUS.STATUS_TIMEOUT].includes(buyoutStatus) ? (
                 <Button
                   className="full-width"
                   onClick={() => setShowRedeemModal(true)}
@@ -780,8 +790,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                     Veto
                   </Button>
                 </>
-              )
-            )}
+              ))}
           </div>
         </div>
       </div>
