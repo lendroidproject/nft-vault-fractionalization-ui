@@ -201,7 +201,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const buyoutStatus = data?.buyoutInfo?.status
 
   const loadData = (first) => {
-    const { totalAssets } = library.methods.Vault
     const {
       symbol: symbol0,
       balanceOf: balance0,
@@ -233,7 +232,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
     const { getBlock } = library.methods.web3
 
     Promise.all([
-      totalAssets(),
       getBlock(),
       // contributors(),
       first
@@ -260,7 +258,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
     ])
       .then(
         ([
-          totalAssets,
           lastTimestamp,
           // contributors,
           buyoutInfo,
@@ -285,7 +282,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
         ]) => {
           const newData = {
             ...data,
-            totalAssets,
             lastTimestamp: new Date(lastTimestamp * 1000),
             timestamp: Date.now(),
             bidder,
@@ -524,10 +520,11 @@ export default connect((state) => state)(function Home({ metamask, library, even
   }, [eventTimestamp, data])
 
   useEffect(() => {
-    if (data?.totalAssets && Number(data.totalAssets) > 0) {
+    if (library?.methods?.Vault) {
       const queryAssets = async function () {
         try {
-          const tokenAssets = await library.methods.Vault.assets(0, data.totalAssets)
+          const assetsCount = await library.methods.Vault.totalAssets()
+          const tokenAssets = await library.methods.Vault.assets(0, assetsCount)
           const result = await getAssets(
             {
               token_ids: tokenAssets.map(({ tokenId }) => tokenId),
@@ -555,7 +552,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
       }
       queryAssets()
     }
-  }, [data?.totalAssets])
+  }, [library?.methods?.Vault])
 
   const validNetwork = library && networks.includes(library.wallet.network)
   if (!validNetwork)
