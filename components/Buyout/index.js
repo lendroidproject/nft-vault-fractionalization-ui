@@ -17,6 +17,7 @@ import SpinnerModal from 'components/common/SpinnerModal'
 import Gauge from 'components/common/Gauge'
 
 const STATUS = Object.freeze({
+  STATUS_NOT_STARTED: -1, // Buyout not started yet
   STATUS_INITIAL: 0, // Buyout started but no bid yet
   STATUS_ACTIVE: 1, // Buyout started and an active bid
   STATUS_REVOKED: 2, // Buyout revoked
@@ -189,6 +190,32 @@ const RefreshTimer = styled.span`
 const MIN_ALLOWANCE = 10 ** 10
 const REFRESH_TIME = 60
 
+const getCountDownTimer = (endTime) => {
+  let remainingTime = Math.floor((endTime - Date.now()) / 1000)
+  const finished = remainingTime <= 0
+  if (finished) {
+    return {
+      finished,
+      timer: `${0}D : ${0}H: ${0}M : ${0}S`,
+    }
+  }
+  const days = Math.floor(remainingTime / 86400)
+  remainingTime -= days * 86400
+  const hours = Math.floor(remainingTime / 3600)
+  remainingTime -= hours * 3600
+  const mins = Math.floor(remainingTime / 60)
+  remainingTime -= mins * 60
+  const secs = remainingTime
+  return {
+    finished,
+    timer: `${days} D : ${hours.toString().padStart(2, '0')} H: ${mins
+      .toString()
+      .padStart(2, '0')} M : ${secs.toString().padStart(2, '0')} S`,
+  }
+}
+
+const BUYOUT_START_TIME = new Date('12 April 2021 00:00 GMT');
+
 export default connect((state) => state)(function Home({ metamask, library, eventTimestamp }) {
   const [now] = useTicker()
   const [assets, setAssets] = useState([])
@@ -198,7 +225,8 @@ export default connect((state) => state)(function Home({ metamask, library, even
   const [showRedeemModa, setShowRedeemModal] = useState(false)
   const [pendingTx, setPendingTx] = useState('')
 
-  const buyoutStatus = data?.buyoutInfo?.status
+  const buyoutStatus = now < BUYOUT_START_TIME.getTime() ? STATUS.STATUS_NOT_STARTED : data?.buyoutInfo?.status
+  const countDown = getCountDownTimer(BUYOUT_START_TIME.getTime())
 
   const loadData = (first) => {
     const {
@@ -602,13 +630,12 @@ export default connect((state) => state)(function Home({ metamask, library, even
               <h4 className="uppercase">B20 Buyout</h4>
             </div>
             <div className="desc">
-              Welcome to the Big B.20 Buyout. With a minimum bid of $10 mn (tentative estimate), you can begin the
-              buyout process. for the entire bundle.
+              Welcome to the Big B.20 Buyout. With a minimum bid of $58 million, you can begin the buyout process, for the entire bundle.
               <br />
               <br />
-              Your bid will stand for 48 epochs (each epoch is 8 hours), during which time someone else can outbid you,
-              or the community can veto the bid with a 25% consensus. If the community veto is successful, the minimum
-              bid increases by 8%.
+              Your bid will stand for 48 epochs (each epoch is 8 hours), during which time someone else can outbid you.
+              If outbid, the new bid stands for 9 epochs. The community can veto a bid with a 12% consensus. 
+              If the community veto is successful, the minimum bid increases by 8%.
               <br />
               <br />
               Good luck!
@@ -618,7 +645,16 @@ export default connect((state) => state)(function Home({ metamask, library, even
             </div>
           </div>
           <div className="body-left">
-            {buyoutStatus === STATUS.STATUS_TIMEOUT ? (
+            {buyoutStatus === STATUS.STATUS_NOT_STARTED ? (
+              <div className="subscriptions">
+                <div>
+                  <p>Buyout Clock</p>
+                  <div className="count-down">
+                    <h2 className="col-green light">{countDown ? countDown.timer : ''}</h2>
+                  </div>
+                </div>
+              </div>
+            ) : buyoutStatus === STATUS.STATUS_TIMEOUT ? (
               <div className="subscriptions">
                 <div>
                   <p>Buyout Clock</p>
@@ -689,7 +725,9 @@ export default connect((state) => state)(function Home({ metamask, library, even
               <div className="balance center">
                 <div>
                   <h4 className="light balance-desc">
-                    To place a bid, you need DAI and 5% of all B20. To veto a bid, you just need B20.
+                    To place a bid, you need DAI and 1% of all B20.
+                    To veto a bid, you just need B20.
+                    A bid is vetoed if 12% of all B20 is staked.
                   </h4>
                 </div>
                 <div>
@@ -707,28 +745,30 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 </div>
               </div>
             )}
-            {[STATUS.STATUS_ENDED, STATUS.STATUS_TIMEOUT].includes(buyoutStatus) ? (
-              <Button
-                className="full-width"
-                onClick={() => setShowRedeemModal(true)}
-                disabled={buyoutStatus !== STATUS.STATUS_ENDED}
-              >
-                Redeem
-              </Button>
-            ) : (
-              <>
-                <Button className="full-width" onClick={() => setShowBidModal(true)}>
-                  Bid
-                </Button>
-                <h3 className="center light or-divider">or</h3>
+            {(buyoutStatus !== STATUS.STATUS_NOT_STARTED) && (
+              [STATUS.STATUS_ENDED, STATUS.STATUS_TIMEOUT].includes(buyoutStatus) ? (
                 <Button
-                  className="full-width grey"
-                  onClick={() => setShowVetoModal(true)}
-                  disabled={![STATUS.STATUS_ACTIVE, STATUS.STATUS_REVOKED].includes(buyoutStatus)}
+                  className="full-width"
+                  onClick={() => setShowRedeemModal(true)}
+                  disabled={buyoutStatus !== STATUS.STATUS_ENDED}
                 >
-                  Veto
+                  Redeem
                 </Button>
-              </>
+              ) : (
+                <>
+                  <Button className="full-width" onClick={() => setShowBidModal(true)}>
+                    Bid
+                  </Button>
+                  <h3 className="center light or-divider">or</h3>
+                  <Button
+                    className="full-width grey"
+                    onClick={() => setShowVetoModal(true)}
+                    disabled={![STATUS.STATUS_ACTIVE, STATUS.STATUS_REVOKED].includes(buyoutStatus)}
+                  >
+                    Veto
+                  </Button>
+                </>
+              )
             )}
           </div>
         </div>

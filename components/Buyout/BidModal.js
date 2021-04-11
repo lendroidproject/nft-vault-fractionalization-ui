@@ -113,7 +113,7 @@ const Content = styled.div`
   }
 `
 
-const MIN_B20_AMOUNT = 500000
+const MIN_B20_AMOUNT = 100000
 
 function BidModal({
   minTotal = 0,
