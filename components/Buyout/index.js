@@ -259,29 +259,37 @@ export default connect((state) => state)(function Home({ metamask, library, even
     } = library.methods.Buyout
     const { getBlock } = library.methods.web3
 
+    const resolveOnly = (promise, defaults = '0') => new Promise(resolve => promise.then(resolve).catch(() => resolve(defaults)))
+
     Promise.all([
       getBlock(),
       // contributors(),
       first
-        ? Promise.all([EPOCH_PERIOD(), HEART_BEAT_START_TIME(), stopThresholdPercent(), symbol0(), symbol2()])
+        ? Promise.all([
+          resolveOnly(EPOCH_PERIOD()),
+          resolveOnly(HEART_BEAT_START_TIME()),
+          resolveOnly(stopThresholdPercent()),
+          symbol0(),
+          symbol2()
+        ])
         : Promise.resolve(null),
       Promise.all([
-        epochs(1),
-        status(),
-        startThreshold(),
-        currentBidToken0Staked(),
+        resolveOnly(epochs(1)),
+        resolveOnly(status(), -1),
+        resolveOnly(startThreshold()),
+        resolveOnly(currentBidToken0Staked()),
         balance0(metamask.address),
         balance2(metamask.address),
         allowance0(metamask.address, library.addresses.Buyout),
         allowance2(metamask.address, library.addresses.Buyout),
         token0TotalSupply(),
-        highestBidder(),
-        highestBidValues(0),
-        currentBidId(),
-        currentEpoch(),
-        token0Staked(metamask.address),
-        lastVetoedBidId(metamask.address),
-        redeemToken2Amount(),
+        resolveOnly(highestBidder()),
+        resolveOnly(highestBidValues(0)),
+        resolveOnly(currentBidId()),
+        resolveOnly(currentEpoch()),
+        resolveOnly(token0Staked(metamask.address)),
+        resolveOnly(lastVetoedBidId(metamask.address)),
+        resolveOnly(redeemToken2Amount()),
       ]),
     ])
       .then(
