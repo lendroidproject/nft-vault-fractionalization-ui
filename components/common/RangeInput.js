@@ -20,6 +20,7 @@ const Wrapper = styled.div`
       color: var(--color-black);
       border: none;
       max-width: 100%;
+      width: 100%;
       background: transparent;
     }
     .input-editable {
