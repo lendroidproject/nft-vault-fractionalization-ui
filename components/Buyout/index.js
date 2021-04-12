@@ -118,6 +118,33 @@ const Wrapper = styled.div`
       vertical-align: bottom;
     }
 
+    .misc {
+      h2 {
+        margin-bottom: 20px;
+      }
+      .external-links {
+        margin-bottom: 24px;
+        > div {
+          margin-bottom: 15px;
+        }
+        a {
+          text-decoration: none;
+          img {
+            margin-left: 4px;
+            vertical-align: bottom;
+          }
+        }
+      }
+      .contributions {
+        margin-bottom: 58px;
+      }
+      .btn-end {
+        background: #989898;
+        opacity: 1;
+        cursor: default;
+      }
+    }
+
     @media (max-width: 991px) {
       .body-content {
         flex-direction: column;
@@ -743,6 +770,15 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 )}
               </div>
             )}
+            <div className="misc">
+              <div className="external-links">
+                <div>
+                  <a href={addressLink(library.addresses.Buyout, metamask.network)} target="_blank">
+                    Buyout contract <img src="/assets/external-link.svg" />
+                  </a>
+                </div>
+              </div>
+            </div>
             {buyoutStatus !== STATUS.STATUS_ENDED && (
               <div className="balance center">
                 <div>
