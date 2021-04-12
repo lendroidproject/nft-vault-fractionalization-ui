@@ -124,6 +124,7 @@ const Wrapper = styled.div`
       }
       .external-links {
         margin-bottom: 24px;
+        text-align: center;
         > div {
           margin-bottom: 15px;
         }
