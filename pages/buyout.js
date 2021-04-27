@@ -1,13 +1,13 @@
 import React from 'react'
 
 import SEO from 'layouts/seo'
-import Home from 'components/Home'
+import Buyout from 'components/Buyout'
 
 export default function BuyoutPage() {
   return (
     <>
-      <SEO title="Home" />
-      <Home />
+      <SEO title="Buyout" />
+      <Buyout />
     </>
   )
 }

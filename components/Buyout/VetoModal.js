@@ -369,8 +369,8 @@ function VetoModal({
               onChange={(v) => handleChange('b20', v)}
             />
             <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
+              <span></span>
               <span>Max: {format(b20Staked, 2)}</span>
-              <span>Balance: {format(b20Balance, 2)}</span>
             </div>
           </div>
           <Button onClick={() => onWithdraw && onWithdraw(formData.b20.value)} disabled={!formData.b20.isValid}>

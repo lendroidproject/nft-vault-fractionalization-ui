@@ -5,7 +5,7 @@ const reducer = (state, action) => {
     case 'METAMASK':
       return {
         ...state,
-        metamask: { ...state.metamask, ...action.payload, connected: true },
+        metamask: { ...state.metamask, ...action.payload, connected: !!action.payload.address },
         eventTimestamp: Date.now(),
       }
     case 'INIT_CONTRACTS':

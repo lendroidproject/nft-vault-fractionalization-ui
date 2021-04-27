@@ -118,6 +118,34 @@ const Wrapper = styled.div`
       vertical-align: bottom;
     }
 
+    .misc {
+      h2 {
+        margin-bottom: 20px;
+      }
+      .external-links {
+        margin-bottom: 24px;
+        text-align: center;
+        > div {
+          margin-bottom: 15px;
+        }
+        a {
+          text-decoration: none;
+          img {
+            margin-left: 4px;
+            vertical-align: bottom;
+          }
+        }
+      }
+      .contributions {
+        margin-bottom: 58px;
+      }
+      .btn-end {
+        background: #989898;
+        opacity: 1;
+        cursor: default;
+      }
+    }
+
     @media (max-width: 991px) {
       .body-content {
         flex-direction: column;
@@ -337,7 +365,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
             token0Staked: library.web3.utils.fromWei(token0Staked),
             lastVetoedBidId,
             redeemToken2Amount: library.web3.utils.fromWei(redeemToken2Amount),
-            rate: redeemToken2Amount / token0TotalSupply,
+            rate: new BigNumber(redeemToken2Amount).dividedBy(token0TotalSupply).toNumber(),
             buyoutInfo: {
               ...(data && data.buyoutInfo),
               epochs: Number(epochs),
@@ -541,7 +569,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
     },
     [library?.methods?.Buyout?.requiredToken0ToBid]
   )
-
   const vetoMeter = useMemo(() => {
     if (data?.totalSupply[0] && data?.buyoutInfo?.currentBidToken0Staked && data?.buyoutInfo?.stopThresholdPercent) {
       const numerator = data?.buyoutInfo?.currentBidToken0Staked
@@ -656,7 +683,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
               the entire bundle.
               <br />
               <br />
-              Your bid will stand for 48 epochs (each epoch is 8 hours), during which time someone else can outbid you.
+              Your bid will stand for 42 epochs (each epoch is 8 hours), during which time someone else can outbid you.
               If outbid, the new bid stands for 9 epochs. The community can veto a bid with a 12% consensus. If the
               community veto is successful, the minimum bid increases by 8%.
               <br />
@@ -697,7 +724,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 <div>
                   <p>Buyout Clock</p>
                   <h2 className="light" style={{ fontSize: '125%' }}>
-                    {data ? `B20 is available for redemption @ ${format(rate, 2)} DAI per B20` : '---'}
+                    {data ? `B20 is available for redemption @ ${format(data.rate, 2)} DAI per B20` : '---'}
                   </h2>
                 </div>
               </div>
@@ -744,6 +771,15 @@ export default connect((state) => state)(function Home({ metamask, library, even
                 )}
               </div>
             )}
+            <div className="misc">
+              <div className="external-links">
+                <div>
+                  <a href={addressLink(library.addresses.Buyout, metamask.network)} target="_blank">
+                    Buyout contract <img src="/assets/external-link.svg" />
+                  </a>
+                </div>
+              </div>
+            </div>
             {buyoutStatus !== STATUS.STATUS_ENDED && (
               <div className="balance center">
                 <div>
@@ -797,7 +833,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
       <BidModal
         minTotal={
           buyoutStatus === STATUS.STATUS_ACTIVE
-            ? new BigNumber(data?.bidValue).plus(1).toNumber(10)
+            ? new BigNumber(data?.bidValue).plus(250000).toNumber(10)
             : data?.buyoutInfo?.startThreshold
         }
         b20Balance={data?.balance[0]}

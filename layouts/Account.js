@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import Web3Modal from 'web3modal'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import Library from 'whalestreet-js'
-import { infuras, isSupportedNetwork, networkLabel, networks, networkLabels } from 'utils/etherscan'
+import { infuras, infuraProvider, isSupportedNetwork, networkLabel, networks, networkLabels } from 'utils/etherscan'
 import Button from 'components/common/Button'
 
 const addresses = {
@@ -15,7 +15,7 @@ const addresses = {
     Token2: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
     Market1: '0xfdaa5becfd7a397fa189909419a9caec8096890e',
     Market2: '0xaDb74ae0A618c0b7474B9f2e7B7CcecCF72f9676',
-    Buyout: '0x0000000000000000000000000000000000000000',
+    Buyout: '0x450e00a6a32728a25B9dD06D7a9cf7193c9a0162',
   },
   4: {
     Vault: '0x6C66dCC216B2324520bAcB9E3696A9F54238999a',
@@ -24,7 +24,7 @@ const addresses = {
     Token2: '0x629181550f19bCBfc2d2092a1B545eB48eFd8659',
     Market1: '0x594719f18d78dAA83e49C30660512d6592EE2B61',
     Market2: '0x594719f18d78dAA83e49C30660512d6592EE2B61',
-    Buyout: '0xfc4CF2059f872Cf133BeCaBB587192Ba8581D0f6',
+    Buyout: '0x764dB2b1CAd4E21E0Bb3ecEf3986D1B0Cfb7B1F7',
     // Buyout: '0x46beA64127391947da26edc8d537d74DB8225a54', // Revoked
   },
 }
@@ -72,7 +72,12 @@ class Account extends Component {
       },
       () => {
         this.setWeb3Modal(session.network)
-        this.connectWallet()
+        if (this.props.isStatic) {
+          const initialProvider = infuraProvider(session.network, infuras[session.network])
+          this.initLibrary(initialProvider)
+        } else {
+          this.connectWallet()
+        }
       }
     )
   }
@@ -93,7 +98,6 @@ class Account extends Component {
   }
 
   connectWallet() {
-    if (this.props.isStatic) return
     web3Modal
       .connect()
       .then((provider) => {
@@ -104,39 +108,41 @@ class Account extends Component {
 
   initLibrary(provider) {
     const contractAddresses = addresses[this.state.session.network]
+    const { dispatch, isStatic } = this.props
+    const handleEvent = (event) => {
+      switch (event.event) {
+        case 'PaymentReceived':
+          dispatch({
+            type: 'EVENT_DATA',
+            payload: Date.now(),
+          })
+          break
+        case 'WALLET':
+          if (event.status === 3) {
+            if (this.props.isStatic)
+            dispatch({
+              type: 'DISCONNECT',
+            })
+          } else {
+            if (event.status !== 0) {
+              this.props.library.setProvider(provider, contractAddresses)
+            }
+            dispatch({
+              type: 'METAMASK',
+              payload: event.data,
+            })
+          }
+          break
+        default:
+          break
+      }
+    }
     if (this.props.library) {
       this.props.library.setProvider(provider, contractAddresses)
+      this.props.library.options.onEvent = handleEvent;
     } else {
-      const { dispatch } = this.props
-      const handleEvent = (event) => {
-        switch (event.event) {
-          case 'PaymentReceived':
-            dispatch({
-              type: 'EVENT_DATA',
-              payload: Date.now(),
-            })
-            break
-          case 'WALLET':
-            if (event.status === 3) {
-              dispatch({
-                type: 'DISCONNECT',
-              })
-            } else {
-              if (event.status !== 0) {
-                this.props.library.setProvider(provider, contractAddresses)
-              }
-              dispatch({
-                type: 'METAMASK',
-                payload: event.data,
-              })
-            }
-            break
-          default:
-            break
-        }
-      }
       const library = new Library.B20(provider, {
-        onEvent: handleEvent,
+        onEvent: isStatic ? () => {} : handleEvent,
         addresses: contractAddresses,
       })
       dispatch({
