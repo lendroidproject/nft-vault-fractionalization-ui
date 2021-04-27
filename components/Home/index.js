@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import BigNumber from 'bignumber.js'
 import qs from 'qs'
 import Button from 'components/common/Button'
-import AssetList from 'components/Markets/AssetList'
+import Vault from 'components/Home/Vault'
 import { getAssets } from 'utils/api'
 import { format } from 'utils/number'
 import { addressLink, openseaLink, networks, connectNetworks, txLink } from 'utils/etherscan'
@@ -26,7 +26,7 @@ const Wrapper = styled.div`
   overflow: auto;
 
   background: var(--color-white);
-  padding: 24px 35px 20px;
+  padding: 20px 35px;
   width: 1216px;
   max-width: 100%;
   border: 1px solid #979797;
@@ -35,18 +35,26 @@ const Wrapper = styled.div`
     position: relative;
     margin-bottom: 20px;
     .header-title {
-      padding-bottom: 8px;
+      padding-bottom: 12px;
+    }
+    .home-title {
+      font-size: 36px;
+      line-height: 43px;
     }
   }
   .home-body {
     .body-title {
-      margin-bottom: 8px;
+      margin-bottom: 16px;
     }
-    .body-right {
-      width: calc(100% - 360px);
+    .content-wrapper {
+      max-width: 904px;
+      margin: auto;
     }
-    .body-left {
-      width: 310px;
+    .bg-wave {
+      margin: 0 -35px;
+      padding: 35px;
+      background: url(/assets/bg-waves.jpg);
+      background-size: cover;
     }
     .desc {
       padding-bottom: 24px;
@@ -115,17 +123,18 @@ const Wrapper = styled.div`
     }
 
     .misc {
-      h2 {
-        margin-bottom: 20px;
+      h1 {
+        margin-top: 40px;
+        margin-bottom: 24px;
       }
       .external-links {
-        margin-bottom: 24px;
         text-align: center;
         > div {
           margin-bottom: 15px;
         }
         a {
           text-decoration: none;
+          font-size: 16px;
           img {
             margin-left: 4px;
             vertical-align: bottom;
@@ -211,9 +220,6 @@ const RefreshTimer = styled.span`
   }
 `
 
-const MIN_ALLOWANCE = 10 ** 10
-const REFRESH_TIME = 60
-
 const getCountDownTimer = (endTime) => {
   let remainingTime = Math.floor((endTime - Date.now()) / 1000)
   const finished = remainingTime <= 0
@@ -240,7 +246,7 @@ const getCountDownTimer = (endTime) => {
 
 const BUYOUT_START_TIME = new Date('12 April 2021 00:00 GMT')
 
-export default connect((state) => state)(function Home({ metamask, library, eventTimestamp }) {
+export default connect((state) => state)(function Home({ library, eventTimestamp }) {
   const [now] = useTicker()
   const [assets, setAssets] = useState([])
   const [data, setData] = useState(null)
@@ -268,8 +274,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
       highestBidValues,
       currentBidId,
       currentEpoch,
-      token0Staked,
-      lastVetoedBidId,
       currentBidToken0Staked,
       stopThresholdPercent,
       redeemToken2Amount,
@@ -369,16 +373,6 @@ export default connect((state) => state)(function Home({ metamask, library, even
       .catch(console.log)
   }
 
-  const [timer, setTimer] = useState(REFRESH_TIME)
-  useEffect(() => {
-    if (timer > 0) {
-      setTimer(timer - 1)
-    } else {
-      setTimer(REFRESH_TIME)
-      loadData()
-    }
-  }, [now, setData])
-
   const vetoMeter = useMemo(() => {
     if (data?.totalSupply[0] && data?.buyoutInfo?.currentBidToken0Staked && data?.buyoutInfo?.stopThresholdPercent) {
       const numerator = data?.buyoutInfo?.currentBidToken0Staked
@@ -389,10 +383,10 @@ export default connect((state) => state)(function Home({ metamask, library, even
   }, [data?.totalSupply[0], data?.buyoutInfo?.currentBidToken0Staked, data?.buyoutInfo?.stopThresholdPercent])
 
   useEffect(() => {
-    if (library && !data && metamask.address) {
+    if (library && !data) {
       loadData(true)
     }
-  }, [library, data, metamask.address])
+  }, [library, data])
   useEffect(() => {
     if (eventTimestamp && data && eventTimestamp > data.timestamp) {
       loadData()
@@ -434,172 +428,139 @@ export default connect((state) => state)(function Home({ metamask, library, even
     }
   }, [library?.methods?.Vault])
 
-  const validNetwork = library && networks.includes(library.wallet.network)
-  if (!validNetwork)
-    return (
-      <Wrapper className="bg-opacity-07 flex-all">
-        <h3>{connectNetworks()}</h3>
-      </Wrapper>
-    )
+  if (!library) {
+    return null;
+  }
 
   return (
     <Wrapper>
       <div className="home-header">
         <div className="header-title border-bottom">
-          <h1 className="col-pink">THE BIG B.20 BUYOUT</h1>
-          <RefreshTimer className="refresh-timer">
-            Refreshing in
-            <svg width="126px" height="128px" viewBox="0 0 126 128">
-              <g id="Artboard" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
-                <g id="Group-2" transform="translate(5.000000, 4.000000)">
-                  <text
-                    x="46%"
-                    y="50%"
-                    style={{ fontSize: 45 }}
-                    fill="balck"
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                  >
-                    {timer}
-                  </text>
-                  <g id="Group">
-                    <ellipse cx="58.1176471" cy="8.10191083" rx="8.10588235" ry="8.10191083"></ellipse>
-                    <ellipse cx="82.2823529" cy="16.5095541" rx="8.10588235" ry="8.10191083"></ellipse>
-                    <ellipse cx="103.082353" cy="30.7261146" rx="8.10588235" ry="8.10191083"></ellipse>
-                    <ellipse cx="108.894118" cy="56.1019108" rx="8.10588235" ry="8.10191083"></ellipse>
-                    <ellipse cx="102.164706" cy="82.089172" rx="8.10588235" ry="8.10191083"></ellipse>
-                    <ellipse cx="86.2588235" cy="102.726115" rx="8.10588235" ry="8.10191083"></ellipse>
-                    <ellipse cx="59.8" cy="111.898089" rx="8.10588235" ry="8.10191083"></ellipse>
-                    <ellipse cx="33.3411765" cy="103.184713" rx="8.10588235" ry="8.10191083"></ellipse>
-                    <ellipse cx="14.2235294" cy="84.6878981" rx="8.10588235" ry="8.10191083"></ellipse>
-                    <ellipse cx="8.10588235" cy="59.3121019" rx="8.10588235" ry="8.10191083"></ellipse>
-                    <ellipse cx="14.5294118" cy="34.3949045" rx="8.10588235" ry="8.10191083"></ellipse>
-                    <ellipse cx="33.0352941" cy="16.3566879" rx="8.10588235" ry="8.10191083"></ellipse>
-                  </g>
-                </g>
-              </g>
-            </svg>
-          </RefreshTimer>
+          <h1 className="col-pink center home-title">THE BIG B.20 BUYOUT</h1>
         </div>
       </div>
       <div className="home-body">
-        <div className="body-content flex justify-between">
-          <div className="body-right">
+        <div className="body-content">
+          <div className="content-wrapper center">
             <div className="body-title">
-              <h4 className="uppercase">B20 Buyout</h4>
+              <h1>Vesting, drip distribution and buyout</h1>
             </div>
             <div className="desc">
-              Welcome to the Big B.20 Buyout. With a minimum bid of $58 million, you can begin the buyout process, for
-              the entire bundle.
-              <br />
-              <br />
-              Your bid will stand for 42 epochs (each epoch is 8 hours), during which time someone else can outbid you.
-              If outbid, the new bid stands for 9 epochs. The community can veto a bid with a 12% consensus. If the
-              community veto is successful, the minimum bid increases by 8%.
-              <br />
-              <br />
-              Good luck!
-            </div>
-            <div className="item-list">
-              <AssetList assets={assets} loading={!assets.length} />
+              Apart from the 16% public sale, all other allocations had a three-month vesting period.
+              However, the tokens were not locked up in the conventional sense. The first 10% of the tokens were made immediately available.
+              The smart contract enabled a linear 'drip distribution', where the remaining 90% was made available at the rate of 1% a day.
+              <br/><br/>
+              To ensure that the B.20 project left all avenues of financial upsides open for its patrons, a buyout clause was built in.
+              Successful buyouts would transfer the proceeds to all B20 token holders, pro rata.
             </div>
           </div>
-          <div className="body-left">
-            {buyoutStatus === STATUS.STATUS_NOT_STARTED ? (
-              <div className="subscriptions">
-                <div>
-                  <h3 className="light">Buyout begins in</h3>
-                  <div className="count-down">
-                    <h2 className="col-green light">{countDown ? countDown.timer : ''}</h2>
-                  </div>
-                </div>
-              </div>
-            ) : buyoutStatus === STATUS.STATUS_TIMEOUT ? (
-              <div className="subscriptions">
-                <div>
-                  <p>Buyout Clock</p>
-                  <h2 className="light" style={{ fontSize: '125%' }}>
-                    Buyout has ended with a winning bid of {format(data.bidValue, 2)} by&nbsp;
-                    <a href={addressLink(data.bidder, library?.wallet?.network)} target="_blank">
-                      {shorten(data.bidder)}
-                    </a>
-                    .
-                    <br />
-                    B20 redemption will be enabled soon.
-                  </h2>
-                </div>
-              </div>
-            ) : buyoutStatus === STATUS.STATUS_ENDED ? (
-              <div className="subscriptions">
-                <div>
-                  <p>Buyout Clock</p>
-                  <h2 className="light" style={{ fontSize: '125%' }}>
-                    {data ? `B20 is available for redemption @ ${format(data.rate, 2)} DAI per B20` : '---'}
-                  </h2>
-                </div>
-              </div>
-            ) : (
-              <div className="subscriptions">
-                <div>
-                  <p>Buyout Clock</p>
-                  {data ? (
-                    buyoutStatus === STATUS.STATUS_ACTIVE ? (
-                      <h2 className="col-green light">Ends in {getDuration(now, data.buyoutInfo.endTime)}</h2>
-                    ) : (
-                      <h2 className="light">Awaiting minimum bid of {format(data.buyoutInfo.startThreshold)} DAI</h2>
-                    )
-                  ) : (
-                    <h2 className="light">...</h2>
-                  )}
-                </div>
-                {buyoutStatus === STATUS.STATUS_ACTIVE && (
-                  <>
+          <div className="bg-wave">
+            <div className="content-wrapper center">
+              <div className="body-left">
+                {buyoutStatus === STATUS.STATUS_NOT_STARTED ? (
+                  <div className="subscriptions">
                     <div>
-                      <p>Highest Bid:</p>
-                      <h2>
-                        {buyoutStatus === STATUS.STATUS_ACTIVE ? (
-                          <>
-                            <img className="asset-icon" src="/assets/dai.svg" alt="DAI" />
-                            {format(data.bidValue, 0)} DAI
-                            <br />
-                            <span>
-                              by{' '}
-                              <a href={addressLink(data.bidder, library?.wallet?.network)} target="_blank">
-                                {shorten(data.bidder)}
-                              </a>
-                            </span>
-                          </>
-                        ) : (
-                          '---'
-                        )}
+                      <h3 className="light">Buyout begins in</h3>
+                      <div className="count-down">
+                        <h2 className="col-green light">{countDown ? countDown.timer : ''}</h2>
+                      </div>
+                    </div>
+                  </div>
+                ) : buyoutStatus === STATUS.STATUS_TIMEOUT ? (
+                  <div className="subscriptions">
+                    <div>
+                      <p>Buyout Clock</p>
+                      <h2 className="light" style={{ fontSize: '125%' }}>
+                        Buyout has ended with a winning bid of {format(data.bidValue, 2)} by&nbsp;
+                        <a href={addressLink(data.bidder, library?.wallet?.network)} target="_blank">
+                          {shorten(data.bidder)}
+                        </a>
+                        .
+                        <br />
+                        B20 redemption will be enabled soon.
                       </h2>
                     </div>
+                  </div>
+                ) : buyoutStatus === STATUS.STATUS_ENDED ? (
+                  <div className="subscriptions">
                     <div>
-                      <Gauge value={vetoMeter[2]} max={vetoMeter[1]} />
+                      <p>Buyout Clock</p>
+                      <h2 className="light" style={{ fontSize: '125%' }}>
+                        {data ? `B20 is available for redemption @ ${format(data.rate, 2)} DAI per B20` : '---'}
+                      </h2>
                     </div>
-                  </>
+                  </div>
+                ) : (
+                  <div className="subscriptions">
+                    <div>
+                      <p>Buyout Clock</p>
+                      {data ? (
+                        buyoutStatus === STATUS.STATUS_ACTIVE ? (
+                          <h2 className="col-green light">Ends in {getDuration(now, data.buyoutInfo.endTime)}</h2>
+                        ) : (
+                          <h2 className="light">Awaiting minimum bid of {format(data.buyoutInfo.startThreshold)} DAI</h2>
+                        )
+                      ) : (
+                        <h2 className="light">...</h2>
+                      )}
+                    </div>
+                    {buyoutStatus === STATUS.STATUS_ACTIVE && (
+                      <>
+                        <div>
+                          <p>Highest Bid:</p>
+                          <h2>
+                            {buyoutStatus === STATUS.STATUS_ACTIVE ? (
+                              <>
+                                <img className="asset-icon" src="/assets/dai.svg" alt="DAI" />
+                                {format(data.bidValue, 0)} DAI
+                                <br />
+                                <span>
+                                  by{' '}
+                                  <a href={addressLink(data.bidder, library?.wallet?.network)} target="_blank">
+                                    {shorten(data.bidder)}
+                                  </a>
+                                </span>
+                              </>
+                            ) : (
+                              '---'
+                            )}
+                          </h2>
+                        </div>
+                        <div>
+                          <Gauge value={vetoMeter[2]} max={vetoMeter[1]} />
+                        </div>
+                      </>
+                    )}
+                  </div>
                 )}
+                
               </div>
-            )}
+              <div className="item-list">
+                <Vault assets={assets} loading={!assets.length} />
+              </div>
+            </div>
+          </div>
+          <div className="content-wrapper center">
             <div className="misc">
-              <div className="external-links">
+              <h1>NFTs in the Bundle: {assets.length}</h1>
+              <div className="external-links flex justify-around">
                 <div>
-                  <a href={addressLink(library.addresses.Buyout, metamask.network)} target="_blank">
-                    Buyout contract <img src="/assets/external-link.svg" />
+                  <a href={addressLink(library.addresses.Token0, library.wallet.network)} target="_blank">
+                    B20 token contract <img src="/assets/external-link.svg" />
+                  </a>
+                </div>
+                <div>
+                  <a href={addressLink(library.addresses.Market2, library.wallet.network)} target="_blank">
+                    Sale Contract <img src="/assets/external-link.svg" />
+                  </a>
+                </div>
+                <div>
+                  <a href={openseaLink(library.addresses.Vault, library.wallet.network)} target="_blank">
+                    View Bundle on Opensea <img src="/assets/external-link.svg" />
                   </a>
                 </div>
               </div>
             </div>
-            {buyoutStatus !== STATUS.STATUS_ENDED && (
-              <div className="balance center">
-                <div>
-                  <h4 className="light balance-desc">
-                    To place a bid, you need DAI and 1% of all B20. To veto a bid, you just need B20. A bid is vetoed if
-                    12% of all B20 is staked.
-                  </h4>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>

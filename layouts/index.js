@@ -24,6 +24,7 @@ const Wrapper = styled.div`
     justify-content: space-between;
     align-items: flex-end;
     .app-logo {
+      cursor: pointer;
       > img {
         width: 70px;
       }
