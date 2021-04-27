@@ -29,10 +29,20 @@ const links = {
   4: 'https://rinkeby.etherscan.io',
   42: 'https://kovan.etherscan.io',
 }
+
+const infuraLinks = {
+  1: 'https://mainnet.infura.io/v3',
+  3: 'https://ropsten.infura.io/v3',
+  4: 'https://rinkeby.infura.io/v3',
+  5: 'https://goerli.infura.io/v3',
+  42: 'https://kovan.infura.io/v3',
+}
 export const networkLabel = (network) => networkLabels[network].split(' ')[0]
 export const txLink = (hash, network) => `${links[network]}/tx/${hash}`
 export const tokenLink = (addr, network) => `${links[network]}/token/${addr}`
 export const addressLink = (addr, network) => `${links[network]}/address/${addr}`
+export const infuraProvider = (network, infuraId) => `${infuraLinks[network]}/${infuraId}`
+
 const openseaLinks = {
   1: 'https://opensea.io',
   4: 'https://testnets.opensea.io',
