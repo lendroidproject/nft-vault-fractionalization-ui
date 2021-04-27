@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
+import Link from 'next/link'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
 import BigNumber from 'bignumber.js'
@@ -123,6 +124,10 @@ const Wrapper = styled.div`
         font-size: 18px;
         line-height: 21px;
       }
+    }
+
+    .launch-app {
+      margin-top: 45px;
     }
 
     .bid-desc {
@@ -558,6 +563,11 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
             <div className="content-wrapper">
               <div className="item-list">
                 <Vault assets={assets} loading={!assets.length} />
+              </div>
+              <div className="center launch-app">
+                <Link href="/buyout">
+                  <Button>Launch App</Button>
+                </Link>
               </div>
             </div>
           </div>
