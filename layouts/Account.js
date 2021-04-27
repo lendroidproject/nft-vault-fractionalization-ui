@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import Web3Modal from 'web3modal'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import Library from 'whalestreet-js'
-import { infuras, isSupportedNetwork, networkLabel, networks, networkLabels } from 'utils/etherscan'
+import { infuras, infuraProvider, isSupportedNetwork, networkLabel, networks, networkLabels } from 'utils/etherscan'
 import Button from 'components/common/Button'
 
 const addresses = {
@@ -72,7 +72,12 @@ class Account extends Component {
       },
       () => {
         this.setWeb3Modal(session.network)
-        this.connectWallet()
+        if (this.props.isStatic) {
+          const initialProvider = infuraProvider(session.network, infuras[session.network])
+          this.initLibrary(initialProvider)
+        } else {
+          this.connectWallet()
+        }
       }
     )
   }
@@ -93,7 +98,6 @@ class Account extends Component {
   }
 
   connectWallet() {
-    if (this.props.isStatic) return
     web3Modal
       .connect()
       .then((provider) => {
@@ -104,39 +108,41 @@ class Account extends Component {
 
   initLibrary(provider) {
     const contractAddresses = addresses[this.state.session.network]
+    const { dispatch, isStatic } = this.props
+    const handleEvent = (event) => {
+      switch (event.event) {
+        case 'PaymentReceived':
+          dispatch({
+            type: 'EVENT_DATA',
+            payload: Date.now(),
+          })
+          break
+        case 'WALLET':
+          if (event.status === 3) {
+            if (this.props.isStatic)
+            dispatch({
+              type: 'DISCONNECT',
+            })
+          } else {
+            if (event.status !== 0) {
+              this.props.library.setProvider(provider, contractAddresses)
+            }
+            dispatch({
+              type: 'METAMASK',
+              payload: event.data,
+            })
+          }
+          break
+        default:
+          break
+      }
+    }
     if (this.props.library) {
       this.props.library.setProvider(provider, contractAddresses)
+      this.props.library.options.onEvent = handleEvent;
     } else {
-      const { dispatch } = this.props
-      const handleEvent = (event) => {
-        switch (event.event) {
-          case 'PaymentReceived':
-            dispatch({
-              type: 'EVENT_DATA',
-              payload: Date.now(),
-            })
-            break
-          case 'WALLET':
-            if (event.status === 3) {
-              dispatch({
-                type: 'DISCONNECT',
-              })
-            } else {
-              if (event.status !== 0) {
-                this.props.library.setProvider(provider, contractAddresses)
-              }
-              dispatch({
-                type: 'METAMASK',
-                payload: event.data,
-              })
-            }
-            break
-          default:
-            break
-        }
-      }
       const library = new Library.B20(provider, {
-        onEvent: handleEvent,
+        onEvent: isStatic ? () => {} : handleEvent,
         addresses: contractAddresses,
       })
       dispatch({

@@ -55,31 +55,43 @@ const Wrapper = styled.div`
   }
 `
 
-const statics = ['/about']
+const statics = ['/about', '/']
 
-export default connect((state) => state)(function Layout({ children, metamask }) {
+export default connect((state) => state)(function Layout({ children, metamask, library }) {
   const router = useRouter()
   const isStatic = statics.includes(router.pathname)
+
   return (
     <Wrapper>
       <div className="app-header">
-        <div className="app-logo">
-          <img src="/assets/logo.svg" alt="B20" />
-        </div>
-        <div className="app-menu">
-          <Link href="/">
-            <Button className={router.pathname === '/' ? 'active' : 'inactive'}>Buyout</Button>
-          </Link>
-          <Link href="/about">
-            <Button className={router.pathname === '/about' ? 'active' : 'inactive'}>Know B20</Button>
-          </Link>
-          <Link href="/market1">
-            <Button className={router.pathname === '/market1' ? 'active' : 'inactive'}>Sale 1</Button>
-          </Link>
-          <Link href="/market2">
-            <Button className={router.pathname === '/market2' ? 'active' : 'inactive'}>Sale 2</Button>
-          </Link>
-        </div>
+        <Link href="/">
+          <div className="app-logo">
+            <img src="/assets/logo.svg" alt="B20" />
+          </div>
+        </Link>
+        {router.pathname === '/' ? (
+          <div className="app-menu">
+            <Link href="/buyout">
+              <Button>Launch App</Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="app-menu">
+            <Link href="/buyout">
+              <Button className={router.pathname === '/buyout' ? 'active' : 'inactive'}>Buyout</Button>
+            </Link>
+            <Link href="/about">
+              <Button className={router.pathname === '/about' ? 'active' : 'inactive'}>Know B20</Button>
+            </Link>
+            <Link href="/market1">
+              <Button className={router.pathname === '/market1' ? 'active' : 'inactive'}>Sale 1</Button>
+            </Link>
+            <Link href="/market2">
+              <Button className={router.pathname === '/market2' ? 'active' : 'inactive'}>Sale 2</Button>
+            </Link>
+          </div>
+        )}
+        
       </div>
       {isStatic ? children : metamask && metamask.connected && children}
       <Account isStatic={isStatic} />
