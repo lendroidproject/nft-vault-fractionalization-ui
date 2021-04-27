@@ -60,22 +60,37 @@ const Wrapper = styled.div`
       padding-bottom: 24px;
       margin-bottom: 10px;
     }
-    .subscriptions {
-      padding: 20px;
-      box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.14);
+    .info-wrapper {
+      display: flex;
       background-color: #fbfbfb;
       border: 1px solid #e0e0e0;
       border-radius: 4px;
       margin-bottom: 24px;
-      text-align: center;
+      box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.14);
+      padding: 20px;
+    }
+    .info-left {
+      margin-right: auto;
+      padding: 0 20px;
+    }
+    .info-right {
+      border-left: 1px solid var(--color-border);
+      padding: 0 20px;
+    }
+    .subscriptions {
+      display: flex;
+      justify-content: space-between;
       > div {
-        margin-bottom: 20px;
+        margin-right: 20px;
         &:last-of-type {
           margin-bottom: 0;
         }
       }
       p {
         font-size: 12px;
+      }
+      h2 {
+        font-size: 18px;
       }
       h2 span {
         font-size: 12px;
@@ -110,6 +125,11 @@ const Wrapper = styled.div`
       }
     }
 
+    .bid-desc {
+      margin: 24px 0 20px;
+      color: var(--color-dark-grey);
+    }
+
     .or-divider {
       margin: 5px 0;
     }
@@ -119,7 +139,7 @@ const Wrapper = styled.div`
       width: 24px;
       height: 24px;
       margin-right: 6px;
-      vertical-align: bottom;
+      vertical-align: middle;
     }
 
     .misc {
@@ -428,10 +448,6 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
     }
   }, [library?.methods?.Vault])
 
-  if (!library) {
-    return null;
-  }
-
   return (
     <Wrapper>
       <div className="home-header">
@@ -455,65 +471,67 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
             </div>
           </div>
           <div className="bg-wave">
-            <div className="content-wrapper center">
-              <div className="body-left">
-                {buyoutStatus === STATUS.STATUS_NOT_STARTED ? (
-                  <div className="subscriptions">
-                    <div>
-                      <h3 className="light">Buyout begins in</h3>
-                      <div className="count-down">
-                        <h2 className="col-green light">{countDown ? countDown.timer : ''}</h2>
+            <div className="content-wrapper">
+              <div className="info-wrapper">
+                <div className="info-left">
+                  <h3 className="light bid-desc">
+                    To place a bid, you need DAI and 1% of all B20. To veto a bid, you just need B20.
+                    A bid is vetoed if 12% of all B20 is staked.
+                  </h3>
+                  {buyoutStatus === STATUS.STATUS_NOT_STARTED ? (
+                    <div className="subscriptions">
+                      <div>
+                        <h3 className="light">Buyout begins in</h3>
+                        <div className="count-down">
+                          <h2 className="col-green light">{countDown ? countDown.timer : ''}</h2>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ) : buyoutStatus === STATUS.STATUS_TIMEOUT ? (
-                  <div className="subscriptions">
-                    <div>
-                      <p>Buyout Clock</p>
-                      <h2 className="light" style={{ fontSize: '125%' }}>
-                        Buyout has ended with a winning bid of {format(data.bidValue, 2)} by&nbsp;
-                        <a href={addressLink(data.bidder, library?.wallet?.network)} target="_blank">
-                          {shorten(data.bidder)}
-                        </a>
-                        .
-                        <br />
-                        B20 redemption will be enabled soon.
-                      </h2>
+                  ) : buyoutStatus === STATUS.STATUS_TIMEOUT ? (
+                    <div className="subscriptions">
+                      <div>
+                        <p>Buyout Clock</p>
+                        <h2 className="light" style={{ fontSize: '125%' }}>
+                          Buyout has ended with a winning bid of {format(data.bidValue, 2)} by &nbsp;
+                          <a href={addressLink(data.bidder, library?.wallet?.network)} target="_blank">
+                            {shorten(data.bidder, 10)}
+                          </a>.
+                          <br />
+                          B20 redemption will be enabled soon.
+                        </h2>
+                      </div>
                     </div>
-                  </div>
-                ) : buyoutStatus === STATUS.STATUS_ENDED ? (
-                  <div className="subscriptions">
-                    <div>
-                      <p>Buyout Clock</p>
-                      <h2 className="light" style={{ fontSize: '125%' }}>
-                        {data ? `B20 is available for redemption @ ${format(data.rate, 2)} DAI per B20` : '---'}
-                      </h2>
+                  ) : buyoutStatus === STATUS.STATUS_ENDED ? (
+                    <div className="subscriptions">
+                      <div>
+                        <p>Buyout Clock</p>
+                        <h2 className="light" style={{ fontSize: '125%' }}>
+                          {data ? `B20 is available for redemption @ ${format(data.rate, 2)} DAI per B20` : '---'}
+                        </h2>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="subscriptions">
-                    <div>
-                      <p>Buyout Clock</p>
-                      {data ? (
-                        buyoutStatus === STATUS.STATUS_ACTIVE ? (
-                          <h2 className="col-green light">Ends in {getDuration(now, data.buyoutInfo.endTime)}</h2>
+                  ) : (
+                    <div className="subscriptions">
+                      <div>
+                        <p>Buyout Clock</p>
+                        {data ? (
+                          buyoutStatus === STATUS.STATUS_ACTIVE ? (
+                            <h2 className="col-green light">Ends in {getDuration(now, data.buyoutInfo.endTime)}</h2>
+                          ) : (
+                            <h2 className="light">Awaiting minimum bid of {format(data.buyoutInfo.startThreshold)} DAI</h2>
+                          )
                         ) : (
-                          <h2 className="light">Awaiting minimum bid of {format(data.buyoutInfo.startThreshold)} DAI</h2>
-                        )
-                      ) : (
-                        <h2 className="light">...</h2>
-                      )}
-                    </div>
-                    {buyoutStatus === STATUS.STATUS_ACTIVE && (
-                      <>
+                          <h2 className="light">...</h2>
+                        )}
+                      </div>
+                      {buyoutStatus === STATUS.STATUS_ACTIVE && (
                         <div>
                           <p>Highest Bid:</p>
                           <h2>
                             {buyoutStatus === STATUS.STATUS_ACTIVE ? (
                               <>
                                 <img className="asset-icon" src="/assets/dai.svg" alt="DAI" />
-                                {format(data.bidValue, 0)} DAI
-                                <br />
+                                {format(data.bidValue, 0)} DAI &nbsp;&nbsp;
                                 <span>
                                   by{' '}
                                   <a href={addressLink(data.bidder, library?.wallet?.network)} target="_blank">
@@ -526,15 +544,18 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
                             )}
                           </h2>
                         </div>
-                        <div>
-                          <Gauge value={vetoMeter[2]} max={vetoMeter[1]} />
-                        </div>
-                      </>
-                    )}
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div className="info-right">
+                  <div>
+                    <Gauge value={vetoMeter[2]} max={vetoMeter[1]} />
                   </div>
-                )}
-                
+                </div>
               </div>
+            </div>
+            <div className="content-wrapper">
               <div className="item-list">
                 <Vault assets={assets} loading={!assets.length} />
               </div>
@@ -545,17 +566,17 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
               <h1>NFTs in the Bundle: {assets.length}</h1>
               <div className="external-links flex justify-around">
                 <div>
-                  <a href={addressLink(library.addresses.Token0, library.wallet.network)} target="_blank">
+                  <a href={addressLink(library?.addresses?.Token0, library?.wallet?.network)} target="_blank">
                     B20 token contract <img src="/assets/external-link.svg" />
                   </a>
                 </div>
                 <div>
-                  <a href={addressLink(library.addresses.Market2, library.wallet.network)} target="_blank">
-                    Sale Contract <img src="/assets/external-link.svg" />
+                  <a href={addressLink(library?.addresses?.Buyout, library?.wallet?.network)} target="_blank">
+                    Buyout Contract <img src="/assets/external-link.svg" />
                   </a>
                 </div>
                 <div>
-                  <a href={openseaLink(library.addresses.Vault, library.wallet.network)} target="_blank">
+                  <a href={openseaLink(library?.addresses?.Vault, library?.wallet?.network)} target="_blank">
                     View Bundle on Opensea <img src="/assets/external-link.svg" />
                   </a>
                 </div>

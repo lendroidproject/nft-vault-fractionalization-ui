@@ -12,7 +12,7 @@ const Wrapper = styled.div`
   border-radius: 4px;
   background-color: rgba(255,255,255,0.4);
   box-shadow: 0 2px 15px 0 rgb(0 0 0 / 14%);
-  padding: 24px 0;
+  padding: 16px 0 24px;
   position: relative;
   min-height: 500px;
 
