@@ -385,7 +385,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
               ...(data && data.buyoutInfo),
               epochs: Number(epochs),
               status: Number(status),
-              startThreshold: new BigNumber(library.web3.utils.fromWei(startThreshold)).plus('250000').toString(10),
+              startThreshold: new BigNumber(library.web3.utils.fromWei(startThreshold)).toString(10),
               currentBidToken0Staked: Number(library.web3.utils.fromWei(currentBidToken0Staked)),
             },
           }
