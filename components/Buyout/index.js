@@ -248,9 +248,9 @@ const getCountDownTimer = (endTime) => {
   const secs = remainingTime
   return {
     finished,
-    timer: `${days} D : ${hours.toString().padStart(2, '0')} H: ${mins
+    timer: `${days} D : ${hours.toString().padStart(2, '0')} H: ${mins.toString().padStart(2, '0')} M : ${secs
       .toString()
-      .padStart(2, '0')} M : ${secs.toString().padStart(2, '0')} S`,
+      .padStart(2, '0')} S`,
   }
 }
 
@@ -629,23 +629,21 @@ export default connect((state) => state)(function Home({ metamask, library, even
               asset.category = matching ? matching.category : 'Other'
               return asset
             })
-            return assets;
+            return assets
           }
         } catch (err) {
           console.log(err)
         }
-        return [];
+        return []
       }
-      Promise.all([
-        queryAssets(library.methods.Vault),
-        queryAssets(library.methods.Vault2)
-      ])
-        .then(([vaultAssets, vault2Assets]) => {
+      Promise.all([queryAssets(library.methods.Vault), queryAssets(library.methods.Vault2)]).then(
+        ([vaultAssets, vault2Assets]) => {
           setAssets({
             vault: vaultAssets,
             vault2: vault2Assets,
-          });
-        })
+          })
+        }
+      )
     }
   }, [library?.methods?.Vault, library?.methods?.Vault2])
 
@@ -701,11 +699,11 @@ export default connect((state) => state)(function Home({ metamask, library, even
         <div className="body-content flex justify-between">
           <div className="body-right">
             <div className="body-title">
-              <h4 className="uppercase">B20 Buyout</h4>
+              <h4 className="uppercase">B.20 Master Key</h4>
             </div>
             <div className="desc">
               Welcome to the Big B.20 Buyout. With a minimum bid of $58 million, you can begin the buyout process, for
-              the entire bundle.
+              the B.20 Master Key.
               <br />
               <br />
               Your bid will stand for 42 epochs (each epoch is 8 hours), during which time someone else can outbid you.
@@ -862,7 +860,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
         minTotal={
           buyoutStatus === STATUS.STATUS_ACTIVE
             ? new BigNumber(data?.bidValue).plus(250000).toNumber(10)
-            : data?.buyoutInfo?.startThreshold
+            : data?.buyoutInfo?.startThreshold + 1
         }
         b20Balance={data?.balance[0]}
         b20Allowance={data?.allowance[0]}

@@ -3,7 +3,7 @@ import Spinner from 'components/common/Spinner'
 
 const Wrapper = styled.div`
   border-radius: 4px;
-  background-color: rgba(255,255,255,0.4);
+  background-color: rgba(255, 255, 255, 0.4);
   box-shadow: 0 2px 15px 0 rgb(0 0 0 / 14%);
   padding: 16px;
   position: relative;
@@ -23,10 +23,10 @@ const Wrapper = styled.div`
   }
 `
 
-export default function Vault({ assets = [], loading = false, title="Master Vault", className="" }) {
+export default function Vault({ assets = [], loading = false, title = 'Master Vault', className = '' }) {
   return (
     <Wrapper className={className}>
-      {title && (<h1 className="title center">{title}</h1>)}
+      {title && <h1 className="title center">{title}</h1>}
       {loading ? (
         <Spinner />
       ) : (
@@ -35,7 +35,7 @@ export default function Vault({ assets = [], loading = false, title="Master Vaul
             <div className="asset" key={asset.id}>
               <video
                 id={`media-${asset.id}`}
-                autoPlay
+                // autoPlay
                 className="media"
                 controlsList="nodownload"
                 loop

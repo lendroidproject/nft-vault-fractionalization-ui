@@ -476,14 +476,11 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
               <h1>Vesting, drip distribution and buyout</h1>
             </div>
             <div className="desc">
-              Apart from the 16% public sale, all other allocations had a three-month vesting period. However, the
-              tokens were not locked up in the conventional sense. The first 10% of the tokens were made immediately
-              available. The smart contract enabled a linear 'drip distribution', where the remaining 90% was made
-              available at the rate of 1% a day.
-              <br />
-              <br />
-              To ensure that the B.20 project left all avenues of financial upsides open for its patrons, a buyout
-              clause was built in. Successful buyouts would transfer the proceeds to all B20 token holders, pro rata.
+              When a buyout is triggered, you are bidding for the B.20 Master Key - the single most powerful NFT in the
+              metaverse. It gives the holder the right to unlock the entire B.20 bundle - vast virtual estates and
+              monuments across Cryptovoxels, Somnium Space and Decentraland; the 20 iconic single edition pieces of
+              Beeple's 2020 Everydays; and an original soundscape. Only the owner of this NFT can access and unlock the
+              bundle.
             </div>
           </div>
           <div className="bg-wave">
