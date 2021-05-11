@@ -597,11 +597,11 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
                     B20 token contract <img src="/assets/external-link.svg" />
                   </a>
                 </div>
-                <div>
+                {/* <div>
                   <a href={addressLink(library?.addresses?.Buyout, library?.wallet?.network)} target="_blank">
                     Buyout Contract <img src="/assets/external-link.svg" />
                   </a>
-                </div>
+                </div> */}
                 <div>
                   <a href={openseaLink(library?.addresses?.Vault, library?.wallet?.network)} target="_blank">
                     Master Vault on Opensea <img src="/assets/external-link.svg" />

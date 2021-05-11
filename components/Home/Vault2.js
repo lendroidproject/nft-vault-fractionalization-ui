@@ -101,7 +101,7 @@ function groupByCategory(assets) {
   return result
 }
 
-export default function Vault2({ assets = [], loading = false, title="B20 Vault" }) {
+export default function Vault2({ assets = [], loading = false, title="B20 Vault", className="" }) {
   const [showAssetModal, setShowAssetModal] = useState(false)
   const [selectedAsset, setSelectedAsset] = useState()
 
@@ -129,8 +129,8 @@ export default function Vault2({ assets = [], loading = false, title="B20 Vault"
   }
 
   return (
-    <Wrapper>
-      <h1 className="title center">{title}</h1>
+    <Wrapper className={className}>
+      {title && (<h1 className="title center">{title}</h1>)}
       {loading ? (
         <Spinner />
       ) : (

@@ -23,10 +23,10 @@ const Wrapper = styled.div`
   }
 `
 
-export default function Vault({ assets = [], loading = false, title="Master Vault" }) {
+export default function Vault({ assets = [], loading = false, title="Master Vault", className="" }) {
   return (
-    <Wrapper className="vault-assets">
-      <h1 className="title center">{title}</h1>
+    <Wrapper className={className}>
+      {title && (<h1 className="title center">{title}</h1>)}
       {loading ? (
         <Spinner />
       ) : (

@@ -5,6 +5,7 @@ import BigNumber from 'bignumber.js'
 import qs from 'qs'
 import Button from 'components/common/Button'
 import AssetList from 'components/Markets/AssetList'
+import Vault from 'components/Home/Vault'
 import { getAssets } from 'utils/api'
 import { format } from 'utils/number'
 import { addressLink, openseaLink, networks, connectNetworks, txLink } from 'utils/etherscan'
@@ -146,6 +147,17 @@ const Wrapper = styled.div`
       }
     }
 
+    .vault-title {
+      margin-bottom: 10px;
+    }
+
+    .vault-master {
+      padding: 0;
+      box-shadow: none;
+      border-radius: none;
+      min-height: 400px;
+    }
+
     @media (max-width: 991px) {
       .body-content {
         flex-direction: column;
@@ -246,7 +258,10 @@ const BUYOUT_START_TIME = new Date('12 April 2021 00:00 GMT')
 
 export default connect((state) => state)(function Home({ metamask, library, eventTimestamp }) {
   const [now] = useTicker()
-  const [assets, setAssets] = useState([])
+  const [assets, setAssets] = useState({
+    vault: [],
+    vault2: [],
+  })
   const [data, setData] = useState(null)
   const [showBidModal, setShowBidModal] = useState(false)
   const [showVetoModal, setShowVetoModal] = useState(false)
@@ -591,10 +606,10 @@ export default connect((state) => state)(function Home({ metamask, library, even
 
   useEffect(() => {
     if (library?.methods?.Vault) {
-      const queryAssets = async function () {
+      const queryAssets = async function (contract) {
         try {
-          const assetsCount = await library.methods.Vault.totalAssets()
-          const tokenAssets = await library.methods.Vault.assets(0, assetsCount)
+          const assetsCount = await contract.totalAssets()
+          const tokenAssets = await contract.assets(0, assetsCount)
           const result = await getAssets(
             {
               token_ids: tokenAssets.map(({ tokenId }) => tokenId),
@@ -614,15 +629,25 @@ export default connect((state) => state)(function Home({ metamask, library, even
               asset.category = matching ? matching.category : 'Other'
               return asset
             })
-            setAssets(assets)
+            return assets;
           }
         } catch (err) {
           console.log(err)
         }
+        return [];
       }
-      queryAssets()
+      Promise.all([
+        queryAssets(library.methods.Vault),
+        queryAssets(library.methods.Vault2)
+      ])
+        .then(([vaultAssets, vault2Assets]) => {
+          setAssets({
+            vault: vaultAssets,
+            vault2: vault2Assets,
+          });
+        })
     }
-  }, [library?.methods?.Vault])
+  }, [library?.methods?.Vault, library?.methods?.Vault2])
 
   const validNetwork = library && networks.includes(library.wallet.network)
   if (!validNetwork)
@@ -691,7 +716,10 @@ export default connect((state) => state)(function Home({ metamask, library, even
               Good luck!
             </div>
             <div className="item-list">
-              <AssetList assets={assets} loading={!assets.length} />
+              <h1 className="vault-title">Master Vault</h1>
+              <Vault assets={assets.vault} loading={!assets.vault.length} title="" className="vault vault-master" />
+              <h1 className="vault-title">B20 Vault</h1>
+              <AssetList assets={assets.vault2} loading={!assets.vault2.length} className="vault vault-b20" />
             </div>
           </div>
           <div className="body-left">
