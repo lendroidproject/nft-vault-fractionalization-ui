@@ -473,7 +473,7 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
         <div className="body-content">
           <div className="content-wrapper center">
             <div className="body-title">
-              <h1>Vesting, drip distribution and buyout</h1>
+              <h1>BUYING OUT THE MOST POWERFUL NFT IN THE METAVERSE</h1>
             </div>
             <div className="desc">
               When a buyout is triggered, you are bidding for the B.20 Master Key - the single most powerful NFT in the
