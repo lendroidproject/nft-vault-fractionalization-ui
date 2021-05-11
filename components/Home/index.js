@@ -28,7 +28,7 @@ const Wrapper = styled.div`
   overflow: auto;
 
   background: var(--color-white);
-  padding: 20px 35px;
+  padding: 20px 35px 35px;
   width: 1216px;
   max-width: 100%;
   border: 1px solid #979797;
@@ -596,20 +596,27 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
                   <a href={addressLink(library?.addresses?.Token0, library?.wallet?.network)} target="_blank">
                     B20 token contract <img src="/assets/external-link.svg" />
                   </a>
-                </div>
-                {/* <div>
+                  <br /><br />
                   <a href={addressLink(library?.addresses?.Buyout, library?.wallet?.network)} target="_blank">
                     Buyout Contract <img src="/assets/external-link.svg" />
                   </a>
-                </div> */}
+                </div>
                 <div>
                   <a href={openseaLink(library?.addresses?.Vault, library?.wallet?.network)} target="_blank">
                     Master Vault on Opensea <img src="/assets/external-link.svg" />
                   </a>
+                  <br /><br />
+                  <a href={addressLink(library?.addresses?.Vault, library?.wallet?.network)} target="_blank">
+                    Master Vault Contract <img src="/assets/external-link.svg" />
+                  </a>
                 </div>
                 <div>
                   <a href={openseaLink(library?.addresses?.Vault2, library?.wallet?.network)} target="_blank">
-                    B20 Vault on Opensea <img src="/assets/external-link.svg" />
+                    B.20 Vault on Opensea <img src="/assets/external-link.svg" />
+                  </a>
+                  <br /><br />
+                  <a href={addressLink(library?.addresses?.Vault2, library?.wallet?.network)} target="_blank">
+                    B.20 Vault Contract <img src="/assets/external-link.svg" />
                   </a>
                 </div>
               </div>
