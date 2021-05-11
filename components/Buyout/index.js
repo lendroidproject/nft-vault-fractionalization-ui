@@ -718,7 +718,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
             <div className="item-list">
               <h1 className="vault-title">Master Vault</h1>
               <Vault assets={assets.vault} loading={!assets.vault.length} title="" className="vault vault-master" />
-              <h1 className="vault-title">B20 Vault</h1>
+              <h1 className="vault-title">B.20 Vault</h1>
               <AssetList assets={assets.vault2} loading={!assets.vault2.length} className="vault vault-b20" />
             </div>
           </div>
