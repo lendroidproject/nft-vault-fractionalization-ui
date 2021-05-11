@@ -3,8 +3,6 @@ import styled from 'styled-components'
 import Slider from 'rc-slider'
 import NumberFormat from 'react-number-format'
 import 'rc-slider/assets/index.css'
-import { format } from 'utils/number'
-import Input from './NumberInput'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -54,12 +52,20 @@ const Wrapper = styled.div`
   }
 `
 
-const RangeInput = ({ label = null, min = 0, max, value, disabled, readOnly, onChange, inputProps = {}, sliderProps = {} }) => {
+const RangeInput = ({
+  label = null,
+  min = 0,
+  max,
+  value,
+  disabled,
+  readOnly,
+  onChange,
+  inputProps = {},
+  sliderProps = {},
+}) => {
   return (
     <Wrapper className={`slider`}>
-      <label>
-        {label}
-      </label>
+      <label>{label}</label>
       <div className="input-wrapper">
         <NumberFormat
           {...inputProps}
@@ -70,9 +76,9 @@ const RangeInput = ({ label = null, min = 0, max, value, disabled, readOnly, onC
           readOnly={!!readOnly}
           onValueChange={({ floatValue }) => onChange && onChange(floatValue)}
         />
-        {(!disabled && !readOnly) && <img className="input-editable" src="/assets/edit.svg" alt="Edit" />}
+        {!disabled && !readOnly && <img className="input-editable" src="/assets/edit.svg" alt="Edit" />}
       </div>
-      {(!disabled && !readOnly) && <Slider {...sliderProps} {...{ min, max, value, onChange }} />}
+      {!disabled && !readOnly && <Slider {...sliderProps} {...{ min, max, value, onChange, step: 0.01 }} />}
     </Wrapper>
   )
 }

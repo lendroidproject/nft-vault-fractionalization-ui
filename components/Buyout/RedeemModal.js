@@ -2,7 +2,8 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 import Button from 'components/common/Button'
-import Input from 'components/common/NumberInput'
+// import Input from 'components/common/NumberInput'
+import RangeInput from 'components/common/RangeInput'
 import { format } from 'utils/number'
 
 const Wrapper = styled.div`
@@ -45,14 +46,14 @@ const Content = styled.div`
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     background-color: #fbfbfb;
-    box-shadow: 0 6px 8px 0 rgba(0,0,0,0.5);
+    box-shadow: 0 6px 8px 0 rgba(0, 0, 0, 0.5);
   }
 
   .modal-content {
     width: 100%;
     border-radius: 4px;
-    background-color: #FBFBFB;
-    box-shadow: 0 2px 15px 0 rgba(0,0,0,0.14);
+    background-color: #fbfbfb;
+    box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.14);
     padding: 20px;
     margin-top: 25px;
   }
@@ -105,33 +106,39 @@ const Content = styled.div`
       min-width: 175px;
     }
   }
+  .input-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    span {
+      display: flex;
+      align-items: center;
+    }
+    img {
+      border-radius: 50%;
+      width: 24px;
+    }
+  }
 `
 
-function RedeemModal({
-  rate=0,
-  b20Balance = 0,
-  b20Allowance = 0,
-  show,
-  onHide,
-  onRedeem,
-  onApproveB20,
-}) {
+function RedeemModal({ rate = 0, b20Balance = 0, b20Allowance = 0, show, onHide, onRedeem, onApproveB20 }) {
   const [formData, setFormData] = useState({
     b20: {
       value: '',
       hasError: false,
       isValid: false,
-      error: ''
+      error: '',
     },
   })
 
-  const b20Validator = useCallback((value) => (value >= 0), [])
+  const b20Validator = useCallback((value) => value >= 0, [])
 
   const validators = {
     b20: b20Validator,
   }
 
-  const handleChange = (name, { floatValue: value }) => {
+  const handleChange = (name, value) => {
     const isValid = validators[name](value)
     setFormData({
       ...formData,
@@ -139,35 +146,50 @@ function RedeemModal({
         value,
         hasError: !isValid,
         isValid,
-        error: ''
-      }
+        error: '',
+      },
     })
   }
 
   const resetForm = () => {
     setFormData({
       b20: {
-        value: '',
+        value: 0,
         hasError: false,
         isValid: false,
-        error: ''
+        error: '',
       },
     })
   }
 
-  const b20InputSuffix = () => (
-    <div className="suffix">
-      {(b20Allowance < formData.b20.value) && (
+  // const b20InputSuffix = () => (
+  //   <div className="suffix">
+  //     {b20Allowance < formData.b20.value && (
+  //       <Button className="btn-approve" onClick={() => onApproveB20 && onApproveB20(formData.b20.value)}>
+  //         Approve
+  //       </Button>
+  //     )}
+  //     <img className="asset-icon" src="/assets/b20.svg" alt="B20" />
+  //   </div>
+  // )
+  const labelB20 = (
+    <div className="input-label">
+      <span>
+        <img src="/assets/b20.svg" alt="B20" />
+        &nbsp;&nbsp;B20
+      </span>
+      {b20Allowance < formData.b20.value && (
         <Button className="btn-approve" onClick={() => onApproveB20 && onApproveB20(formData.b20.value)}>
-          Approve
+          Approve B20
         </Button>
       )}
-      <img className="asset-icon" src="/assets/b20.svg" alt="B20" />
     </div>
   )
 
   useEffect(() => {
-    if (show) { resetForm() }
+    if (show) {
+      resetForm()
+    }
   }, [show])
 
   return ReactDOM.createPortal(
@@ -175,14 +197,15 @@ function RedeemModal({
       <Content onMouseDown={(e) => e.stopPropagation()}>
         <div className="modal-body">
           <button className="btn-close" onClick={() => onHide && onHide()}>
-            <img src="/assets/arrow-right-black.svg" />Go Back
+            <img src="/assets/arrow-right-black.svg" />
+            Go Back
           </button>
           <div className="modal-header">
             <h1 className="col-blue modal-title">Redeem</h1>
           </div>
           <div className="modal-content">
             <div className="form-input">
-              <Input
+              {/* <Input
                 id="b20"
                 name="b20"
                 label="B20"
@@ -190,20 +213,24 @@ function RedeemModal({
                 onValueChange={(v) => handleChange('b20', v)}
                 pattern="/^\s*\d+(\.\d{1,2})?\s*$/"
                 suffix={b20InputSuffix}
+              /> */}
+              <RangeInput
+                label={labelB20}
+                inputProps={{
+                  className: 'center',
+                }}
+                max={b20Balance}
+                value={formData.b20.value}
+                onChange={(v) => handleChange('b20', v)}
               />
               <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
                 <span></span>
                 <span>Balance: {format(b20Balance, 2)}</span>
               </div>
             </div>
-            <h3 className="center">
-              You will get {format(rate * formData.b20.value)} DAI.
-            </h3>
+            <h3 className="center">You will get {format(rate * formData.b20.value)} DAI.</h3>
             <div className="modal-footer">
-              <Button
-                onClick={() => onRedeem && onRedeem(formData.b20.value)}
-                disabled={!formData.b20.isValid}
-              >
+              <Button onClick={() => onRedeem && onRedeem(formData.b20.value)} disabled={!formData.b20.isValid}>
                 <span>Continue</span>
               </Button>
             </div>
