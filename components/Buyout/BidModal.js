@@ -76,7 +76,7 @@ const Content = styled.div`
     line-height: 14px;
     padding: 5px;
   }
-  .form-input{
+  .form-input {
     margin-bottom: 30px;
   }
   .input-label {
@@ -156,7 +156,10 @@ function BidModal({
   })
 
   const totalValidator = useCallback((value) => value >= minTotal, [minTotal])
-  const daiValidator = useCallback((value) => value >= 0 && value <= formData.total.value, [formData.total.value])
+  const daiValidator = useCallback(
+    (value) => value > 0 && value <= formData.total.value && value <= daiBalance,
+    [formData.total.value]
+  )
   const b20Validator = useCallback((value) => value >= MIN_B20_AMOUNT && value <= b20Balance, [formData.b20.value])
 
   const validators = {
@@ -204,7 +207,9 @@ function BidModal({
   const labelTotal = (
     <div className="input-label">
       <span>
-        <img src="/assets/dai.svg" alt="DAI" />&nbsp;+&nbsp;<img src="/assets/b20.svg" alt="B20" />
+        <img src="/assets/dai.svg" alt="DAI" />
+        &nbsp;+&nbsp;
+        <img src="/assets/b20.svg" alt="B20" />
         &nbsp;&nbsp;Total Bid Value
       </span>
     </div>
@@ -212,7 +217,8 @@ function BidModal({
   const labelDai = (
     <div className="input-label">
       <span>
-        <img src="/assets/dai.svg" alt="DAI" />&nbsp;&nbsp;DAI
+        <img src="/assets/dai.svg" alt="DAI" />
+        &nbsp;&nbsp;DAI
       </span>
       {daiAllowance < formData.dai.value && (
         <Button className="btn-approve" onClick={() => onApproveDai && onApproveDai(formData.dai.value)}>
@@ -224,7 +230,8 @@ function BidModal({
   const labelB20 = (
     <div className="input-label">
       <span>
-        <img src="/assets/b20.svg" alt="B20" />&nbsp;&nbsp;B20
+        <img src="/assets/b20.svg" alt="B20" />
+        &nbsp;&nbsp;B20
       </span>
       {b20Allowance < formData.b20.value && (
         <Button className="btn-approve" onClick={() => onApproveB20 && onApproveB20(formData.b20.value)}>
@@ -272,10 +279,10 @@ function BidModal({
               <RangeInput
                 label={labelTotal}
                 inputProps={{
-                  className: 'center'
+                  className: 'center',
                 }}
                 min={Number(minTotal)}
-                max={10**9}
+                max={10 ** 9}
                 value={formData.total.value}
                 onChange={(v) => handleChange('total', v)}
               />
@@ -287,7 +294,7 @@ function BidModal({
               <RangeInput
                 label={labelDai}
                 inputProps={{
-                  className: 'center'
+                  className: 'center',
                 }}
                 max={formData.total.value}
                 value={formData.dai.value}
@@ -299,12 +306,7 @@ function BidModal({
               </div>
             </div>
             <div className="form-input">
-              <RangeInput
-                label={labelB20}
-                value={formData.b20.value}
-                decimals={2}
-                disabled
-              />
+              <RangeInput label={labelB20} value={formData.b20.value} decimals={2} disabled />
               <div className={`message${formData.b20.hasError ? ' error' : ''}`}>
                 <span>Min. Required: {format(MIN_B20_AMOUNT)}</span>
                 <span>Balance: {format(b20Balance, 2)}</span>
