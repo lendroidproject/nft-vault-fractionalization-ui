@@ -371,7 +371,7 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
               ...(data && data.buyoutInfo),
               epochs: Number(epochs),
               status: Number(status),
-              startThreshold: new BigNumber(library.web3.utils.fromWei(startThreshold)).plus('250000').toString(10),
+              startThreshold: new BigNumber(library.web3.utils.fromWei(startThreshold)).plus(1).toString(10),
               currentBidToken0Staked: Number(library.web3.utils.fromWei(currentBidToken0Staked)),
             },
           }

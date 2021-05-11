@@ -385,7 +385,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
               ...(data && data.buyoutInfo),
               epochs: Number(epochs),
               status: Number(status),
-              startThreshold: new BigNumber(library.web3.utils.fromWei(startThreshold)).toString(10),
+              startThreshold: new BigNumber(library.web3.utils.fromWei(startThreshold)).plus(1).toNumber(),
               currentBidToken0Staked: Number(library.web3.utils.fromWei(currentBidToken0Staked)),
             },
           }
@@ -860,7 +860,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
         minTotal={
           buyoutStatus === STATUS.STATUS_ACTIVE
             ? new BigNumber(data?.bidValue).plus(250000).toNumber(10)
-            : data?.buyoutInfo?.startThreshold + 1
+            : data?.buyoutInfo?.startThreshold
         }
         b20Balance={data?.balance[0]}
         b20Allowance={data?.allowance[0]}
