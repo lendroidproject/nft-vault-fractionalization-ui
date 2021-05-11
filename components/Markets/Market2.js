@@ -363,7 +363,7 @@ export default connect((state) => state)(function Home({ metamask, library, even
     if (data?.totalAssets && Number(data.totalAssets) > 0) {
       const queryAssets = async function () {
         try {
-          const tokenAssets = await library.methods.Vault.assets(0, data.totalAssets)
+          const tokenAssets = await library.methods.Vault2.assets(0, data.totalAssets)
           const result = await getAssets(
             {
               token_ids: tokenAssets.map(({ tokenId }) => tokenId),

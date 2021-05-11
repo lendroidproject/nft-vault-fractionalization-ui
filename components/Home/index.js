@@ -6,6 +6,7 @@ import BigNumber from 'bignumber.js'
 import qs from 'qs'
 import Button from 'components/common/Button'
 import Vault from 'components/Home/Vault'
+import Vault2 from 'components/Home/Vault2'
 import { getAssets } from 'utils/api'
 import { format } from 'utils/number'
 import { addressLink, openseaLink, networks, connectNetworks, txLink } from 'utils/etherscan'
@@ -273,7 +274,10 @@ const BUYOUT_START_TIME = new Date('12 April 2021 00:00 GMT')
 
 export default connect((state) => state)(function Home({ library, eventTimestamp }) {
   const [now] = useTicker()
-  const [assets, setAssets] = useState([])
+  const [assets, setAssets] = useState({
+    vault: [],
+    vault2: [],
+  })
   const [data, setData] = useState(null)
   // const buyoutStatus = now < BUYOUT_START_TIME.getTime() ? STATUS.STATUS_NOT_STARTED : data?.buyoutInfo?.status
   const buyoutStatus = data?.buyoutInfo?.status
@@ -420,10 +424,10 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
 
   useEffect(() => {
     if (library?.methods?.Vault) {
-      const queryAssets = async function () {
+      const queryAssets = async function (contract) {
         try {
-          const assetsCount = await library.methods.Vault.totalAssets()
-          const tokenAssets = await library.methods.Vault.assets(0, assetsCount)
+          const assetsCount = await contract.totalAssets()
+          const tokenAssets = await contract.assets(0, assetsCount)
           const result = await getAssets(
             {
               token_ids: tokenAssets.map(({ tokenId }) => tokenId),
@@ -443,15 +447,25 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
               asset.category = matching ? matching.category : 'Other'
               return asset
             })
-            setAssets(assets)
+            return assets;
           }
         } catch (err) {
           console.log(err)
         }
+        return [];
       }
-      queryAssets()
+      Promise.all([
+        queryAssets(library.methods.Vault),
+        queryAssets(library.methods.Vault2)
+      ])
+        .then(([vaultAssets, vault2Assets]) => {
+          setAssets({
+            vault: vaultAssets,
+            vault2: vault2Assets,
+          });
+        })
     }
-  }, [library?.methods?.Vault])
+  }, [library?.methods?.Vault, library?.methods?.Vault2])
 
   return (
     <Wrapper>
@@ -562,7 +576,10 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
             </div>
             <div className="content-wrapper">
               <div className="item-list">
-                <Vault assets={assets} loading={!assets.length} />
+                <Vault assets={assets.vault} loading={!assets.vault.length} />
+              </div>
+              <div className="item-list">
+                <Vault2 assets={assets.vault2} loading={!assets.vault2.length} />
               </div>
               <div className="center launch-app">
                 <Link href="/buyout">
@@ -573,21 +590,26 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
           </div>
           <div className="content-wrapper center">
             <div className="misc">
-              <h1>NFTs in the Bundle: {assets.length}</h1>
+              <h1>NFTs in the Vaults: {assets.vault.length + assets.vault2.length}</h1>
               <div className="external-links flex justify-around">
                 <div>
                   <a href={addressLink(library?.addresses?.Token0, library?.wallet?.network)} target="_blank">
                     B20 token contract <img src="/assets/external-link.svg" />
                   </a>
                 </div>
-                <div>
+                {/* <div>
                   <a href={addressLink(library?.addresses?.Buyout, library?.wallet?.network)} target="_blank">
                     Buyout Contract <img src="/assets/external-link.svg" />
                   </a>
-                </div>
+                </div> */}
                 <div>
                   <a href={openseaLink(library?.addresses?.Vault, library?.wallet?.network)} target="_blank">
-                    View Bundle on Opensea <img src="/assets/external-link.svg" />
+                    Master Vault on Opensea <img src="/assets/external-link.svg" />
+                  </a>
+                </div>
+                <div>
+                  <a href={openseaLink(library?.addresses?.Vault2, library?.wallet?.network)} target="_blank">
+                    B20 Vault on Opensea <img src="/assets/external-link.svg" />
                   </a>
                 </div>
               </div>
