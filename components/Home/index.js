@@ -264,9 +264,9 @@ const getCountDownTimer = (endTime) => {
   const secs = remainingTime
   return {
     finished,
-    timer: `${days} D : ${hours.toString().padStart(2, '0')} H: ${mins
+    timer: `${days} D : ${hours.toString().padStart(2, '0')} H: ${mins.toString().padStart(2, '0')} M : ${secs
       .toString()
-      .padStart(2, '0')} M : ${secs.toString().padStart(2, '0')} S`,
+      .padStart(2, '0')} S`,
   }
 }
 
@@ -285,10 +285,7 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
   const countDown = getCountDownTimer(BUYOUT_START_TIME.getTime())
 
   const loadData = (first) => {
-    const {
-      symbol: symbol0,
-      totalSupply: token0TotalSupply,
-    } = library.methods.Token0
+    const { symbol: symbol0, totalSupply: token0TotalSupply } = library.methods.Token0
     const {
       symbol: symbol2,
       // totalSupply: token1TotalSupply,
@@ -447,23 +444,21 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
               asset.category = matching ? matching.category : 'Other'
               return asset
             })
-            return assets;
+            return assets
           }
         } catch (err) {
           console.log(err)
         }
-        return [];
+        return []
       }
-      Promise.all([
-        queryAssets(library.methods.Vault),
-        queryAssets(library.methods.Vault2)
-      ])
-        .then(([vaultAssets, vault2Assets]) => {
+      Promise.all([queryAssets(library.methods.Vault), queryAssets(library.methods.Vault2)]).then(
+        ([vaultAssets, vault2Assets]) => {
           setAssets({
             vault: vaultAssets,
             vault2: vault2Assets,
-          });
-        })
+          })
+        }
+      )
     }
   }, [library?.methods?.Vault, library?.methods?.Vault2])
 
@@ -481,12 +476,14 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
               <h1>Vesting, drip distribution and buyout</h1>
             </div>
             <div className="desc">
-              Apart from the 16% public sale, all other allocations had a three-month vesting period.
-              However, the tokens were not locked up in the conventional sense. The first 10% of the tokens were made immediately available.
-              The smart contract enabled a linear 'drip distribution', where the remaining 90% was made available at the rate of 1% a day.
-              <br/><br/>
-              To ensure that the B.20 project left all avenues of financial upsides open for its patrons, a buyout clause was built in.
-              Successful buyouts would transfer the proceeds to all B20 token holders, pro rata.
+              Apart from the 16% public sale, all other allocations had a three-month vesting period. However, the
+              tokens were not locked up in the conventional sense. The first 10% of the tokens were made immediately
+              available. The smart contract enabled a linear 'drip distribution', where the remaining 90% was made
+              available at the rate of 1% a day.
+              <br />
+              <br />
+              To ensure that the B.20 project left all avenues of financial upsides open for its patrons, a buyout
+              clause was built in. Successful buyouts would transfer the proceeds to all B20 token holders, pro rata.
             </div>
           </div>
           <div className="bg-wave">
@@ -494,8 +491,8 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
               <div className="info-wrapper">
                 <div className="info-left">
                   <h3 className="light bid-desc">
-                    To place a bid, you need DAI and 1% of all B20. To veto a bid, you just need B20.
-                    A bid is vetoed if 12% of all B20 is staked.
+                    To place a bid, you need DAI and 1% of all B20. To veto a bid, you just need B20. A bid is vetoed if
+                    12% of all B20 is staked.
                   </h3>
                   {buyoutStatus === STATUS.STATUS_NOT_STARTED ? (
                     <div className="subscriptions">
@@ -514,7 +511,8 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
                           Buyout has ended with a winning bid of {format(data.bidValue, 2)} by &nbsp;
                           <a href={addressLink(data.bidder, library?.wallet?.network)} target="_blank">
                             {shorten(data.bidder, 10)}
-                          </a>.
+                          </a>
+                          .
                           <br />
                           B20 redemption will be enabled soon.
                         </h2>
@@ -537,7 +535,9 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
                           buyoutStatus === STATUS.STATUS_ACTIVE ? (
                             <h2 className="col-green light">Ends in {getDuration(now, data.buyoutInfo.endTime)}</h2>
                           ) : (
-                            <h2 className="light">Awaiting minimum bid of {format(data.buyoutInfo.startThreshold)} DAI</h2>
+                            <h2 className="light">
+                              Awaiting minimum bid of {format(data.buyoutInfo.startThreshold)} DAI
+                            </h2>
                           )
                         ) : (
                           <h2 className="light">...</h2>
@@ -596,7 +596,8 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
                   <a href={addressLink(library?.addresses?.Token0, library?.wallet?.network)} target="_blank">
                     B20 token contract <img src="/assets/external-link.svg" />
                   </a>
-                  <br /><br />
+                  <br />
+                  <br />
                   <a href={addressLink(library?.addresses?.Buyout, library?.wallet?.network)} target="_blank">
                     Buyout Contract <img src="/assets/external-link.svg" />
                   </a>
@@ -605,7 +606,8 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
                   <a href={openseaLink(library?.addresses?.Vault, library?.wallet?.network)} target="_blank">
                     Master Vault on Opensea <img src="/assets/external-link.svg" />
                   </a>
-                  <br /><br />
+                  <br />
+                  <br />
                   <a href={addressLink(library?.addresses?.Vault, library?.wallet?.network)} target="_blank">
                     Master Vault Contract <img src="/assets/external-link.svg" />
                   </a>
@@ -614,7 +616,8 @@ export default connect((state) => state)(function Home({ library, eventTimestamp
                   <a href={openseaLink(library?.addresses?.Vault2, library?.wallet?.network)} target="_blank">
                     B.20 Vault on Opensea <img src="/assets/external-link.svg" />
                   </a>
-                  <br /><br />
+                  <br />
+                  <br />
                   <a href={addressLink(library?.addresses?.Vault2, library?.wallet?.network)} target="_blank">
                     B.20 Vault Contract <img src="/assets/external-link.svg" />
                   </a>
