@@ -7,6 +7,7 @@ module.exports = withOffline({
     NETWORKS: process.env.NETWORKS,
     INFURA_ID: process.env.INFURA_ID,
     FORTMATIC: process.env.FORTMATIC,
+    OPENSEA_API_KEY: process.env.OPENSEA_API_KEY,
   },
   trailingSlash: false,
   poweredByHeader: false,
