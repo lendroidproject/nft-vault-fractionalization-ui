@@ -1,26 +1,34 @@
-# B20 Event UI
+# NFT-vault fractionalization package
+This package comprises the following tools.
 
-UI for B20 Event App
+## Smart contracts
+- [Github](https://github.com/lendroidproject/nft-vault-fractionalization-contracts)
 
-This proect is powered by [Next.js](https://github.com/zeit/next.js/).
+## UI template
+A base template of the user interface.
+- [Github](https://github.com/lendroidproject/nft-vault-fractionalization-ui)
 
-## Prerequisites
+## How to use this repo
+
+This project is powered by [Next.js](https://github.com/zeit/next.js/).
+
+### Prerequisites
 
 You will need [Node.js](https://nodejs.org) version 8.0 or greater installed on your system.
 
-## How to install?
+### How to install?
 
 ```shell
 npm install
 ```
 
-## Setup `environment`
+### Setup `environment`
 
 ```shell
 cp .env.example .env
 ```
 
-## Available `scripts`
+### Available `scripts`
 
 ```shell
 npm run dev // development mode
@@ -32,7 +40,7 @@ npm run build // production build
 npm run start // serve build
 ```
 
-## How to develop?
+### How to develop?
 
 ```shell
 npm run dev // http://localhost:3000
